@@ -1,0 +1,60 @@
+<div class="header">
+  <h3 class="text-muted">Chess Logger</h3>
+</div>
+
+<div class="jumbotron">
+  <div class="game-play">
+    <table class="chess-board">
+      <tr data-chess-rank="{{rank}}"
+          ng-repeat="rank in ui_board.rank">
+        <td data-chess-position="{{file}}{{rank}}"
+            data-chess-file="{{rank}}"
+            data-chess-sqr-color="{{controller.squareColor(file, rank)}}"
+            data-chess-transitioning="{{controller.isPendingTransition(file, rank)}}"
+            ng-repeat="file in ui_board.file">
+          <button title="{{controller.getMoveTransitionStateMessage(file, rank)}}"
+                  data-chess-transition="{{controller.getTransitionState(file, rank)}}"
+                  data-chess-occupation="{{controller.getOccupationColor(file, rank)}}"
+                  ng-bind-html="controller.getCurrentPiece(file, rank)"
+                  ng-click="controller.moveTransition(file, rank)">
+          </button>
+        </td>
+      </tr>
+    </table>
+    <p class="status">
+      <span class="lead"
+            ng-hide="controller.getGameResolution()">
+        {{controller.turn()}}'s move.</span>
+      <span ng-show="controller.getGameResolution()">
+        {{controller.getGameResolution()}}
+      </span>
+    </p>
+  </div>
+</div>
+
+<div class="row marketing log"
+     data-chess-history="{{controller.moveCount()}}">
+  <h4>Log</h4>
+  <p class="controls">
+    <a class="undo"
+       title="undo last move"
+       ng-click="controller.undo()">&#10227; undo last move</a>
+
+     <p class="data pgn-dump" ng-bind-html="controller.toPgn()"></p>
+
+     <p class="login">
+      <button class="save" ng-click="controller.download()">
+        Download</button>
+      <a href="#"
+         class="login save"
+         title="Save, replay, share previous games"
+         ng-click="controller.login()">
+        <span ng-show="controller.moveCount()">or</span>
+        login &amp; sync with cloud</a>
+     </p>
+  </p>
+</div>
+
+<div class="footer">
+  <p>by <a href="http://jzacsh.com">jzacsh</a></p>
+</div>

@@ -1,0 +1,209 @@
+/* Space out content a bit */
+body {
+  padding-top: 1em;
+  padding-bottom: 1em;
+  max-zoom: 1.0
+}
+
+a:hover {
+  cursor: pointer;
+}
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+  padding-bottom: 19px;
+  padding-left: 15px;
+  text-transform: lowercase;
+}
+
+/* Custom page footer */
+.footer {
+  padding-top: 19px;
+  color: #777;
+  border-top: 1px solid #e5e5e5;
+}
+
+/* Customize container */
+@media (min-width: 768px) {
+  .container {
+    max-width: 730px;
+  }
+}
+.container-narrow > hr {
+  margin: 30px 0;
+}
+
+/* Main marketing message and sign up button */
+.jumbotron {
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: none;
+}
+.jumbotron .btn {
+  font-size: 21px;
+  padding: 14px 24px;
+}
+
+/* Supporting marketing content */
+.marketing {
+  margin: 40px 0;
+}
+.marketing p + h4 {
+  margin-top: 28px;
+}
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 768px) {
+  /* Remove the padding we set earlier */
+  .header,
+  .marketing,
+  .footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 30px;
+  }
+  /* Remove the bottom border on the jumbotron for visual effect */
+  .jumbotron {
+    border-bottom: 0;
+  }
+}
+
+.game-play {
+  margin: 0 auto;
+}
+
+.log h4 {
+  text-align: right;
+}
+
+.log[data-chess-history="0"] * {
+  display: none;
+}
+
+.log[data-chess-history="0"] .login {
+  display: block;
+}
+
+.log .controls {
+  float: left;
+  width: 25%;
+}
+
+.log .save,
+.log .data {
+  float: right;
+  width: 60%;
+}
+
+.log .data.pgn-dump {
+  font-family: monospace;
+  white-space: pre-line;
+  padding: 1ex;
+  margin: 1ex 0 1em 0;
+  max-height: 5em;
+  box-shadow: 0px 0px 7px #aaa inset;
+
+  color: #c7254e;
+  background-color: #f9f2f4;
+
+  -webkit-column-gap: 1.5em;
+  -moz-column-gap:    1.5em;
+  -o-column-gap:      1.5em;
+  -ms-column-gap:     1.5em;
+  column-gap:         1.5em;
+
+  -webkit-column-count: 2;
+  -moz-column-count:    2;
+  -o-column-count:      2;
+  -ms-column-count:     2;
+  column-count:         2;
+}
+
+table.chess-board {
+  width: 100%;
+  height: 100%;
+}
+
+table.chess-board button {
+  background: transparent;
+  border: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 1.2em;
+}
+
+table.chess-board [data-chess-transitioning="true"] button {
+  text-decoration: underline;
+}
+
+table.chess-board [data-chess-transition="start"] {
+  cursor: move;
+}
+
+table.chess-board [data-chess-transition="valid"] {
+  cursor: grab;  /* can be dropped (open hand) */ 
+}
+
+table.chess-board [data-chess-transition="invalid"] {
+  cursor: not-allowed;
+}
+
+table.chess-board [data-chess-transition="cancel"] {
+  cursor: none;
+}
+
+table.chess-board button,
+table.chess-board td {
+  margin: 0;
+  padding: 0;
+}
+
+table.chess-board button:focus,
+table.chess-board button:active {
+  outline: none;
+}
+
+table.chess-board [data-chess-occupation="b"] {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+table.chess-board td:first-child {
+  border-left: 1px solid #bbb;
+}
+
+table.chess-board td:last-child {
+  border-right: 1px solid #bbb;
+}
+
+table.chess-board tr:first-child {
+  border-top: 1px solid #bbb;
+}
+
+table.chess-board tr:last-child {
+  border-bottom: 1px solid #bbb;
+}
+
+[data-chess-sqr-color="light"] {
+}
+
+[data-chess-sqr-color="dark"] {
+  background-color: #bbb;
+}

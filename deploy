@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+pushd dist/
+
+# See https://github.com/aws/aws-cli for more
+aws s3 cp ./ s3://jzacsh.com-chess/ --recursive
+
+popd

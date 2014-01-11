@@ -237,6 +237,16 @@ Controller.prototype.maybeMovePiece_ = function(source, destination) {
     return;  // User is cancelling operation
   }
 
+  this.movePiece_(source, destination);
+};
+
+
+/**
+ * @param {!Controller.AlgebraicCoordinate} source
+ * @param {!Controller.AlgebraicCoordinate} destination
+ * @private
+ */
+Controller.prototype.movePiece_ = function(source, destination) {
   this.chessjs_.move({
     from: source.file + source.rank,
     to: destination.file + destination.rank

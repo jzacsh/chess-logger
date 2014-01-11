@@ -3,7 +3,12 @@
 </div>
 
 <div class="jumbotron">
-  <div class="game-play">
+  <div class="game-play"
+       data-chess-turn="{{controller.turnColor()}}"
+       ng-class="{gameover: controller.getGameResolution()}">
+
+    <p data-chess-turn="b">
+      <strong ng-show="controller.wasCheck()">Check!</strong> Black's move. </p>
     <table class="chess-board">
       <tr data-chess-rank="{{rank}}"
           ng-repeat="rank in ui_board.rank">
@@ -16,18 +21,15 @@
                   data-chess-transition="{{controller.getTransitionState(file, rank)}}"
                   data-chess-occupation="{{controller.getOccupationColor(file, rank)}}"
                   ng-bind-html="controller.getCurrentPiece(file, rank)"
-                  ng-click="controller.moveTransition(file, rank)">
-          </button>
+                  ng-click="controller.moveTransition(file, rank)"></button>
         </td>
       </tr>
     </table>
-    <p class="status">
-      <span class="lead"
-            ng-hide="controller.getGameResolution()">
-        {{controller.turn()}}'s move.</span>
-      <span ng-show="controller.getGameResolution()">
-        {{controller.getGameResolution()}}
-      </span>
+    <p data-chess-turn="w">
+      <strong ng-show="controller.wasCheck()">Check!</strong> White's move.</p>
+
+    <p class="status" ng-show="controller.getGameResolution()">
+      {{controller.getGameResolution()}}
     </p>
   </div>
 </div>
@@ -40,7 +42,7 @@
        title="undo last move"
        ng-click="controller.undo()">&#10227; undo last move</a>
 
-     <p class="data pgn-dump" ng-bind-html="controller.toPgn()"></p>
+     <textarea class="data pgn-dump" ng-bind-html="controller.toPgn()"></textarea>
 
      <p class="login">
       <button class="save" ng-click="controller.download()">

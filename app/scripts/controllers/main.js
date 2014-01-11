@@ -11,10 +11,9 @@ var Controller = function($scope) {
   /**
    * Instance of chess.js game being represented on screen.
    *
-   * @private {!Object} 
+   * @private {!Object}
    */
   // TODO(zacsh): Create a manual externs file for chess.js definitions?
-//if (!Chess) { throw new Error('Chess not found!'); } //@TODO: remove me!!    
   this.chessjs_ = new Chess();
 
   /**
@@ -36,7 +35,7 @@ var Controller = function($scope) {
 
 
 /**
- * @typdef {{file: string, rank: number}}
+ * @typedef {{file: string, rank: number}}
  */
 Controller.AlgebraicCoordinate;
 
@@ -67,8 +66,8 @@ Controller.BoardGrid = {
  * - "color" property is either "b" for black or "w" for white.
  *
  * See: https://github.com/jhlywa/chess.js#getsquare
- * 
- * @typdef {?{
+ *
+ * @typedef {?{
  *     type: string,
  *     color: string
  *     }}
@@ -116,6 +115,7 @@ Controller.htmlEntity_ = function(numericEntity) {
  * @param {?Controller.ChessjsPiece} chessPiece
  * @return {string}
  *     The HTML entity represented by {@code chessPiece}.
+ * @private
  */
 Controller.pieceToHtmlEntity_ = function(chessPiece) {
   if (chessPiece) {
@@ -133,7 +133,8 @@ Controller.pieceToHtmlEntity_ = function(chessPiece) {
  * @return {string}
  */
 Controller.prototype.getCurrentPiece = function(file, rank) {
-  return Controller.pieceToHtmlEntity_(this.chessjs_.get(file + rank));
+  return Controller.
+      pieceToHtmlEntity_(this.chessjs_.get(file + rank)) || '&nbsp;';
 };
 
 
@@ -148,19 +149,15 @@ Controller.prototype.getOccupationColor = function(file, rank) {
 };
 
 
-/**
- *
- */
+/** Download current PGN output. */
 Controller.prototype.download = function() {
-  throw new Error('`download` not yet implemented'); //@TODO: remove me!!    
+  throw new Error('`download` not yet implemented');
 };
 
 
-/**
- *
- */
+/** Authenticate against 3rd party API. */
 Controller.prototype.login = function() {
-  throw new Error('`login` not yet implemented'); //@TODO: remove me!!    
+  throw new Error('`login` not yet implemented');
 };
 
 
@@ -196,8 +193,9 @@ Controller.getAlgebraicCoordinate_ = function(file, rank) {
  */
 Controller.prototype.isPendingTransition = function(file, rank) {
   return this.pieceInTransit_ &&
-         this.pieceInTransit_.file === file &&
-         this.pieceInTransit_.rank === rank;
+         Controller.pieceEquals(
+             this.pieceInTransit_,
+             Controller.getAlgebraicCoordinate_(file, rank));
 };
 
 
@@ -218,13 +216,24 @@ Controller.prototype.moveTransition = function(file, rank) {
 
 
 /**
+ * @param {!Controller.AlgebraicCoordinate} pieceA
+ * @param {!Controller.AlgebraicCoordinate} pieceB
+ * @return {boolean}
+ *     Whether {@code pieceA} is the same square as {@code pieceB}.
+ */
+Controller.pieceEquals = function(pieceA, pieceB) {
+  return pieceA.file === pieceB.file &&
+         pieceA.rank === pieceB.rank;
+};
+
+
+/**
  * @param {!Controller.AlgebraicCoordinate} source
  * @param {!Controller.AlgebraicCoordinate} destination
  * @private
  */
 Controller.prototype.maybeMovePiece_ = function(source, destination) {
-  if (source.file === destination.file &&
-      source.rank === destination.rank) {
+  if (Controller.pieceEquals(source, destination)) {
     return;  // User is cancelling operation
   }
 
@@ -240,7 +249,16 @@ Controller.prototype.maybeMovePiece_ = function(source, destination) {
  *    chess.js's {@link #turn} output expanded to "White" or "Black".
  */
 Controller.prototype.turn = function() {
-  return this.chessjs_.turn() == 'w' ? 'White' : 'Black';
+  return this.turnColor() == 'w' ? 'White' : 'Black';
+};
+
+
+/**
+ * @return {string}
+ *    chess.js's {@link #turn} output expanded to "White" or "Black".
+ */
+Controller.prototype.turnColor = function() {
+  return this.chessjs_.turn();
 };
 
 
@@ -252,9 +270,9 @@ Controller.prototype.turn = function() {
  *    state for.
  */
 Controller.prototype.getTransitionState = function(file, rank) {
+  var square = Controller.getAlgebraicCoordinate_(file, rank);
   if (this.pieceInTransit_) {
-    if (this.pieceInTransit_.file === file &&
-        this.pieceInTransit_.rank === rank) {
+    if (Controller.pieceEquals(this.pieceInTransit_, square)) {
       return Controller.TransitionState.CANCEL;
     } else {
       return Controller.TransitionState.VALID;
@@ -269,6 +287,16 @@ Controller.prototype.getTransitionState = function(file, rank) {
   }
 
   return null;  // empty square, no transition
+};
+
+
+/**
+ * @return {boolean}
+ *     Whether the last move put opponent in check.
+ */
+Controller.prototype.wasCheck = function() {
+  return !!(this.moveCount() &&
+            this.chessjs_.history().pop().match(/\+/));
 };
 
 
@@ -311,7 +339,10 @@ Controller.prototype.undo = function() {
 };
 
 
-/** Chess.js {@link #history} wrapper. */
+/**
+ * @return {number}
+ *     Number of moves in chess.js {@link #history}.
+ */
 Controller.prototype.moveCount = function() {
   return this.chessjs_.history().length;
 };
@@ -319,14 +350,15 @@ Controller.prototype.moveCount = function() {
 
 /** @return {string} */
 Controller.prototype.getGameResolution = function() {
+  var msgPrefix = 'Game Over: ';
   if (!this.chessjs_ || !this.chessjs_.game_over()) {
     return '';
   } else if (this.chessjs_.in_stalemate()) {
-    return 'Stalemate';
+    return msgPrefix + 'Stalemate';
   } else if (this.chessjs_.in_checkmate()) {
-    return 'Checkmate';
+    return msgPrefix + 'Checkmate';
   } else if (this.chessjs_.in_draw()) {
-    return 'Draw';
+    return msgPrefix + 'Draw';
   }
 };
 
@@ -334,8 +366,8 @@ Controller.prototype.getGameResolution = function() {
 /**
  * @param {string} file
  * @param {number} rank
- * @return {@string}
- *   "light" or "dark" as per underlying chess.js {@link #square_color}.
+ * @return {string}
+ *     "light" or "dark" as per underlying chess.js {@link #square_color}.
  */
 Controller.prototype.squareColor = function(file, rank) {
   return this.chessjs_.square_color(file + rank);
@@ -349,7 +381,7 @@ Controller.prototype.squareColor = function(file, rank) {
 Controller.prototype.toPgn = function() {
   return this.chessjs_.pgn({
     max_width: 5,
-    newline_char: '<br />'
+    newline_char: "\n"
   });
 };
 

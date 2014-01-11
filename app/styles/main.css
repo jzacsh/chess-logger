@@ -37,9 +37,10 @@ a:hover {
 /* Customize container */
 @media (min-width: 768px) {
   .container {
-    max-width: 730px;
+    max-width: 600px;
   }
 }
+
 .container-narrow > hr {
   margin: 30px 0;
 }
@@ -86,6 +87,22 @@ a:hover {
   margin: 0 auto;
 }
 
+.game-play.gameover [data-chess-turn] {
+  visibility: hidden;
+}
+
+.game-play[data-chess-turn="w"] [data-chess-turn="b"] {
+  visibility: hidden;
+}
+
+.game-play .status {
+  font-style: italic;
+}
+
+.game-play[data-chess-turn="b"] [data-chess-turn="w"] {
+  visibility: hidden;
+}
+
 .log h4 {
   text-align: right;
 }
@@ -99,7 +116,6 @@ a:hover {
 }
 
 .log .controls {
-  float: left;
   width: 25%;
 }
 
@@ -120,6 +136,7 @@ a:hover {
   color: #c7254e;
   background-color: #f9f2f4;
 
+  /** TODO(zacsh): delete when using <textarea> */
   -webkit-column-gap: 1.5em;
   -moz-column-gap:    1.5em;
   -o-column-gap:      1.5em;
@@ -144,6 +161,7 @@ table.chess-board button {
   width: 100%;
   height: 100%;
   font-size: 1.2em;
+  cursor: default;
 }
 
 table.chess-board [data-chess-transitioning="true"] button {

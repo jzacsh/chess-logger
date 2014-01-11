@@ -139,7 +139,6 @@ a:hover {
   color: #c7254e;
   background-color: #f9f2f4;
 
-  /** TODO(zacsh): delete when using <textarea> */
   -webkit-column-gap: 1.5em;
   -moz-column-gap:    1.5em;
   -o-column-gap:      1.5em;

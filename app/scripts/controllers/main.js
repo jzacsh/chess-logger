@@ -391,7 +391,7 @@ Controller.prototype.squareColor = function(file, rank) {
 Controller.prototype.toPgn = function() {
   return this.chessjs_.pgn({
     max_width: 5,
-    newline_char: "\n"
+    newline_char: '\n'
   });
 };
 

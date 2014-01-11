@@ -74,12 +74,11 @@ a:hover {
     padding-right: 0;
   }
   /* Space out the masthead */
-  .header {
-    margin-bottom: 30px;
-  }
   /* Remove the bottom border on the jumbotron for visual effect */
   .jumbotron {
+    padding: 15px 10px;
     border-bottom: 0;
+    margin-bottom: 0;
   }
 }
 
@@ -116,7 +115,7 @@ a:hover {
 }
 
 .log .controls {
-  width: 25%;
+  width: 100%;
 }
 
 .log .save,
@@ -126,6 +125,10 @@ a:hover {
 }
 
 .log .data.pgn-dump {
+  max-width: 100%;
+  border: none;
+  outline: none;
+  width: 100%;
   font-family: monospace;
   white-space: pre-line;
   padding: 1ex;

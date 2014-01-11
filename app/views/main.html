@@ -13,7 +13,7 @@
       <tr data-chess-rank="{{rank}}"
           ng-repeat="rank in ui_board.rank">
         <td data-chess-position="{{file}}{{rank}}"
-            data-chess-file="{{rank}}"
+            data-chess-file="{{file}}"
             data-chess-sqr-color="{{controller.squareColor(file, rank)}}"
             data-chess-transitioning="{{controller.isPendingTransition(file, rank)}}"
             ng-repeat="file in ui_board.file">
@@ -37,24 +37,26 @@
 <div class="row marketing log"
      data-chess-history="{{controller.moveCount()}}">
   <h4>Log</h4>
-  <p class="controls">
+
+  <div class="controls">
     <a class="undo"
        title="undo last move"
        ng-click="controller.undo()">&#10227; undo last move</a>
 
-     <textarea class="data pgn-dump" ng-bind-html="controller.toPgn()"></textarea>
+    <textarea class="data pgn-dump" ng-bind-html="controller.toPgn()"></textarea>
 
-     <p class="login">
-      <button class="save" ng-click="controller.download()">
+    <p class="login">
+      <button class="save btn btn-info" ng-click="controller.download()">
         Download</button>
       <a href="#"
          class="login save"
          title="Save, replay, share previous games"
          ng-click="controller.login()">
         <span ng-show="controller.moveCount()">or</span>
-        login &amp; sync with cloud</a>
-     </p>
-  </p>
+        login &amp; sync with cloud
+      </a>
+    </p>
+  </div>
 </div>
 
 <div class="footer">

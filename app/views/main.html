@@ -12,14 +12,14 @@
 
     <ul data-chess-turn="b"
         class="pawn-promotion"
-        ng-show="controller.sideBeingPromoted('b')">
+        ng-show="pawn_promotion">
       <li ng-repeat="target in controller.getPossibleBlackPromotions()">
         <a ng-click="pawn_promotion.resolve(target)"
            ng-bind-html="entity_to_piece(target)"></a>
       </li>
     </ul>
 
-    <table class="chess-board">
+    <table class="chess-board" ng-class="{unfocus: pawn_promotion}">
       <tr data-chess-rank="{{rank}}"
           ng-repeat="rank in ui_board.rank">
         <td data-chess-position="{{file}}{{rank}}"
@@ -40,7 +40,7 @@
 
     <ul data-chess-turn="w"
         class="pawn-promotion"
-        ng-show="controller.sideBeingPromoted('w')">
+        ng-show="pawn_promotion">
       <li ng-repeat="target in controller.getPossibleWhitePromotions()">
         <a ng-click="pawn_promotion.resolve(target)"
            ng-bind-html="entity_to_piece(target)"></a>

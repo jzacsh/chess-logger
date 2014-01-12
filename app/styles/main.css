@@ -94,8 +94,18 @@ a:hover {
   visibility: hidden;
 }
 
+.game-play[data-chess-turn="b"] [data-chess-turn="w"] {
+  visibility: hidden;
+}
+
 .game-play .status {
   font-style: italic;
+}
+
+.game-play .pawn-promotion {
+  margin: 0;
+  padding: 0;
+  line-height: 1ex;
 }
 
 .game-play .pawn-promotion li {
@@ -107,11 +117,7 @@ a:hover {
 .game-play .pawn-promotion:before {
   content: "Promote to:";
   font-style: italic;
-  font-size: .5em;
-}
-
-.game-play[data-chess-turn="b"] [data-chess-turn="w"] {
-  visibility: hidden;
+  font-size: .75em;
 }
 
 .log h4 {
@@ -167,6 +173,11 @@ a:hover {
 table.chess-board {
   width: 100%;
   height: 100%;
+}
+
+table.chess-board.unfocus {
+  transition-duration: 0.5s;
+  opacity: 0.75;
 }
 
 table.chess-board button {

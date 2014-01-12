@@ -43,13 +43,6 @@ var Controller = function($scope, $q) {
    */
   this.pieceInTransit_ = null;
 
-  /**
-   * SAN of the piece for which the current pawn in transit has been selected
-   * to promote.
-   * @private {string}
-   */
-  this.promoteTo_ = null;
-
   /** @type {!Controller.BoardGrid} */
   $scope.ui_board = angular.copy(Controller.BoardGrid);
   $scope.ui_board.rank.reverse();
@@ -281,46 +274,6 @@ Controller.prototype.isPendingTransition = function(file, rank) {
 
 
 /**
- * @param {string} file
- * @param {number} rank
- */
-Controller.prototype.moveTransition = function(file, rank) {
-  if (this.pieceInTransit_) {
-    this.maybeCompleteTransit_(
-        Controller.getAlgebraicCoordinate_(file, rank)  /* destination */);
-    this.pieceInTransit_ = null;
-    this.promoteTo_ = null;
-  } else if (this.pieceExists_(file, rank)) {
-    this.pieceInTransit_ = Controller.getAlgebraicCoordinate_(file, rank);
-
-    if (this.isPossiblePawnPromotion_()) {
-      this.promoteTo_ = null;
-      this.scope_.pawn_promotion = this.q_.defer();
-
-      this.scope_.pawn_promotion.promise.
-          then(angular.bind(this, this.pawnPromtionHandler_));
-    }
-  }
-};
-
-
-/**
- * @return {boolean}
- *     Whether a pawn is in transit and only one move away from promotion.
- * @private
- */
-Controller.prototype.isPossiblePawnPromotion_ = function() {
-  var sanPieceInTransit = Controller.
-      coordinateToSan_(this.pieceInTransit_ || {});
-  var chessJsPiece = this.chessjs_.get(sanPieceInTransit);
-  return !!this.pieceInTransit_ &&
-         chessJsPiece.type === 'p' &&
-         ((chessJsPiece.color == 'b' && this.pieceInTransit_.rank == 2) || 
-          (chessJsPiece.color == 'w' && this.pieceInTransit_.rank == 7));
-};
-
-
-/**
  * @param {!Controller.AlgebraicCoordinate} pieceA
  * @param {!Controller.AlgebraicCoordinate} pieceB
  * @return {boolean}
@@ -333,30 +286,91 @@ Controller.pieceEquals = function(pieceA, pieceB) {
 
 
 /**
- * @param {!Controller.AlgebraicCoordinate} destination
- * @private
+ * @param {string} file
+ * @param {number} rank
  */
-Controller.prototype.maybeCompleteTransit_ = function(destination) {
-  if (Controller.pieceEquals(this.pieceInTransit_, destination)) {
-    return;  // User is cancelling operation
+Controller.prototype.moveTransition = function(file, rank) {
+  var transitionState = this.getTransitionState(file, rank);
+  if (transitionState === Controller.TransitionState.VALID &&
+      this.pieceInTransit_) {
+    var destination = Controller.getAlgebraicCoordinate_(file, rank);
+    this.maybeCompleteTransit_(destination).
+        then(angular.bind(this, this.unsetPiecesInTransit_));
+  } else if (transitionState === Controller.TransitionState.START) {
+    this.pieceInTransit_ = Controller.getAlgebraicCoordinate_(file, rank);
   }
-
-  this.movePiece_(this.pieceInTransit_, destination);
 };
 
 
 /**
- * @param {string} side
- *     "b" for black, "w" for white
- * @return {boolean}
- *     Whether the color, {@code side}, is currently selecting a piece to
- *     promote their pawn to.
+ * Delets any metadata relating to pieces in transit.
+ * @private
  */
-Controller.prototype.sideBeingPromoted = function(side) {
+Controller.prototype.unsetPiecesInTransit_ = function() {
+  this.pieceInTransit_ = null;
+  this.scope_.pawn_promotion = null;
+};
+
+
+/**
+ * @param {!Controller.AlgebraicCoordinate} destination
+ * @return {boolean}
+ *     Whether a pawn is in transit and only one move away from promotion.
+ * @private
+ */
+Controller.prototype.isPawnPromotion_ = function(destination) {
   var sanPieceInTransit = Controller.
       coordinateToSan_(this.pieceInTransit_ || {});
-  return !!(this.pieceInTransit_ && this.scope_.pawn_promotion) &&
-         this.chessjs_.get(sanPieceInTransit).color === side;
+  var chessJsPiece = this.chessjs_.get(sanPieceInTransit);
+  return !!this.pieceInTransit_ &&
+         chessJsPiece.type === 'p' &&
+         ((chessJsPiece.color === 'b' && destination.rank == 1) ||
+          (chessJsPiece.color === 'w' && destination.rank == 8));
+};
+
+
+/**
+ * @param {!Controller.AlgebraicCoordinate} destination
+ * @return {!angular.Promise}
+ *     Promise indicating completion (or incompletion) of transit.
+ * @private
+ */
+Controller.prototype.maybeCompleteTransit_ = function(destination) {
+  var deferred = this.q_.defer();
+  if (Controller.pieceEquals(this.pieceInTransit_, destination)) {
+    deferred.resolve();
+    return deferred.promise;  // User is cancelling operation
+  }
+
+  if (this.isPawnPromotion_(destination)) {
+    this.scope_.pawn_promotion = deferred;
+
+    // Wait until user selects target promotion, before moving
+    return this.scope_.pawn_promotion.promise.
+        then(angular.bind(this, this.pawnPromtionHandler_, destination));
+  } else {
+    this.movePiece_(this.pieceInTransit_, destination);
+    deferred.resolve();
+    return deferred.promise;
+  }
+};
+
+
+/**
+ * @param {!Controller.AlgebraicCoordinate} destination
+ * @param {*} response
+ * @private
+ */
+Controller.prototype.pawnPromtionHandler_ = function(destination, response) {
+  var isWhite = this.chessjs_.
+      get(Controller.coordinateToSan_(this.pieceInTransit_)).
+      color === 'w';
+
+  var promoteTo = Controller.getPieceFromNumericEntity(response, isWhite);
+  this.movePiece_(
+      this.pieceInTransit_,
+      destination,
+      promoteTo  /* target promotion  */);
 };
 
 
@@ -390,30 +404,20 @@ Controller.prototype.getPossiblePromotions_ = function(isForWhite) {
 
 
 /**
- * @param {*} response
- * @private
- */
-Controller.prototype.pawnPromtionHandler_ = function(response) {
-  this.scope_.pawn_promotion = null;
-  var isWhite = this.chessjs_.
-      get(Controller.coordinateToSan_(this.pieceInTransit_)).
-      color === 'w';
-  this.promoteTo_ = Controller.getPieceFromNumericEntity(response, isWhite);
-};
-
-
-/**
  * @param {!Controller.AlgebraicCoordinate} source
  * @param {!Controller.AlgebraicCoordinate} destination
+ * @param {string=} opt_promotion
+ *     SAN of the particular piece-type that should result of this promotion,
+ *     if indeed this is a pawn-promotion.
  * @private
  */
-Controller.prototype.movePiece_ = function(source, destination) {
+Controller.prototype.movePiece_ = function(source, destination, opt_promotion) {
   var chessJsMove = {
     from: source.file + source.rank,
     to: destination.file + destination.rank
   };
-  if (this.promoteTo_) {
-    chessJsMove.promotion = this.promoteTo_;
+  if (opt_promotion) {
+    chessJsMove.promotion = opt_promotion;
   }
   this.chessjs_.move(chessJsMove);
 };
@@ -452,13 +456,11 @@ Controller.prototype.getTransitionState = function(file, rank) {
     } else {
       return Controller.TransitionState.VALID;
     }
-  } else if (this.pieceExists_(file, rank)) {
-    if (this.chessjs_.get(file + rank) &&
-        this.chessjs_.get(file + rank).color == this.chessjs_.turn()) {
-      return Controller.TransitionState.START;
-    } else {
-      return Controller.TransitionState.INVALID;
-    }
+  } else if (this.pieceExists_(file, rank) &&
+             this.chessjs_.get(file + rank).color == this.chessjs_.turn()) {
+    return Controller.TransitionState.START;
+  } else {
+    return Controller.TransitionState.INVALID;
   }
 
   return null;  // empty square, no transition

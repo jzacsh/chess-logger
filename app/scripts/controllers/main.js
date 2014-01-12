@@ -291,8 +291,9 @@ Controller.pieceEquals = function(pieceA, pieceB) {
  */
 Controller.prototype.moveTransition = function(file, rank) {
   var transitionState = this.getTransitionState(file, rank);
-  if (transitionState === Controller.TransitionState.VALID &&
-      this.pieceInTransit_) {
+  if (this.pieceInTransit_ &&
+      (transitionState === Controller.TransitionState.VALID ||
+       transitionState === Controller.TransitionState.CANCEL)) {
     var destination = Controller.getAlgebraicCoordinate_(file, rank);
     this.maybeCompleteTransit_(destination).
         then(angular.bind(this, this.unsetPiecesInTransit_));

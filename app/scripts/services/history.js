@@ -136,7 +136,7 @@ HistoryService.prototype.readPgnDumps = function() {
 HistoryService.getOldestPgnKey_ = function(pgnHistory) {
   var oldest = new Date().getTime() + 9999999;
   angular.forEach(pgnHistory, function(pgnDump, pgnKey) {
-    oldest = pgnKey < oldest ? pgnKey : oldest;
+    oldest = (pgnKey && pgnKey < oldest) ? pgnKey : oldest;
   });
   return oldest;
 };

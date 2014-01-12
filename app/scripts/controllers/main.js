@@ -6,9 +6,13 @@
  *
  * @param {!angular.Scope} $scope
  * @param {!angular.$q} $q
+ * @param {!Chess} chessjsService
+ *     github.com/jhlywa/chess.js
+ * @param {!storejs} storejsService
+ *     github.com/marcuswestin/store.js
  * @constructor
  */
-var Controller = function($scope, $q) {
+var Controller = function($scope, $q, chessjsService, storejsService) {
   /** @private {!angular.$q} */
   this.q_ = $q;
 
@@ -32,7 +36,14 @@ var Controller = function($scope, $q) {
    * @private {!Object}
    */
   // TODO(zacsh): Create a manual externs file for chess.js definitions?
-  this.chessjs_ = new Chess();
+  this.chessjs_ = new chessjsService.Chessjs();
+
+  /**
+   * localStorage API from github.com/marcuswestin/store.js
+   *
+   * @private {!Object}
+   */
+  this.storejs_ = storejsService.storejs;
 
   /**
    * File and rank of the chess piece currently in transit, if any.
@@ -569,5 +580,7 @@ angular.
   controller('MainCtrl', [
     '$scope',
     '$q',
+    'chessjsService',
+    'storejsService',
     Controller
   ]);

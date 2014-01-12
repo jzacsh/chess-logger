@@ -2,6 +2,31 @@
   <h3 class="text-muted">Chess Logger</h3>
 </div>
 
+<form class="row marketing" name="newGameForm">
+  <p><a href="/history" ng-if="controller.haveUnfinishedGame()">
+    Continue some <strong>unfinished games</strong>, first!
+  </a></p>
+
+  <input type="text"
+         name="white_name"
+         placeholder="white player's name"
+         ng-model="white_name"
+         required />
+  <input type="text"
+         name="black_name"
+         placeholder="black player's name"
+         ng-model="black_name"
+         required />
+  
+  <button class="btn new-game"
+          ng-class="{'btn-info': !controller.moveCount()}"
+          ng-disabled="newGameForm.$invalid"
+          ng-click="controller.newGame()">
+    <span ng-hide="controller.moveCount()">New Game</span>
+    <span ng-show="controller.moveCount()">Clean Slate</span>
+  </button>
+</form>
+
 <div class="jumbotron">
   <div class="game-play"
        data-chess-turn="{{controller.turnColor()}}"
@@ -55,29 +80,30 @@
 
 <div class="row marketing log"
      data-chess-history="{{controller.moveCount()}}">
-  <h4>Log</h4>
+  <h4>Game Log</h4>
 
   <div class="controls">
-    <a class="undo"
+    <a class="undo btn"
        title="undo last move"
        ng-click="controller.undo()">&#10227; undo last move</a>
 
     <textarea class="data pgn-dump" ng-bind-html="controller.toPgn()"></textarea>
 
-    <p class="login">
-      <button class="save btn btn-info" ng-click="controller.download()">
-        Download</button>
+    <div class="login">
+      <a class="save download btn btn-info" ng-click="controller.download()">
+        Download</a>
       <a href="#"
          class="login save"
          title="Save, replay, share previous games"
          ng-click="controller.login()">
         <span ng-show="controller.moveCount()">or</span>
         login &amp; sync with cloud
-      </a>
+      </div>
     </p>
   </div>
 </div>
 
-<div class="footer">
-  <p>by <a href="http://jzacsh.com">jzacsh</a></p>
-</div>
+<p class="footer">
+  <a href="http://github.com/jzacsh/chess-logger">Code</a>
+  <a href="http://jzacsh.com">by jzacsh</a>
+</p>

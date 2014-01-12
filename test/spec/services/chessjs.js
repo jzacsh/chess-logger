@@ -1,18 +1,17 @@
 'use strict';
 
-describe('Service: Chessjs', function() {
+describe('Service: chessjsService', function() {
 
   // load the service's module
   beforeEach(module('chessLoggerApp'));
 
   // instantiate service
-  var Chessjs;
-  beforeEach(inject(function(_Chessjs_) {
-    Chessjs = _Chessjs_;
+  var chessjsService;
+  beforeEach(inject(function(_chessjsService_) {
+    chessjsService = _chessjsService_;
   }));
 
   it('should do something', function() {
-    expect(!!Chessjs).toBe(true);
+    expect(!!chessjsService).toBe(true);
   });
-
 });

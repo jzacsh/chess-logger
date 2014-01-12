@@ -2,7 +2,7 @@
 
 angular.
     module('chessLoggerApp').
-    service('chessjsService', function() {
+    service('chessjsService', function chessjsService() {
       /** chess.js global, loaded before angular is */
       this.Chessjs = Chess;
     });

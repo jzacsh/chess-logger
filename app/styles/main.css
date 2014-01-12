@@ -32,6 +32,7 @@ a:hover {
   padding-top: 19px;
   color: #777;
   border-top: 1px solid #e5e5e5;
+  text-transform: lowercase;
 }
 
 /* Customize container */
@@ -58,7 +59,7 @@ a:hover {
 
 /* Supporting marketing content */
 .marketing {
-  margin: 40px 0;
+  margin: 10px 0;
 }
 .marketing p + h4 {
   margin-top: 28px;
@@ -98,6 +99,26 @@ a:hover {
   visibility: hidden;
 }
 
+form[name="newGameForm"] {
+  margin: 0.5ex;
+}
+
+form[name="newGameForm"],
+form[name="newGameForm"] input {
+  text-align: center;
+}
+
+form[name="newGameForm"] button {
+  padding: .5ex 1ex;
+}
+
+form[name="newGameForm"] input {
+  border: none;
+  outline: none;
+  box-shadow: 1px 2px 2px #888;
+  color: #666;
+}
+
 .game-play .status {
   font-style: italic;
 }
@@ -122,52 +143,62 @@ a:hover {
 
 .log h4 {
   text-align: right;
+  font-family: monospace;
+
+  display: inline;
+  position: absolute;
+  opacity: .3;
+  margin-top: 1.5ex;
+  font-size: 2em;
+  z-index: -99;
+  right: 8ex;
 }
 
 .log[data-chess-history="0"] * {
-  display: none;
+  visibility: hidden;
 }
 
 .log[data-chess-history="0"] .login {
-  display: block;
+  visibility: visible;
 }
 
 .log .controls {
   width: 100%;
 }
 
-.log .save,
-.log .data {
-  float: right;
-  width: 60%;
+.log .controls .undo {
+  display: block;
+}
+
+.log .controls .undo,
+.log .controls .login {
+  text-align: center;
+}
+
+.log .save {
+  line-height: 2em;
+}
+
+.log .download {
+  margin-right: 1ex;
 }
 
 .log .data.pgn-dump {
+  height: 10em;
+  width: 100%;
   max-width: 100%;
   border: none;
   outline: none;
-  width: 100%;
   font-family: monospace;
+  font-size: 1.65ex;
   white-space: pre-line;
   padding: 1ex;
   margin: 1ex 0 1em 0;
-  max-height: 5em;
   box-shadow: 0px 0px 7px #aaa inset;
 
   color: #c7254e;
   background-color: #f9f2f4;
-
-  -webkit-column-gap: 1.5ex;
-  -moz-column-gap:    1.5ex;
-  -o-column-gap:      1.5ex;
-  -ms-column-gap:     1.5ex;
-  column-gap:         1.5ex;
-
-  -webkit-column-count: 5;
-  -moz-column-count:    5;
-  -o-column-count:      5;
-  -ms-column-count:     5;
-  column-count:         5;
+  background: transparent;
 }
 
 table.chess-board {

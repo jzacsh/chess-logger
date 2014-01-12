@@ -6,13 +6,13 @@
  *
  * @param {!angular.Scope} $scope
  * @param {!angular.$q} $q
- * @param {!Chess} chessjsService
+ * @param {!Object} chessjsService
  *     github.com/jhlywa/chess.js
- * @param {!storejs} storejsService
- *     github.com/marcuswestin/store.js
+ * @param {!Object} historyService
  * @constructor
  */
-var Controller = function($scope, $q, chessjsService, storejsService) {
+var Controller = function Controller(
+    $scope, $q, chessjsService, historyService) {
   /** @private {!angular.$q} */
   this.q_ = $q;
 
@@ -30,20 +30,26 @@ var Controller = function($scope, $q, chessjsService, storejsService) {
   /** {@link Controller.htmlEntity_} */
   this.scope_.entity_to_piece = Controller.htmlEntity_;
 
+  /** @private {!Object} */
+  this.chessjsService_ = chessjsService;
   /**
    * Instance of chess.js game being represented on screen.
    *
    * @private {!Object}
    */
   // TODO(zacsh): Create a manual externs file for chess.js definitions?
-  this.chessjs_ = new chessjsService.Chessjs();
+  this.chessjs_ = new this.chessjsService_.Chessjs();
 
-  /**
-   * localStorage API from github.com/marcuswestin/store.js
-   *
-   * @private {!Object}
-   */
-  this.storejs_ = storejsService.storejs;
+  /** @private {!Object} */
+  this.historyService_ = historyService;
+
+  /** @type {string} */
+  this.scope_.white_name = this.historyService_.
+      getMostRecentName(true  /* white */);
+
+  /** @type {string} */
+  this.scope_.black_name = this.historyService_.
+      getMostRecentName(false  /* white */);
 
   /**
    * File and rank of the chess piece currently in transit, if any.
@@ -54,10 +60,12 @@ var Controller = function($scope, $q, chessjsService, storejsService) {
    */
   this.pieceInTransit_ = null;
 
+  /** @private {number} */
+  this.gameKey_ = 0;
+
   /** @type {!Controller.BoardGrid} */
   $scope.ui_board = angular.copy(Controller.BoardGrid);
   $scope.ui_board.rank.reverse();
-
 
   return $scope.controller = this;
 };
@@ -102,6 +110,22 @@ Controller.BoardGrid = {
  *     }}
  */
 Controller.ChessjsPiece;
+
+
+/**
+ * Default PGN header data to populate when user is too lazy to fill in form,
+ * before starting game.
+ * @type {string}
+ */
+Controller.DefaultWhiteName = 'hippo';
+
+
+/**
+ * Default PGN header data to populate when user is too lazy to fill in form,
+ * before starting game.
+ * @type {string}
+ */
+Controller.DefaultBlackName = 'squirrel';
 
 
 /**
@@ -305,11 +329,24 @@ Controller.prototype.moveTransition = function(file, rank) {
   if (this.pieceInTransit_ &&
       (transitionState === Controller.TransitionState.VALID ||
        transitionState === Controller.TransitionState.CANCEL)) {
+    this.initNewGame_();
     var destination = Controller.getAlgebraicCoordinate_(file, rank);
     this.maybeCompleteTransit_(destination).
         then(angular.bind(this, this.unsetPiecesInTransit_));
   } else if (transitionState === Controller.TransitionState.START) {
     this.pieceInTransit_ = Controller.getAlgebraicCoordinate_(file, rank);
+  }
+};
+
+
+/**
+ * Initializes a new game, if one hasnt' already been created to save the
+ * current moves.
+ * @private
+ */
+Controller.prototype.initNewGame_ = function() {
+  if (!this.gameKey_) {
+    this.newGame();
   }
 };
 
@@ -350,7 +387,7 @@ Controller.prototype.isPawnPromotion_ = function(destination) {
 Controller.prototype.maybeCompleteTransit_ = function(destination) {
   var deferred = this.q_.defer();
   if (Controller.pieceEquals(this.pieceInTransit_, destination)) {
-    deferred.resolve();
+    deferred.reject();
     return deferred.promise;  // User is cancelling operation
   }
 
@@ -568,10 +605,65 @@ Controller.prototype.squareColor = function(file, rank) {
  *     Chess.js {@link #pgn}.
  */
 Controller.prototype.toPgn = function() {
-  return this.chessjs_.pgn({
+  var pgnDump = this.chessjs_.pgn({
     max_width: 5,
     newline_char: '\n'
   });
+
+  this.historyService_.writePgnDump(this.gameKey_, pgnDump);
+
+  return pgnDump;
+};
+
+
+/**
+ *
+ */
+Controller.prototype.newGame = function() {
+  var now = new Date();
+
+  this.scope_.white_name = this.scope_.
+      white_name || Controller.DefaultWhiteName;
+  this.chessjs_.header('White', this.scope_.white_name);
+
+  this.scope_.black_name = this.scope_.
+      black_name || Controller.DefaultBlackName;
+  this.chessjs_.header('Black', this.scope_.black_name);
+
+  var iso8601Date = [
+    now.getUTCFullYear(),
+    (now.getUTCMonth() + 1),
+    now.getUTCDate()
+  ].join('-');
+  this.chessjs_.header('Date', iso8601Date);
+
+  this.gameKey_ = now.getTime();
+};
+
+
+/**
+ * @return {boolean}
+ *     Whether any unfinished games are saved in history.
+ */
+Controller.prototype.haveUnfinishedGame = function() {
+  if (this.gameKey_) {
+    // Only trigger this prompt when a game hasn't been started.
+    return false;
+  }
+
+  var found = false;
+
+  var testGame;
+  angular.forEach(
+      this.historyService_.readPgnDumps(),
+      angular.bind(this, function(pgnDump, gameKey) {
+        if (!found) {
+          testGame = new this.chessjsService_.Chessjs();
+          testGame.load_pgn(pgnDump);
+          found = !testGame.game_over();
+        }
+      }));
+  return found;
 };
 
 
@@ -581,6 +673,6 @@ angular.
     '$scope',
     '$q',
     'chessjsService',
-    'storejsService',
+    'historyService',
     Controller
   ]);

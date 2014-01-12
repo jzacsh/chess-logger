@@ -9,6 +9,16 @@
 
     <p data-chess-turn="b">
       <strong ng-show="controller.wasCheck()">Check!</strong> Black's move. </p>
+
+    <ul data-chess-turn="b"
+        class="pawn-promotion"
+        ng-show="controller.sideBeingPromoted('b')">
+      <li ng-repeat="target in controller.getPossibleBlackPromotions()">
+        <a ng-click="pawn_promotion.resolve(target)"
+           ng-bind-html="entity_to_piece(target)"></a>
+      </li>
+    </ul>
+
     <table class="chess-board">
       <tr data-chess-rank="{{rank}}"
           ng-repeat="rank in ui_board.rank">
@@ -27,6 +37,15 @@
     </table>
     <p data-chess-turn="w">
       <strong ng-show="controller.wasCheck()">Check!</strong> White's move.</p>
+
+    <ul data-chess-turn="w"
+        class="pawn-promotion"
+        ng-show="controller.sideBeingPromoted('w')">
+      <li ng-repeat="target in controller.getPossibleWhitePromotions()">
+        <a ng-click="pawn_promotion.resolve(target)"
+           ng-bind-html="entity_to_piece(target)"></a>
+      </li>
+    </ul>
 
     <p class="status" ng-show="controller.getGameResolution()">
       {{controller.getGameResolution()}}

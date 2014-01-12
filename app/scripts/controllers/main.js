@@ -5,9 +5,27 @@
  * Main controller to manage a chess board and it's corresponding PGN data.
  *
  * @param {!angular.Scope} $scope
+ * @param {!angular.$q} $q
  * @constructor
  */
-var Controller = function($scope) {
+var Controller = function($scope, $q) {
+  /** @private {!angular.$q} */
+  this.q_ = $q;
+
+  /** @private {!angular.Scope} */
+  this.scope_ = $scope;
+
+  /**
+   * Promise to get a response from a user on what piece a pawn should be
+   * promoted to.
+   *
+   * @type {?angular.$q.Deferred}
+   */
+  this.scope_.pawn_promotion = null;
+
+  /** {@link Controller.htmlEntity_} */
+  this.scope_.entity_to_piece = Controller.htmlEntity_;
+
   /**
    * Instance of chess.js game being represented on screen.
    *
@@ -24,6 +42,13 @@ var Controller = function($scope) {
    * @private {?Controller.AlgebraicCoordinate}
    */
   this.pieceInTransit_ = null;
+
+  /**
+   * SAN of the piece for which the current pawn in transit has been selected
+   * to promote.
+   * @private {string}
+   */
+  this.promoteTo_ = null;
 
   /** @type {!Controller.BoardGrid} */
   $scope.ui_board = angular.copy(Controller.BoardGrid);
@@ -76,6 +101,13 @@ Controller.ChessjsPiece;
 
 
 /**
+ * @type {number}
+ */
+Controller.NumericEntityBlackOffset = 6;
+
+/**
+ * Map of SAN of pieces to their corresponding numeric value in HTML entities.
+ *
  * @enum {number}
  */
 Controller.WhiteChessPieceEntity = {
@@ -85,6 +117,21 @@ Controller.WhiteChessPieceEntity = {
   b: 9815,
   q: 9813,
   k: 9812
+};
+
+
+/**
+ * Inverse of {@link Controller.WhiteChessPieceEntity}, without pawn.
+ *
+ * @enum {string}
+ */
+Controller.WhiteEntityToNotation = {
+  9817: 'p',
+  9814: 'r',
+  9816: 'n',
+  9815: 'b',
+  9813: 'q',
+  9812: 'k'
 };
 
 
@@ -112,6 +159,30 @@ Controller.htmlEntity_ = function(numericEntity) {
 
 
 /**
+ * @param {string} piece
+ * @param {boolean} forWhite
+ * @return {number}
+ * @private
+ */
+Controller.getNumericPieceEntity_ = function(piece, forWhite) {
+  return Controller.WhiteChessPieceEntity[piece] +
+    (forWhite ? 0 : Controller.NumericEntityBlackOffset);
+};
+
+
+/**
+ * @param {number} entity
+ * @param {boolean} forWhite
+ * @return {string}
+ */
+Controller.getPieceFromNumericEntity = function(entity, forWhite) {
+  var numericEntity = entity -
+      (forWhite ? 0 : Controller.NumericEntityBlackOffset);
+  return Controller.WhiteEntityToNotation[numericEntity];
+};
+
+
+/**
  * @param {?Controller.ChessjsPiece} chessPiece
  * @return {string}
  *     The HTML entity represented by {@code chessPiece}.
@@ -119,8 +190,8 @@ Controller.htmlEntity_ = function(numericEntity) {
  */
 Controller.pieceToHtmlEntity_ = function(chessPiece) {
   if (chessPiece) {
-    var numericEntity = Controller.WhiteChessPieceEntity[chessPiece.type] +
-        (chessPiece.color == 'b' ? 6 : 0);
+    var numericEntity = Controller.getNumericPieceEntity_(
+        chessPiece.type, chessPiece.color !== 'b');
     return Controller.htmlEntity_(numericEntity);
   }
   return '';
@@ -186,6 +257,16 @@ Controller.getAlgebraicCoordinate_ = function(file, rank) {
 
 
 /**
+ * @param {!Controller.AlgebraicCoordinate} coordinate
+ * @return {string}
+ * @private
+ */
+Controller.coordinateToSan_ = function(coordinate) {
+  return coordinate.file + coordinate.rank;
+};
+
+
+/**
  * @param {string} file
  * @param {number} rank
  * @return {boolean}
@@ -205,13 +286,37 @@ Controller.prototype.isPendingTransition = function(file, rank) {
  */
 Controller.prototype.moveTransition = function(file, rank) {
   if (this.pieceInTransit_) {
-    this.maybeMovePiece_(
-        this.pieceInTransit_,  // source
+    this.maybeCompleteTransit_(
         Controller.getAlgebraicCoordinate_(file, rank)  /* destination */);
     this.pieceInTransit_ = null;
+    this.promoteTo_ = null;
   } else if (this.pieceExists_(file, rank)) {
     this.pieceInTransit_ = Controller.getAlgebraicCoordinate_(file, rank);
+
+    if (this.isPossiblePawnPromotion_()) {
+      this.promoteTo_ = null;
+      this.scope_.pawn_promotion = this.q_.defer();
+
+      this.scope_.pawn_promotion.promise.
+          then(angular.bind(this, this.pawnPromtionHandler_));
+    }
   }
+};
+
+
+/**
+ * @return {boolean}
+ *     Whether a pawn is in transit and only one move away from promotion.
+ * @private
+ */
+Controller.prototype.isPossiblePawnPromotion_ = function() {
+  var sanPieceInTransit = Controller.
+      coordinateToSan_(this.pieceInTransit_ || {});
+  var chessJsPiece = this.chessjs_.get(sanPieceInTransit);
+  return !!this.pieceInTransit_ &&
+         chessJsPiece.type === 'p' &&
+         ((chessJsPiece.color == 'b' && this.pieceInTransit_.rank == 2) || 
+          (chessJsPiece.color == 'w' && this.pieceInTransit_.rank == 7));
 };
 
 
@@ -228,16 +333,72 @@ Controller.pieceEquals = function(pieceA, pieceB) {
 
 
 /**
- * @param {!Controller.AlgebraicCoordinate} source
  * @param {!Controller.AlgebraicCoordinate} destination
  * @private
  */
-Controller.prototype.maybeMovePiece_ = function(source, destination) {
-  if (Controller.pieceEquals(source, destination)) {
+Controller.prototype.maybeCompleteTransit_ = function(destination) {
+  if (Controller.pieceEquals(this.pieceInTransit_, destination)) {
     return;  // User is cancelling operation
   }
 
-  this.movePiece_(source, destination);
+  this.movePiece_(this.pieceInTransit_, destination);
+};
+
+
+/**
+ * @param {string} side
+ *     "b" for black, "w" for white
+ * @return {boolean}
+ *     Whether the color, {@code side}, is currently selecting a piece to
+ *     promote their pawn to.
+ */
+Controller.prototype.sideBeingPromoted = function(side) {
+  var sanPieceInTransit = Controller.
+      coordinateToSan_(this.pieceInTransit_ || {});
+  return !!(this.pieceInTransit_ && this.scope_.pawn_promotion) &&
+         this.chessjs_.get(sanPieceInTransit).color === side;
+};
+
+
+/** @return {!Array.<number>} */
+Controller.prototype.getPossibleWhitePromotions = function() {
+  return this.getPossiblePromotions_(true  /* white */);
+};
+
+
+/** @return {!Array.<number>} */
+Controller.prototype.getPossibleBlackPromotions = function() {
+  return this.getPossiblePromotions_(false  /* white */);
+};
+
+
+/**
+ * @param {boolean} isForWhite
+ * @return {!Array.<number>}
+ * @private
+ */
+Controller.prototype.getPossiblePromotions_ = function(isForWhite) {
+  var possiblePromotions = [];
+  angular.forEach(
+      ['n', 'r', 'q', 'b'],
+      angular.bind(this, function(piece) {
+        possiblePromotions.push(
+            Controller.getNumericPieceEntity_(piece, isForWhite));
+      }));
+  return possiblePromotions;
+};
+
+
+/**
+ * @param {*} response
+ * @private
+ */
+Controller.prototype.pawnPromtionHandler_ = function(response) {
+  this.scope_.pawn_promotion = null;
+  var isWhite = this.chessjs_.
+      get(Controller.coordinateToSan_(this.pieceInTransit_)).
+      color === 'w';
+  this.promoteTo_ = Controller.getPieceFromNumericEntity(response, isWhite);
 };
 
 
@@ -247,10 +408,14 @@ Controller.prototype.maybeMovePiece_ = function(source, destination) {
  * @private
  */
 Controller.prototype.movePiece_ = function(source, destination) {
-  this.chessjs_.move({
+  var chessJsMove = {
     from: source.file + source.rank,
     to: destination.file + destination.rank
-  });
+  };
+  if (this.promoteTo_) {
+    chessJsMove.promotion = this.promoteTo_;
+  }
+  this.chessjs_.move(chessJsMove);
 };
 
 
@@ -400,5 +565,6 @@ angular.
   module('chessLoggerApp').
   controller('MainCtrl', [
     '$scope',
+    '$q',
     Controller
   ]);

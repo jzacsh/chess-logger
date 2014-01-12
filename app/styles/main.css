@@ -98,6 +98,18 @@ a:hover {
   font-style: italic;
 }
 
+.game-play .pawn-promotion li {
+  font-size: 2em;
+  display: inline-block;
+  list-style-type: none;
+}
+
+.game-play .pawn-promotion:before {
+  content: "Promote to:";
+  font-style: italic;
+  font-size: .5em;
+}
+
 .game-play[data-chess-turn="b"] [data-chess-turn="w"] {
   visibility: hidden;
 }
@@ -139,17 +151,17 @@ a:hover {
   color: #c7254e;
   background-color: #f9f2f4;
 
-  -webkit-column-gap: 1.5em;
-  -moz-column-gap:    1.5em;
-  -o-column-gap:      1.5em;
-  -ms-column-gap:     1.5em;
-  column-gap:         1.5em;
+  -webkit-column-gap: 1.5ex;
+  -moz-column-gap:    1.5ex;
+  -o-column-gap:      1.5ex;
+  -ms-column-gap:     1.5ex;
+  column-gap:         1.5ex;
 
-  -webkit-column-count: 2;
-  -moz-column-count:    2;
-  -o-column-count:      2;
-  -ms-column-count:     2;
-  column-count:         2;
+  -webkit-column-count: 5;
+  -moz-column-count:    5;
+  -o-column-count:      5;
+  -ms-column-count:     5;
+  column-count:         5;
 }
 
 table.chess-board {

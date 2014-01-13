@@ -32,6 +32,7 @@ var Controller = function Controller(
 
   /** @private {!Object} */
   this.chessjsService_ = chessjsService;
+
   /**
    * Instance of chess.js game being represented on screen.
    *
@@ -576,16 +577,7 @@ Controller.prototype.moveCount = function() {
 
 /** @return {string} */
 Controller.prototype.getGameResolution = function() {
-  var msgPrefix = 'Game Over: ';
-  if (!this.chessjs_ || !this.chessjs_.game_over()) {
-    return '';
-  } else if (this.chessjs_.in_stalemate()) {
-    return msgPrefix + 'Stalemate';
-  } else if (this.chessjs_.in_checkmate()) {
-    return msgPrefix + 'Checkmate';
-  } else if (this.chessjs_.in_draw()) {
-    return msgPrefix + 'Draw';
-  }
+  return this.chessjsService_.getGameResolution(this.chessjs_);
 };
 
 
@@ -610,7 +602,10 @@ Controller.prototype.toPgn = function() {
     newline_char: '\n'
   });
 
-  this.historyService_.writePgnDump(this.gameKey_, pgnDump);
+  if (this.gameKey_) {
+    // Start recording dumps, once a game has started.
+    this.historyService_.writePgnDump(this.gameKey_, pgnDump);
+  }
 
   return pgnDump;
 };
@@ -622,12 +617,20 @@ Controller.prototype.toPgn = function() {
 Controller.prototype.newGame = function() {
   var now = new Date();
 
-  this.scope_.white_name = this.scope_.
-      white_name || Controller.DefaultWhiteName;
+  if (this.scope_.white_name) {
+    this.historyService_.setMostRecentName(
+        this.scope_.white_name, true  /* for white */);
+  } else {
+    this.scope_.white_name = Controller.DefaultWhiteName;
+  }
   this.chessjs_.header('White', this.scope_.white_name);
 
-  this.scope_.black_name = this.scope_.
-      black_name || Controller.DefaultBlackName;
+  if (this.scope_.black_name) {
+    this.historyService_.setMostRecentName(
+        this.scope_.black_name, false  /* for white */);
+  } else {
+    this.scope_.black_name = Controller.DefaultBlackName;
+  }
   this.chessjs_.header('Black', this.scope_.black_name);
 
   var iso8601Date = [

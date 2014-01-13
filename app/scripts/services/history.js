@@ -206,6 +206,32 @@ HistoryService.prototype.getMostRecentName = function(isForWhite) {
 };
 
 
+/**
+ * @param {boolean} isForWhite
+ * @return {string}
+ */
+HistoryService.prototype.rmMostRecentName = function(isForWhite) {
+  var recentSettings = this.storejs_.get(
+      HistoryService.StorageKeyRecentSettings);
+  if (isForWhite) {
+    delete recentSettings.player_w;
+  } else {
+    delete recentSettings.player_b;
+  }
+  this.storejs_.set(HistoryService.StorageKeyRecentSettings, recentSettings);
+};
+
+
+/**
+ * @return {boolean}
+ *     Whether there appears to be any preferences saved.
+ */
+HistoryService.prototype.haveSettingsSaved = function() {
+  var settings = this.storejs_.get(HistoryService.StorageKeyRecentSettings);
+  return settings && Object.keys(settings).length;
+};
+
+
 
 angular.
   module('chessLoggerApp').

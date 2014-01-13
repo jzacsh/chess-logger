@@ -1,0 +1,74 @@
+.cl-navbar,
+.cl-navbar:after {
+  display: block;
+  width: 100%;
+  height: 3em;
+  clear: both;
+}
+.cl-navbar:after {
+  height: 1px;
+  visibility: hidden;
+}
+
+.cl-navbar ul,
+.cl-navbar h1,
+.cl-navbar li {
+  margin: 0;
+  padding: 0;
+}
+
+.cl-navbar ul,
+.cl-navbar h1 {
+  display: inline-block;
+}
+
+.cl-navbar h1 {
+  text-align: left;
+  float: left;
+
+  text-transform: lowercase;
+  font-size: 1.5em;
+}
+
+.cl-navbar ul {
+  float: right;
+  text-align: right;
+
+  line-height: 1.5em;
+}
+
+.cl-navbar li.btn,
+.cl-navbar li.btn:hover,
+.cl-navbar li.btn-info,
+.cl-navbar li.btn-info:hover {
+  list-style-type: none;
+  display: inline-block;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+
+  margin-left: 1em;
+  padding: .25ex 1ex;
+}
+
+.cl-navbar li.btn {
+  cursor: default;
+}
+
+.cl-navbar li.btn,
+.cl-navbar li.btn a,
+.cl-navbar li.btn-info:hover,
+.cl-navbar li.btn-info:hover a {
+  background-color: #fff;
+  color: #aaa;
+}
+
+.cl-navbar li.btn-info,
+.cl-navbar li.btn-info a {
+  background-color: #aaa;
+  color: #fff;
+}
+
+.cl-navbar li:first-child {
+  margin-left: 0;
+}

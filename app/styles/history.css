@@ -1,0 +1,68 @@
+[data-ctrl="history"] {
+  margin: 0 auto;
+  text-align: right;
+}
+
+[data-ctrl="history"] table {
+  font-size: 1.25ex;
+  width: 100%;
+  margin-bottom: 4em;
+}
+
+[data-ctrl="history"] thead {
+  opacity: .8;
+}
+
+[data-ctrl="history"] caption {
+  text-align: left;
+  font-size: 1.25em;
+  font-weight: bold;
+}
+
+[data-ctrl="history"] table:last-child {
+  margin-bottom: 0;
+}
+
+.game-review {
+}
+
+.game-review .vs {
+  margin: 0 2ex;
+}
+
+.game-review thead {
+  text-align: center;
+}
+
+.game-review td {
+  padding: 0 1ex;
+}
+
+[data-ctrl="history"] td {
+  border: 1px solid #bbb;
+  border-top: none;
+}
+
+[data-ctrl="history"] td {
+  border: 1px solid #bbb;
+}
+
+[data-ctrl="history"] td:first-child {
+  border-left: none;
+}
+
+[data-ctrl="history"] td:last-child {
+  border-right: none;
+}
+
+[data-ctrl="history"] tbody tr:first-child {
+  border-top: none;
+}
+
+[data-ctrl="history"] tbody tr:last-child {
+  border-bottom: none;
+}
+
+.settings-review tbody {
+  font-family: monospace;
+}

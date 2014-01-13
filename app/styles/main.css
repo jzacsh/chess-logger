@@ -17,16 +17,6 @@ a:hover {
   padding-right: 15px;
 }
 
-/* Make the masthead heading the same height as the navigation */
-.header h3 {
-  margin-top: 0;
-  margin-bottom: 0;
-  line-height: 40px;
-  padding-bottom: 19px;
-  padding-left: 15px;
-  text-transform: lowercase;
-}
-
 /* Custom page footer */
 .footer {
   padding-top: 19px;

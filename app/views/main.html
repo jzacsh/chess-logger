@@ -1,9 +1,7 @@
-<div class="header">
-  <h3 class="text-muted">Chess Logger</h3>
-</div>
+<cl-navbar></cl-navbar>
 
 <form class="row marketing" name="newGameForm">
-  <p><a href="/history" ng-if="controller.haveUnfinishedGame()">
+  <p><a ng-href="/history" ng-if="controller.haveUnfinishedGame()">
     Continue some <strong>unfinished games</strong>, first!
   </a></p>
 

@@ -1,0 +1,82 @@
+<cl-navbar></cl-navbar>
+
+<div class="row marketing"></div>
+
+<div class="jumbotron history-review">
+  <a ng-click="controller.deleteAllGames()">delete all games</a>
+  <table class="game-review">
+    <caption>
+      <span ng-hide="controller.gameCount()">No</span> Past Games
+    </caption>
+
+    <thead ng-show="controller.gameCount()">
+      <td>Delete</td>
+      <td>Review</td>
+      <td>Players</td>
+      <td>Resolution</td>
+      <td>Moves</td>
+    </thead>
+
+    <tbody>
+      <tr ng-show="key"
+          ng-repeat="(key, game) in controller.getAllGames()">
+        <td>
+          <a title="delete this game"
+             ng-click="controller.deleteGame(key)">x</a>
+        </td>
+
+        <td><a ng-href="/review/{{key}}">{{key | date:'medium'}}</a></td>
+
+        <td>
+          <span title="white">
+            {{controller.getPlayerWhite(key)}}
+            &#40;&#9812;&#41;
+          </span>
+
+          <span class="vs">vs.</span>
+
+          <span title="black">
+            {{controller.getPlayerBlack(key)}}
+            &#40;&#9818;&#41;
+          </span>
+        </td>
+
+        <td>{{controller.getGameResolution(key)}}</td>
+        <td>{{controller.getMoveCount(key)}}</td>
+      </tr>
+    <tbody>
+  </table>
+
+  <table class="settings-review">
+    <caption>
+      Settings &amp; Preferences
+      <span ng-hide="history_service.haveSettingsSaved()">&#40;empty&#41;</span>
+    </caption>
+    
+    <thead ng-show="history_service.haveSettingsSaved()">
+      <td>Delete</td>
+      <td>Setting</td>
+      <td>Value</td>
+    </thead>
+
+    <tbody ng-show="history_service.haveSettingsSaved()">
+      <tr>
+        <td><a ng-click="history_service.rmMostRecentName(true)">delete</a></td>
+        <td>most recent white player</td>
+        <td>{{history_service.getMostRecentName(true)}}</td>
+      </tr>
+      <tr>
+        <td><a ng-click="history_service.rmMostRecentName(false)">delete</a></td>
+        <td>most recent black player</td>
+        <td>{{history_service.getMostRecentName(false)}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="row marketing"></div>
+
+<p class="footer">
+  <a href="http://github.com/jzacsh/chess-logger">Code</a>
+  <a href="http://jzacsh.com">by jzacsh</a>
+</p>

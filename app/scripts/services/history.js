@@ -153,7 +153,8 @@ HistoryService.prototype.deletePgn = function(pgnKey) {
     delete pgnHistory[pgnKey];
     this.storejs_.set(HistoryService.StorageKeyPgnHistory, pgnHistory);
   }
-  return pgnHistory.keys().length;
+  this.setPgnIOCache_(pgnHistory);
+  return Object.keys(pgnHistory).length;
 };
 
 
@@ -163,8 +164,9 @@ HistoryService.prototype.deletePgn = function(pgnKey) {
  *     Number of games deleted.
  */
 HistoryService.prototype.deleteAllPgns = function() {
-  var numberDeleted = this.readPgnDumps().keys().length;
+  var numberDeleted = Object.keys(this.readPgnDumps()).length;
   this.storejs_.set(HistoryService.StorageKeyPgnHistory, []);
+  this.setPgnIOCache_({});
   return numberDeleted;
 };
 
@@ -206,10 +208,7 @@ HistoryService.prototype.getMostRecentName = function(isForWhite) {
 };
 
 
-/**
- * @param {boolean} isForWhite
- * @return {string}
- */
+/** @param {boolean} isForWhite */
 HistoryService.prototype.rmMostRecentName = function(isForWhite) {
   var recentSettings = this.storejs_.get(
       HistoryService.StorageKeyRecentSettings);

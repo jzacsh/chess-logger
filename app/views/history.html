@@ -3,7 +3,8 @@
 <div class="row marketing"></div>
 
 <div class="jumbotron history-review">
-  <a ng-click="controller.deleteAllGames()">delete all games</a>
+  <a ng-show="controller.gameCount"
+     ng-click="controller.deleteAllGames()">delete all games</a>
   <table class="game-review">
     <caption>
       <span ng-hide="controller.gameCount()">No</span> Past Games

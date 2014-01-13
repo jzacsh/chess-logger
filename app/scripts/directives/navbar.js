@@ -41,7 +41,8 @@ var clNavbarFactory = function clNavbarFactory($location, $route) {
         '          ' + "'btn'" + ': url === current' +
         '        }"' +
         '        ng-repeat="(url,item) in nav_items">' +
-        '      <a ng-hide="url == current" ng-href="{{url}}">{{item}}</a>' +
+        '      <a ng-hide="url == current"' +
+        '         ng-href="{{format(url)}}">{{item}}</a>' +
         '      <span ng-show="url == current" >{{item}}</span>' +
         '    </li>' +
         '  </ul>' +
@@ -54,8 +55,16 @@ var clNavbarFactory = function clNavbarFactory($location, $route) {
        */
       scope.nav_items = {
         '/': 'Record',
-        'history': 'History'
-    //  'review': 'Review'
+        'history': 'History',
+        'review': 'Review'
+      };
+
+      /**
+       * @param {string} url
+       * @return {string}
+       */
+      scope.format = function(url) {
+        return url === '/' ? url : ('/' + url);
       };
 
       // Ensure the current loaded page has been configured with this directive.
@@ -89,6 +98,12 @@ var clNavbarFactory = function clNavbarFactory($location, $route) {
             ' routes registered with angular.$route ("' +
             foundRoutesPages.join('", "') + '").');
       }
+
+      // TODO(zacsh): Figure out how to get rid of this entire directive's
+      // hackery by getting a cleaner version of $route.routes map, then delete
+      // this:
+      scope.nav_items['review:0'] = scope.nav_items['review'];
+      delete scope.nav_items.review;
     }
   };
 };

@@ -15,10 +15,13 @@ angular.
               templateUrl: 'views/main.html',
               controller: 'MainCtrl'
             }).
-            when('/#history', { redirectTo: '/history' }).
             when('/history', {
               templateUrl: 'views/history.html',
               controller: 'HistoryCtrl'
+            }).
+            when('/review:gameid', {
+              templateUrl: 'views/review.html',
+              controller: 'ReviewCtrl'
             }).
             otherwise({
               redirectTo: '/'

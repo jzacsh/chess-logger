@@ -144,11 +144,11 @@ form[name="newGameForm"] input {
   right: 8ex;
 }
 
-.log[data-chess-history="0"] * {
+.log[data-game-started="false"] * {
   visibility: hidden;
 }
 
-.log[data-chess-history="0"] .login {
+.log[data-game-started="true"] .login {
   visibility: visible;
 }
 

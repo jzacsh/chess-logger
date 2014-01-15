@@ -346,7 +346,7 @@ Controller.prototype.moveTransition = function(file, rank) {
  * @private
  */
 Controller.prototype.initNewGame_ = function() {
-  if (!this.gameKey_) {
+  if (!this.gameStarted()) {
     this.newGame();
   }
 };
@@ -522,7 +522,7 @@ Controller.prototype.getTransitionState = function(file, rank) {
  *     Whether the last move put opponent in check.
  */
 Controller.prototype.wasCheck = function() {
-  return !!(this.moveCount() &&
+  return !!(this.chessjs_.history().length &&
             this.chessjs_.history().pop().match(/\+/));
 };
 
@@ -566,12 +566,9 @@ Controller.prototype.undo = function() {
 };
 
 
-/**
- * @return {number}
- *     Number of moves in chess.js {@link #history}.
- */
-Controller.prototype.moveCount = function() {
-  return this.chessjs_.history().length;
+/** @return {boolean} */
+Controller.prototype.gameStarted = function() {
+  return !!this.gameKey_;
 };
 
 
@@ -602,7 +599,7 @@ Controller.prototype.toPgn = function() {
     newline_char: '\n'
   });
 
-  if (this.gameKey_) {
+  if (this.gameStarted()) {
     // Start recording dumps, once a game has started.
     this.historyService_.writePgnDump(this.gameKey_, pgnDump);
   }
@@ -649,7 +646,7 @@ Controller.prototype.newGame = function() {
  *     Whether any unfinished games are saved in history.
  */
 Controller.prototype.haveUnfinishedGame = function() {
-  if (this.gameKey_) {
+  if (this.gameStarted()) {
     // Only trigger this prompt when a game hasn't been started.
     return false;
   }

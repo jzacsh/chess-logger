@@ -14,12 +14,14 @@
       <td>Delete</td>
       <td>Review</td>
       <td>Players</td>
+      <td>Winner</td>
       <td>Resolution</td>
       <td>Moves</td>
     </thead>
 
     <tbody>
-      <tr ng-show="key"
+      <tr data-gameover="{{controller.gameOver(key)}}"
+          ng-show="key"
           ng-repeat="(key, game) in controller.getAllGames()">
         <td>
           <a title="delete this game"
@@ -28,21 +30,24 @@
 
         <td><a ng-href="/review/{{key}}">{{key | date:'medium'}}</a></td>
 
-        <td>
+        <td class="players">
           <span title="white">
             {{controller.getPlayerWhite(key)}}
-            &#40;&#9812;&#41;
+            &#40;<span ng-bind-html="controller.getPlayerIcon('w')"></span>&#41;
           </span>
 
           <span class="vs">vs.</span>
 
           <span title="black">
             {{controller.getPlayerBlack(key)}}
-            &#40;&#9818;&#41;
+            &#40;<span ng-bind-html="controller.getPlayerIcon('b')"></span>&#41;
           </span>
         </td>
 
+        <td class="winner" ng-bind-html="controller.getWiningPlayerIcon(key)"></td>
+
         <td>{{controller.getGameResolution(key)}}</td>
+
         <td>{{controller.getMoveCount(key)}}</td>
       </tr>
     <tbody>

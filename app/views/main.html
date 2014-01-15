@@ -17,11 +17,11 @@
          required />
   
   <button class="btn new-game"
-          ng-class="{'btn-info': !controller.moveCount()}"
+          ng-class="{'btn-info': !controller.gameStarted()}"
           ng-disabled="newGameForm.$invalid"
           ng-click="controller.newGame()">
-    <span ng-hide="controller.moveCount()">New Game</span>
-    <span ng-show="controller.moveCount()">Clean Slate</span>
+    <span ng-hide="controller.gameStarted()">New Game</span>
+    <span ng-show="controller.gameStarted()">Clean Slate</span>
   </button>
 </form>
 
@@ -77,7 +77,7 @@
 </div>
 
 <div class="row marketing log"
-     data-chess-history="{{controller.moveCount()}}">
+     data-game-started="{{controller.gameStarted()}}">
   <h4>Game Log</h4>
 
   <div class="controls">
@@ -94,7 +94,7 @@
          class="login save"
          title="Save, replay, share previous games"
          ng-click="controller.login()">
-        <span ng-show="controller.moveCount()">or</span>
+        <span ng-show="controller.gameStarted()">or</span>
         login &amp; sync with cloud
       </div>
     </p>

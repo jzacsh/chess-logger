@@ -108,6 +108,38 @@ HistoryCtrl.prototype.getPlayerBlack = function(gameKey) {
 };
 
 
+HistoryCtrl.prototype.gameOver = function(gameKey) {
+  return this.getAllGames()[gameKey].game_over();
+};
+
+
+HistoryCtrl.prototype.getWiningPlayerIcon = function(gameKey) {
+  return this.getPlayerIcon(this.winningPlayer(gameKey));
+};
+
+
+/**
+ * @param {string} player
+ * @return {string}
+ *     HTML for the correct color's king icon.
+ */
+HistoryCtrl.prototype.getPlayerIcon = function(player) {
+  // TODO(zacsh): Replace this with the more general Utility extracted from
+  // main.js's logic
+  return player == 'w' ? '&#9812;' : '&#9818;';
+};
+
+
+/**
+ * @param {number} gameKey
+ * @return {string}
+ */
+HistoryCtrl.prototype.winningPlayer = function(gameKey) {
+  var game = this.getAllGames()[gameKey];
+  return game.game_over() && game.turn() === 'w' ?
+         'b' : 'w';
+}
+
 /**
  * @param {number} gameKey
  * @return {string}

@@ -27,7 +27,6 @@
 }
 
 .game-review .vs {
-  margin: 0 2ex;
 }
 
 .game-review thead {
@@ -36,6 +35,14 @@
 
 .game-review td {
   padding: 0 1ex;
+}
+
+.game-review td.winner {
+  opacity: 0;
+}
+
+.game-review tr[data-gameover="true"] td.winner {
+  opacity: inherit;
 }
 
 [data-ctrl="history"] td {

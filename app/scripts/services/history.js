@@ -34,7 +34,13 @@ HistoryService.PgnHistory;
 
 
 /**
- *
+ * Empty PGN history.
+ * @const
+ */
+HistoryService.EmptyPgnHistory = {};
+
+
+/**
  * @typedef {{}}
  */
 HistoryService.GameSettings;
@@ -68,7 +74,7 @@ HistoryService.MaxPgnHistory = 20;
  */
 HistoryService.prototype.initPgnHistory_ = function() {
   if (!this.readPgnDumps() || !Object.keys(this.readPgnDumps()).length) {
-    this.storejs_.set(HistoryService.StorageKeyPgnHistory, {});
+    this.writePgnHistory_(HistoryService.EmptyPgnHistory);
   }
 };
 
@@ -94,12 +100,18 @@ HistoryService.prototype.writePgnDump = function(pgnKey, pgnDump) {
       this.deletePgn(HistoryService.getOldestPgnKey_(modifiedHistory));
     }
 
-    this.storejs_.set(HistoryService.StorageKeyPgnHistory, modifiedHistory);
+    this.writePgnHistory_(modifiedHistory);
     this.setPgnIOCache_({});
   }
   return modifiedHistory ?
          Object.keys(modifiedHistory).length :
          Object.keys(this.readPgnDumps()).length;
+};
+
+
+/** @param {string} pgnHistory */
+HistoryService.prototype.writePgnHistory_ = function(pgnHistory) {
+  this.storejs_.set(HistoryService.StorageKeyPgnHistory, pgnHistory);
 };
 
 
@@ -109,10 +121,10 @@ HistoryService.prototype.writePgnDump = function(pgnKey, pgnDump) {
  * @private
  */
 HistoryService.prototype.setPgnIOCache_ = function(setCacheTo) {
-  this.lastPgnRead_ = setCacheTo || {};
+  this.lastPgnRead_ = setCacheTo || HistoryService.EmptyPgnHistory;
   if (!setCacheTo) {
     // Was empty
-    this.storejs_.set(HistoryService.StorageKeyPgnHistory, this.lastPgnRead_);
+    this.writePgnHistory_(this.lastPgnRead_);
   }
 };
 
@@ -151,7 +163,7 @@ HistoryService.prototype.deletePgn = function(pgnKey) {
   var pgnHistory = this.readPgnDumps();
   if (pgnHistory[pgnKey]) {
     delete pgnHistory[pgnKey];
-    this.storejs_.set(HistoryService.StorageKeyPgnHistory, pgnHistory);
+    this.writePgnHistory_(pgnHistory);
   }
   this.setPgnIOCache_(pgnHistory);
   return Object.keys(pgnHistory).length;
@@ -165,7 +177,7 @@ HistoryService.prototype.deletePgn = function(pgnKey) {
  */
 HistoryService.prototype.deleteAllPgns = function() {
   var numberDeleted = Object.keys(this.readPgnDumps()).length;
-  this.storejs_.set(HistoryService.StorageKeyPgnHistory, []);
+  this.writePgnHistory_(HistoryService.EmptyPgnHistory);
   this.setPgnIOCache_({});
   return numberDeleted;
 };

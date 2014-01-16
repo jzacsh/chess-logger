@@ -29,11 +29,12 @@
   <label class="jumpto">
     Jump to &#40;{{(controller.readableIndex(jump_to))}}&#41;:
     <input class="playback"
+           ng-change="controller.jumpTo(jump_to)"
            ng-model="jump_to"
            type="range"
            step="1"
            min="0"
-           max="{{controller.getLastMoveIndex()}}" />
+           max="{{last_move_index}}" />
   </label>
 
   <ul class="pgn-dump exchanges">

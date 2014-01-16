@@ -24,10 +24,11 @@ var ReviewCtrl = function ReviewCtrl(
   /** @private {!Object} */
   this.historyService_ = historyService;
 
-  /** @type {!Object} */
+  /** @type {number} */
   this.scope_.jump_to = 0;
-  // TODO(zacsh): BUG: make this start triggering as expected
-  this.scope_.$watch('jump_to', angular.bind(this, this.jumpTo_));
+
+  /** @type {number} */
+  this.scope_.last_move_index = 0;
 
   /** @type {!Object} */
   this.scope_.board = chessjsService.util;
@@ -39,7 +40,7 @@ var ReviewCtrl = function ReviewCtrl(
   this.scope_.pgn_dump = null;
 
   /** @type {!Object} */
-  this.scope_.formatted_pgn_dump;
+  this.scope_.formatted_pgn_dump = null;
 
   // Try loading the current URL's game.
   this.loadCurrentGame_();
@@ -83,7 +84,7 @@ ReviewCtrl.prototype.loadGame_ = function(pgnDump) {
 
   this.scope_.chessjs = new this.chessjsService_.Chessjs();
   this.scope_.chessjs.load_pgn(this.scope_.pgn_dump);
-  this.scope_.jump_to = this.getLastMoveIndex();
+  this.scope_.last_move_index = this.scope_.jump_to = this.getLastMoveIndex();
 
   this.formatPgnDump_();
 };
@@ -91,9 +92,8 @@ ReviewCtrl.prototype.loadGame_ = function(pgnDump) {
 
 /**
  * @param {number} jumpTo
- * @private
  */
-ReviewCtrl.prototype.jumpTo_ = function(jumpTo) {
+ReviewCtrl.prototype.jumpTo = function(jumpTo) {
   if (!this.scope_.chessjs) {
     return;
   }
@@ -105,7 +105,7 @@ ReviewCtrl.prototype.jumpTo_ = function(jumpTo) {
 
   // Undo any moves occuring in history, *after* requested jump
   while (jumpTo < this.getLastMoveIndex()) {
-    this.scope_.chessjs.undo();
+    this.scope_.chessjs.undo();  // Removes last index from history
   }
 };
 

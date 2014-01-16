@@ -1,0 +1,46 @@
+[data-ctrl="review"] .jumbotron {
+  font-size: 2ex;
+  text-align: left;
+}
+
+[data-ctrl="review"] ul.pgn-dump {
+  padding: 0;
+}
+
+[data-ctrl="review"] ul.pgn-dump {
+  list-style-type: none;
+}
+
+[data-ctrl="review"] .pgn-dump li {
+  font-family: monospace;
+  font-size: 1.75ex;
+}
+
+[data-ctrl="review"] .pgn-dump.metadata {
+  text-align: center;
+  font-size: 2ex;
+}
+
+[data-ctrl="review"] .pgn-dump.metadata li {
+  display: inline-block;
+  padding-right: 2em;
+}
+
+[data-ctrl="review"] .pgn-dump.metadata li:last-child {
+  padding-right: 0;
+}
+
+[data-ctrl="review"] .game-review.active .pgn-dump .active {
+  color: red;
+  font-weight: bold;
+}
+
+[data-ctrl="review"] .jumpto {
+  margin-bottom: 1em;
+  text-align: center;
+}
+
+[data-ctrl="review"] .jumpto,
+[data-ctrl="review"] .jumpto input {
+  width: 100%;
+}

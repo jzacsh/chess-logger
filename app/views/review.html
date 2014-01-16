@@ -2,7 +2,47 @@
 
 <div class="row marketing"></div>
 
-<div class="jumbotron game-review">
+<div ng-if="chessjs"
+     class="jumbotron game-review"
+     ng-class="{active: chessjs.history().length}"
+     data-active-move="{{controller.getMoveNumber()}}">
+  <ul class="pgn-dump metadata">
+    <li ng-repeat="metadata in formatted_pgn_dump.metadata">
+      {{metadata}}
+    </li>
+  </ul>
+
+  <table class="chess-board">
+    <tr data-chess-rank="{{rank}}"
+        ng-repeat="rank in board.getRanks()">
+      <td data-chess-position="{{file}}{{rank}}"
+          data-chess-file="{{file}}"
+          data-chess-sqr-color="{{chessjs.square_color(file + rank)}}"
+          ng-repeat="file in board.getFiles()">
+        <button ng-bind-html="board.getCurrentPiece(chessjs, file, rank)"
+                data-chess-occupation="{{board.getOccupationColor(chessjs, file, rank)}}">
+        </button>
+      </td>
+    </tr>
+  </table>
+
+  <label class="jumpto">
+    Jump to &#40;{{(controller.readableIndex(jump_to))}}&#41;:
+    <input class="playback"
+           ng-model="jump_to"
+           type="range"
+           step="1"
+           min="0"
+           max="{{controller.getLastMoveIndex()}}" />
+  </label>
+
+  <ul class="pgn-dump exchanges">
+    <li data-exchange-index="{{$index}}"
+        ng-repeat="exchange in formatted_pgn_dump.moves"
+        ng-class="{active: $index === controller.getExchangeNumber()}">
+      {{exchange}}
+    </li>
+  </ul>
 </div>
 
 <div class="row marketing"></div>

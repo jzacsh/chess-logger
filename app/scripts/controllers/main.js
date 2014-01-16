@@ -27,11 +27,11 @@ var Controller = function Controller(
    */
   this.scope_.pawn_promotion = null;
 
-  /** {@link Controller.htmlEntity_} */
-  this.scope_.entity_to_piece = Controller.htmlEntity_;
-
   /** @private {!Object} */
   this.chessjsService_ = chessjsService;
+
+  /** {@link Controller.htmlEntity} */
+  this.scope_.entity_to_piece = this.chessjsService_.util.toHtmlEntity;
 
   /**
    * Instance of chess.js game being represented on screen.
@@ -52,6 +52,9 @@ var Controller = function Controller(
   this.scope_.black_name = this.historyService_.
       getMostRecentName(false  /* white */);
 
+  /** @type {!Object} */
+  this.scope_.ui_board = this.chessjsService_.util;
+
   /**
    * File and rank of the chess piece currently in transit, if any.
    *
@@ -64,9 +67,11 @@ var Controller = function Controller(
   /** @private {number} */
   this.gameKey_ = 0;
 
-  /** @type {!Controller.BoardGrid} */
-  $scope.ui_board = angular.copy(Controller.BoardGrid);
-  $scope.ui_board.rank.reverse();
+  this.getOccupationColor = angular.
+      bind(this, this.chessjsService_.util.getOccupationColor, this.chessjs_);
+
+  this.getCurrentPiece = angular.
+      bind(this, this.chessjsService_.util.getCurrentPiece, this.chessjs_);
 
   return $scope.controller = this;
 };
@@ -76,24 +81,6 @@ var Controller = function Controller(
  * @typedef {{file: string, rank: number}}
  */
 Controller.AlgebraicCoordinate;
-
-
-/**
- * Static data describing any chess board's algebraic notation.
- *
- * File represents the horizontal transition a piece can make left and right
- * of each player. Rank represents the vertical progress a piece can make to
- * and from each player.
- *
- * @typedef {{
- *     file: !Array.<string>,
- *     rank: !Array.<number>
- *     }}
- */
-Controller.BoardGrid = {
-  file: 'abcdefgh'.split(''),
-  rank: '12345678'.split('')
-};
 
 
 /**
@@ -130,41 +117,6 @@ Controller.DefaultBlackName = 'squirrel';
 
 
 /**
- * @type {number}
- */
-Controller.NumericEntityBlackOffset = 6;
-
-/**
- * Map of SAN of pieces to their corresponding numeric value in HTML entities.
- *
- * @enum {number}
- */
-Controller.WhiteChessPieceEntity = {
-  p: 9817,
-  r: 9814,
-  n: 9816,
-  b: 9815,
-  q: 9813,
-  k: 9812
-};
-
-
-/**
- * Inverse of {@link Controller.WhiteChessPieceEntity}, without pawn.
- *
- * @enum {string}
- */
-Controller.WhiteEntityToNotation = {
-  9817: 'p',
-  9814: 'r',
-  9816: 'n',
-  9815: 'b',
-  9813: 'q',
-  9812: 'k'
-};
-
-
-/**
  * @enum {string}
  */
 Controller.TransitionState = {
@@ -174,79 +126,6 @@ Controller.TransitionState = {
   CANCEL: 'cancel'
 };
 
-
-/**
- * @param {string} numericEntity
- * @return {string}
- *     The HTML entity (eg: &#40; for open parenthesis "(") that
- *     {@code numericEntity}'s number represents.
- * @private
- */
-Controller.htmlEntity_ = function(numericEntity) {
-  return '&#' + numericEntity + ';';
-};
-
-
-/**
- * @param {string} piece
- * @param {boolean} forWhite
- * @return {number}
- * @private
- */
-Controller.getNumericPieceEntity_ = function(piece, forWhite) {
-  return Controller.WhiteChessPieceEntity[piece] +
-    (forWhite ? 0 : Controller.NumericEntityBlackOffset);
-};
-
-
-/**
- * @param {number} entity
- * @param {boolean} forWhite
- * @return {string}
- */
-Controller.getPieceFromNumericEntity = function(entity, forWhite) {
-  var numericEntity = entity -
-      (forWhite ? 0 : Controller.NumericEntityBlackOffset);
-  return Controller.WhiteEntityToNotation[numericEntity];
-};
-
-
-/**
- * @param {?Controller.ChessjsPiece} chessPiece
- * @return {string}
- *     The HTML entity represented by {@code chessPiece}.
- * @private
- */
-Controller.pieceToHtmlEntity_ = function(chessPiece) {
-  if (chessPiece) {
-    var numericEntity = Controller.getNumericPieceEntity_(
-        chessPiece.type, chessPiece.color !== 'b');
-    return Controller.htmlEntity_(numericEntity);
-  }
-  return '';
-};
-
-
-/**
- * @param {string} file
- * @param {number} rank
- * @return {string}
- */
-Controller.prototype.getCurrentPiece = function(file, rank) {
-  return Controller.
-      pieceToHtmlEntity_(this.chessjs_.get(file + rank)) || '&nbsp;';
-};
-
-
-/**
- * @param {string} file
- * @param {number} rank
- * @return {string}
- */
-Controller.prototype.getOccupationColor = function(file, rank) {
-  var occupation = this.chessjs_.get(file + rank);
-  return occupation ? occupation.color : '';
-};
 
 
 /** Download current PGN output. */
@@ -447,7 +326,7 @@ Controller.prototype.getPossiblePromotions_ = function(isForWhite) {
       ['n', 'r', 'q', 'b'],
       angular.bind(this, function(piece) {
         possiblePromotions.push(
-            Controller.getNumericPieceEntity_(piece, isForWhite));
+            this.chessjsService_.util.getNumericPieceEntity(piece, isForWhite));
       }));
   return possiblePromotions;
 };
@@ -574,7 +453,7 @@ Controller.prototype.gameStarted = function() {
 
 /** @return {string} */
 Controller.prototype.getGameResolution = function() {
-  return this.chessjsService_.getGameResolution(this.chessjs_);
+  return this.chessjsService_.util.getGameResolution(this.chessjs_);
 };
 
 

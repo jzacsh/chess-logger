@@ -108,11 +108,20 @@ HistoryCtrl.prototype.getPlayerBlack = function(gameKey) {
 };
 
 
+/**
+ * @param {number} gameKey
+ * @return {boolean}
+ */
 HistoryCtrl.prototype.gameOver = function(gameKey) {
   return this.getAllGames()[gameKey].game_over();
 };
 
 
+/**
+ * @param {number} gameKey
+ * @return {string}
+ *     HTML markup for the King of the winning color.
+ */
 HistoryCtrl.prototype.getWiningPlayerIcon = function(gameKey) {
   return this.getPlayerIcon(this.winningPlayer(gameKey));
 };
@@ -138,14 +147,15 @@ HistoryCtrl.prototype.winningPlayer = function(gameKey) {
   var game = this.getAllGames()[gameKey];
   return game.game_over() && game.turn() === 'w' ?
          'b' : 'w';
-}
+};
+
 
 /**
  * @param {number} gameKey
  * @return {string}
  */
 HistoryCtrl.prototype.getGameResolution = function(gameKey) {
-  return this.chessjsService_.
+  return this.chessjsService_.util.
       getGameResolution(this.getAllGames()[gameKey]) || 'in progress';
 };
 

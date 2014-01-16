@@ -23,25 +23,25 @@
   margin-bottom: 0;
 }
 
-.game-review {
+.history-review {
 }
 
-.game-review .vs {
+.history-review .vs {
 }
 
-.game-review thead {
+.history-review thead {
   text-align: center;
 }
 
-.game-review td {
+.history-review td {
   padding: 0 1ex;
 }
 
-.game-review td.winner {
+.history-review td.winner {
   opacity: 0;
 }
 
-.game-review tr[data-gameover="true"] td.winner {
+.history-review tr[data-gameover="true"] td.winner {
   opacity: inherit;
 }
 

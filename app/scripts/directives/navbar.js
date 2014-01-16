@@ -37,17 +37,19 @@ var clNavbarFactory = function clNavbarFactory($location, $route) {
         '  <h1 class="text-muted">Chess Logger: {{nav_items[current]}}</h1>' +
         '  <ul>' +
         '    <li ng-class="{' +
-        '          ' + "'btn-info'" + ': url !== current,' +
-        '          ' + "'btn'" + ': url === current' +
+        '          ' + "'btn-info'" + ': normalize(url) !== current,' +
+        '          ' + "'btn'" + ': normalize(url) === current' +
         '        }"' +
         '        ng-repeat="(url,item) in nav_items">' +
-        '      <a ng-hide="url == current"' +
+        '      <a ng-hide="normalize(url) == current"' +
         '         ng-href="{{format(url)}}">{{item}}</a>' +
-        '      <span ng-show="url == current" >{{item}}</span>' +
+        '      <span ng-show="normalize(url) == current" >{{item}}</span>' +
         '    </li>' +
         '  </ul>' +
         '</div>',
     link: function postLink(scope, element, attrs) {
+      scope.normalize = extractSinglePagePart;
+
       /**
        * Map of single-page paths to their titles.
        *

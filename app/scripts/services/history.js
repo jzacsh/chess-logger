@@ -109,7 +109,10 @@ HistoryService.prototype.writePgnDump = function(pgnKey, pgnDump) {
 };
 
 
-/** @param {string} pgnHistory */
+/**
+ * @param {string} pgnHistory
+ * @private
+ */
 HistoryService.prototype.writePgnHistory_ = function(pgnHistory) {
   this.storejs_.set(HistoryService.StorageKeyPgnHistory, pgnHistory);
 };

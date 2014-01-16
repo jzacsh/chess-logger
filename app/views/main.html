@@ -44,12 +44,12 @@
 
     <table class="chess-board" ng-class="{unfocus: pawn_promotion}">
       <tr data-chess-rank="{{rank}}"
-          ng-repeat="rank in ui_board.rank">
+          ng-repeat="rank in ui_board.getRanks()">
         <td data-chess-position="{{file}}{{rank}}"
             data-chess-file="{{file}}"
             data-chess-sqr-color="{{controller.squareColor(file, rank)}}"
             data-chess-transitioning="{{controller.isPendingTransition(file, rank)}}"
-            ng-repeat="file in ui_board.file">
+            ng-repeat="file in ui_board.getFiles()">
           <button title="{{controller.getMoveTransitionStateMessage(file, rank)}}"
                   data-chess-transition="{{controller.getTransitionState(file, rank)}}"
                   data-chess-occupation="{{controller.getOccupationColor(file, rank)}}"

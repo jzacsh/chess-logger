@@ -35,25 +35,25 @@
 
     <ul data-chess-turn="b"
         class="pawn-promotion"
-        ng-show="pawn_promotion">
+        ng-show="game.pawn_promotion">
       <li ng-repeat="target in controller.getPossibleBlackPromotions()">
-        <a ng-click="pawn_promotion.resolve(target)"
+        <a ng-click="game.pawn_promotion.resolve(target)"
            ng-bind-html="entity_to_piece(target)"></a>
       </li>
     </ul>
 
-    <table class="chess-board" ng-class="{unfocus: pawn_promotion}">
+    <table class="chess-board" ng-class="{unfocus: game.pawn_promotion}">
       <tr data-chess-rank="{{rank}}"
-          ng-repeat="rank in ui_board.getRanks()">
+          ng-repeat="rank in game.ui_board.getRanks()">
         <td data-chess-position="{{file}}{{rank}}"
             data-chess-file="{{file}}"
             data-chess-sqr-color="{{controller.squareColor(file, rank)}}"
-            data-chess-occupation="{{controller.getOccupationColor(file, rank)}}"
+            data-chess-occupation="{{game.get_occupation_color(file, rank)}}"
             data-chess-transitioning="{{controller.isPendingTransition(file, rank)}}"
-            ng-repeat="file in ui_board.getFiles()">
+            ng-repeat="file in game.ui_board.getFiles()">
           <button title="{{controller.getMoveTransitionStateMessage(file, rank)}}"
                   data-chess-transition="{{controller.getTransitionState(file, rank)}}"
-                  ng-bind-html="controller.getCurrentPiece(file, rank)"
+                  ng-bind-html="game.get_current_piece(file, rank)"
                   ng-click="controller.moveTransition(file, rank)"></button>
         </td>
       </tr>
@@ -63,10 +63,10 @@
 
     <ul data-chess-turn="w"
         class="pawn-promotion"
-        ng-show="pawn_promotion">
+        ng-show="game.pawn_promotion">
       <li ng-repeat="target in controller.getPossibleWhitePromotions()">
-        <a ng-click="pawn_promotion.resolve(target)"
-           ng-bind-html="entity_to_piece(target)"></a>
+        <a ng-click="game.pawn_promotion.resolve(target)"
+           ng-bind-html="game.ui_board.toHtmlEntity(target)"></a>
       </li>
     </ul>
 

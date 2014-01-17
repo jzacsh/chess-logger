@@ -1,15 +1,6 @@
 'use strict';
 
 
-
-/** @constructor */
-var ChessjsService = function ChessjsService() {
-  /** chess.js global, loaded before angular is */
-  this.Chessjs = Chess;
-
-  this.util = ChessUtil;
-};
-
 var ChessUtil = {};
 
 /** @return {!Array.<string> */
@@ -167,6 +158,16 @@ ChessUtil.WhiteEntityToNotation = {
   9815: 'b',
   9813: 'q',
   9812: 'k'
+};
+
+
+
+/** @constructor */
+var ChessjsService = function ChessjsService() {
+  /** chess.js global, loaded before angular is */
+  this.Chessjs = Chess;
+
+  this.util = ChessUtil;
 };
 
 

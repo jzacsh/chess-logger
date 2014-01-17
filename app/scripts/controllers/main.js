@@ -19,19 +19,8 @@ var Controller = function Controller(
   /** @private {!angular.Scope} */
   this.scope_ = $scope;
 
-  /**
-   * Promise to get a response from a user on what piece a pawn should be
-   * promoted to.
-   *
-   * @type {?angular.$q.Deferred}
-   */
-  this.scope_.pawn_promotion = null;
-
   /** @private {!Object} */
   this.chessjsService_ = chessjsService;
-
-  /** {@link Controller.htmlEntity} */
-  this.scope_.entity_to_piece = this.chessjsService_.util.toHtmlEntity;
 
   /**
    * Instance of chess.js game being represented on screen.
@@ -43,17 +32,6 @@ var Controller = function Controller(
 
   /** @private {!Object} */
   this.historyService_ = historyService;
-
-  /** @type {string} */
-  this.scope_.white_name = this.historyService_.
-      getMostRecentName(true  /* white */);
-
-  /** @type {string} */
-  this.scope_.black_name = this.historyService_.
-      getMostRecentName(false  /* white */);
-
-  /** @type {!Object} */
-  this.scope_.ui_board = this.chessjsService_.util;
 
   /**
    * File and rank of the chess piece currently in transit, if any.
@@ -67,11 +45,36 @@ var Controller = function Controller(
   /** @private {number} */
   this.gameKey_ = 0;
 
-  this.getOccupationColor = angular.
-      bind(this, this.chessjsService_.util.getOccupationColor, this.chessjs_);
+  /**
+   * Local data about the current game's UI state.
+   * @type {!Object}
+   */
+  this.scope_.game = {
+    /**
+     * Promise to get a response from a user on what piece a pawn should be
+     * promoted to.
+     *
+     * @type {?angular.$q.Deferred}
+     */
+    pawn_promotion: null,
 
-  this.getCurrentPiece = angular.
-      bind(this, this.chessjsService_.util.getCurrentPiece, this.chessjs_);
+    /** @type {!Object} */
+    ui_board: this.chessjsService_.util,
+
+    get_occupation_color: angular.
+        bind(this, this.chessjsService_.util.getOccupationColor, this.chessjs_),
+
+    get_current_piece: angular.
+        bind(this, this.chessjsService_.util.getCurrentPiece, this.chessjs_)
+  };
+
+  /** @type {string} */
+  this.scope_.white_name = this.historyService_.
+      getMostRecentName(true  /* white */);
+
+  /** @type {string} */
+  this.scope_.black_name = this.historyService_.
+      getMostRecentName(false  /* white */);
 
   return $scope.controller = this;
 };
@@ -243,7 +246,7 @@ Controller.prototype.initNewGame_ = function() {
  */
 Controller.prototype.unsetPiecesInTransit_ = function() {
   this.pieceInTransit_ = null;
-  this.scope_.pawn_promotion = null;
+  this.scope_.game.pawn_promotion = null;
 };
 
 
@@ -278,10 +281,10 @@ Controller.prototype.maybeCompleteTransit_ = function(destination) {
   }
 
   if (this.isPawnPromotion_(destination)) {
-    this.scope_.pawn_promotion = deferred;
+    this.scope_.game.pawn_promotion = deferred;
 
     // Wait until user selects target promotion, before moving
-    return this.scope_.pawn_promotion.promise.
+    return this.scope_.game.pawn_promotion.promise.
         then(angular.bind(this, this.pawnPromtionHandler_, destination));
   } else {
     this.movePiece_(this.pieceInTransit_, destination);

@@ -478,7 +478,7 @@ Controller.prototype.toPgn = function() {
     newline_char: '\n'
   });
 
-  if (this.gameStarted()) {
+  if (this.gameStarted() && this.chessjs_.history().length) {
     // Start recording dumps, once a game has started.
     this.historyService_.writePgnDump(this.gameKey_, pgnDump);
   }

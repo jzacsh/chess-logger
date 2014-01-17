@@ -2,19 +2,27 @@
 
 
 /**
- * Main controller to manage a chess board and it's corresponding PGN data.
+ * Record controller to manage a chess board and it's corresponding PGN data.
  *
- * @param {!angular.Scope} $scope
+ * @param {!angular.$location} $location
  * @param {!angular.$q} $q
+ * @param {!angular.$routeParams} $routeParams
+ * @param {!angular.Scope} $scope
  * @param {!Object} chessjsService
  *     github.com/jhlywa/chess.js
  * @param {!Object} historyService
  * @constructor
  */
-var Controller = function Controller(
-    $scope, $q, chessjsService, historyService) {
+var RecordCtrl = function RecordCtrl(
+    $location, $q, $routeParams, $scope, chessjsService, historyService) {
+  /** @private {!angular.$location} */
+  this.location_ = $location;
+
   /** @private {!angular.$q} */
   this.q_ = $q;
+
+  /** @private {!angular.$routeParams} */
+  this.routeParams_ = $routeParams;
 
   /** @private {!angular.Scope} */
   this.scope_ = $scope;
@@ -38,12 +46,9 @@ var Controller = function Controller(
    *
    * <p>eg: 'a2' would White's knight at the start of the game.</p>
    *
-   * @private {?Controller.AlgebraicCoordinate}
+   * @private {?RecordCtrl.AlgebraicCoordinate}
    */
   this.pieceInTransit_ = null;
-
-  /** @private {number} */
-  this.gameKey_ = 0;
 
   /**
    * Local data about the current game's UI state.
@@ -76,18 +81,22 @@ var Controller = function Controller(
   this.scope_.black_name = this.historyService_.
       getMostRecentName(false  /* white */);
 
+  /** @private {number} */
+  this.gameKey_ = this.getGameKeyPath_();
+  this.maybeLoadGame_();
+
   return $scope.controller = this;
 };
 
 
 /** @type {string} */
-Controller.DownloadFileNamePrefix = 'chess.jzacsh.com_game-';
+RecordCtrl.DownloadFileNamePrefix = 'chess.jzacsh.com_game-';
 
 
 /**
  * @typedef {{file: string, rank: number}}
  */
-Controller.AlgebraicCoordinate;
+RecordCtrl.AlgebraicCoordinate;
 
 
 /**
@@ -104,7 +113,7 @@ Controller.AlgebraicCoordinate;
  *     color: string
  *     }}
  */
-Controller.ChessjsPiece;
+RecordCtrl.ChessjsPiece;
 
 
 /**
@@ -112,7 +121,7 @@ Controller.ChessjsPiece;
  * before starting game.
  * @type {string}
  */
-Controller.DefaultWhiteName = 'hippo';
+RecordCtrl.DefaultWhiteName = 'hippo';
 
 
 /**
@@ -120,13 +129,13 @@ Controller.DefaultWhiteName = 'hippo';
  * before starting game.
  * @type {string}
  */
-Controller.DefaultBlackName = 'squirrel';
+RecordCtrl.DefaultBlackName = 'squirrel';
 
 
 /**
  * @enum {string}
  */
-Controller.TransitionState = {
+RecordCtrl.TransitionState = {
   START: 'start',
   VALID: 'valid',
   INVALID: 'invalid',
@@ -134,17 +143,31 @@ Controller.TransitionState = {
 };
 
 
+/** @private */
+RecordCtrl.prototype.maybeLoadGame_ = function() {
+  if (!this.gameKey_) {
+    return;
+  }
+  this.chessjs_.load_pgn(this.historyService_.readPgnDumps()[this.gameKey_]);
+
+  // Don't allow editing of past games.
+  if (this.chessjs_.game_over()) {
+    this.location_.path('/review:' + this.gameKey_);
+  }
+};
+
+
 /**
  * @return {string}
  *     Download-file name for a PGN dump of the current game.
  */
-Controller.prototype.getDownloadFileName = function() {
-  return Controller.DownloadFileNamePrefix + this.gameKey_ + '.txt';
+RecordCtrl.prototype.getDownloadFileName = function() {
+  return RecordCtrl.DownloadFileNamePrefix + this.gameKey_ + '.txt';
 };
 
 
 /** Authenticate against 3rd party API. */
-Controller.prototype.login = function() {
+RecordCtrl.prototype.login = function() {
   throw new Error('`login` not yet implemented');
 };
 
@@ -157,7 +180,7 @@ Controller.prototype.login = function() {
  *     {@code file} and {@code rank}.
  * @private
  */
-Controller.prototype.pieceExists_ = function(file, rank) {
+RecordCtrl.prototype.pieceExists_ = function(file, rank) {
   return !!this.chessjs_.get(file + rank);
 };
 
@@ -165,20 +188,20 @@ Controller.prototype.pieceExists_ = function(file, rank) {
 /**
  * @param {string} file
  * @param {number} rank
- * @return {!Controller.AlgebraicCoordinate}
+ * @return {!RecordCtrl.AlgebraicCoordinate}
  * @private
  */
-Controller.getAlgebraicCoordinate_ = function(file, rank) {
+RecordCtrl.getAlgebraicCoordinate_ = function(file, rank) {
   return {file: file, rank: rank};
 };
 
 
 /**
- * @param {!Controller.AlgebraicCoordinate} coordinate
+ * @param {!RecordCtrl.AlgebraicCoordinate} coordinate
  * @return {string}
  * @private
  */
-Controller.coordinateToSan_ = function(coordinate) {
+RecordCtrl.coordinateToSan_ = function(coordinate) {
   return coordinate.file + coordinate.rank;
 };
 
@@ -189,21 +212,21 @@ Controller.coordinateToSan_ = function(coordinate) {
  * @return {boolean}
  *     If piece is currently being moved to another square.
  */
-Controller.prototype.isPendingTransition = function(file, rank) {
+RecordCtrl.prototype.isPendingTransition = function(file, rank) {
   return this.pieceInTransit_ &&
-         Controller.pieceEquals(
+         RecordCtrl.pieceEquals(
              this.pieceInTransit_,
-             Controller.getAlgebraicCoordinate_(file, rank));
+             RecordCtrl.getAlgebraicCoordinate_(file, rank));
 };
 
 
 /**
- * @param {!Controller.AlgebraicCoordinate} pieceA
- * @param {!Controller.AlgebraicCoordinate} pieceB
+ * @param {!RecordCtrl.AlgebraicCoordinate} pieceA
+ * @param {!RecordCtrl.AlgebraicCoordinate} pieceB
  * @return {boolean}
  *     Whether {@code pieceA} is the same square as {@code pieceB}.
  */
-Controller.pieceEquals = function(pieceA, pieceB) {
+RecordCtrl.pieceEquals = function(pieceA, pieceB) {
   return pieceA.file === pieceB.file &&
          pieceA.rank === pieceB.rank;
 };
@@ -213,17 +236,20 @@ Controller.pieceEquals = function(pieceA, pieceB) {
  * @param {string} file
  * @param {number} rank
  */
-Controller.prototype.moveTransition = function(file, rank) {
+RecordCtrl.prototype.moveTransition = function(file, rank) {
   var transitionState = this.getTransitionState(file, rank);
   if (this.pieceInTransit_ &&
-      (transitionState === Controller.TransitionState.VALID ||
-       transitionState === Controller.TransitionState.CANCEL)) {
+      (transitionState === RecordCtrl.TransitionState.VALID ||
+       transitionState === RecordCtrl.TransitionState.CANCEL)) {
+    // Allows user to start game by simply moving a piece on board (ignoring
+    // form fields).
     this.initNewGame_();
-    var destination = Controller.getAlgebraicCoordinate_(file, rank);
+
+    var destination = RecordCtrl.getAlgebraicCoordinate_(file, rank);
     this.maybeCompleteTransit_(destination).
         then(angular.bind(this, this.unsetPiecesInTransit_));
-  } else if (transitionState === Controller.TransitionState.START) {
-    this.pieceInTransit_ = Controller.getAlgebraicCoordinate_(file, rank);
+  } else if (transitionState === RecordCtrl.TransitionState.START) {
+    this.pieceInTransit_ = RecordCtrl.getAlgebraicCoordinate_(file, rank);
   }
 };
 
@@ -233,7 +259,7 @@ Controller.prototype.moveTransition = function(file, rank) {
  * current moves.
  * @private
  */
-Controller.prototype.initNewGame_ = function() {
+RecordCtrl.prototype.initNewGame_ = function() {
   if (!this.gameStarted()) {
     this.newGame();
   }
@@ -244,20 +270,20 @@ Controller.prototype.initNewGame_ = function() {
  * Delets any metadata relating to pieces in transit.
  * @private
  */
-Controller.prototype.unsetPiecesInTransit_ = function() {
+RecordCtrl.prototype.unsetPiecesInTransit_ = function() {
   this.pieceInTransit_ = null;
   this.scope_.game.pawn_promotion = null;
 };
 
 
 /**
- * @param {!Controller.AlgebraicCoordinate} destination
+ * @param {!RecordCtrl.AlgebraicCoordinate} destination
  * @return {boolean}
  *     Whether a pawn is in transit and only one move away from promotion.
  * @private
  */
-Controller.prototype.isPawnPromotion_ = function(destination) {
-  var sanPieceInTransit = Controller.
+RecordCtrl.prototype.isPawnPromotion_ = function(destination) {
+  var sanPieceInTransit = RecordCtrl.
       coordinateToSan_(this.pieceInTransit_ || {});
   var chessJsPiece = this.chessjs_.get(sanPieceInTransit);
   return !!this.pieceInTransit_ &&
@@ -268,14 +294,14 @@ Controller.prototype.isPawnPromotion_ = function(destination) {
 
 
 /**
- * @param {!Controller.AlgebraicCoordinate} destination
+ * @param {!RecordCtrl.AlgebraicCoordinate} destination
  * @return {!angular.Promise}
  *     Promise indicating completion (or incompletion) of transit.
  * @private
  */
-Controller.prototype.maybeCompleteTransit_ = function(destination) {
+RecordCtrl.prototype.maybeCompleteTransit_ = function(destination) {
   var deferred = this.q_.defer();
-  if (Controller.pieceEquals(this.pieceInTransit_, destination)) {
+  if (RecordCtrl.pieceEquals(this.pieceInTransit_, destination)) {
     deferred.reject();
     return deferred.promise;  // User is cancelling operation
   }
@@ -295,16 +321,16 @@ Controller.prototype.maybeCompleteTransit_ = function(destination) {
 
 
 /**
- * @param {!Controller.AlgebraicCoordinate} destination
+ * @param {!RecordCtrl.AlgebraicCoordinate} destination
  * @param {*} response
  * @private
  */
-Controller.prototype.pawnPromtionHandler_ = function(destination, response) {
+RecordCtrl.prototype.pawnPromtionHandler_ = function(destination, response) {
   var isWhite = this.chessjs_.
-      get(Controller.coordinateToSan_(this.pieceInTransit_)).
+      get(RecordCtrl.coordinateToSan_(this.pieceInTransit_)).
       color === 'w';
 
-  var promoteTo = Controller.getPieceFromNumericEntity(response, isWhite);
+  var promoteTo = RecordCtrl.getPieceFromNumericEntity(response, isWhite);
   this.movePiece_(
       this.pieceInTransit_,
       destination,
@@ -313,13 +339,13 @@ Controller.prototype.pawnPromtionHandler_ = function(destination, response) {
 
 
 /** @return {!Array.<number>} */
-Controller.prototype.getPossibleWhitePromotions = function() {
+RecordCtrl.prototype.getPossibleWhitePromotions = function() {
   return this.getPossiblePromotions_(true  /* white */);
 };
 
 
 /** @return {!Array.<number>} */
-Controller.prototype.getPossibleBlackPromotions = function() {
+RecordCtrl.prototype.getPossibleBlackPromotions = function() {
   return this.getPossiblePromotions_(false  /* white */);
 };
 
@@ -329,7 +355,7 @@ Controller.prototype.getPossibleBlackPromotions = function() {
  * @return {!Array.<number>}
  * @private
  */
-Controller.prototype.getPossiblePromotions_ = function(isForWhite) {
+RecordCtrl.prototype.getPossiblePromotions_ = function(isForWhite) {
   var possiblePromotions = [];
   angular.forEach(
       ['n', 'r', 'q', 'b'],
@@ -342,14 +368,14 @@ Controller.prototype.getPossiblePromotions_ = function(isForWhite) {
 
 
 /**
- * @param {!Controller.AlgebraicCoordinate} source
- * @param {!Controller.AlgebraicCoordinate} destination
+ * @param {!RecordCtrl.AlgebraicCoordinate} source
+ * @param {!RecordCtrl.AlgebraicCoordinate} destination
  * @param {string=} opt_promotion
  *     SAN of the particular piece-type that should result of this promotion,
  *     if indeed this is a pawn-promotion.
  * @private
  */
-Controller.prototype.movePiece_ = function(source, destination, opt_promotion) {
+RecordCtrl.prototype.movePiece_ = function(source, destination, opt_promotion) {
   var chessJsMove = {
     from: source.file + source.rank,
     to: destination.file + destination.rank
@@ -365,7 +391,7 @@ Controller.prototype.movePiece_ = function(source, destination, opt_promotion) {
  * @return {string}
  *    chess.js's {@link #turn} output expanded to "White" or "Black".
  */
-Controller.prototype.turn = function() {
+RecordCtrl.prototype.turn = function() {
   return this.turnColor() == 'w' ? 'White' : 'Black';
 };
 
@@ -374,7 +400,7 @@ Controller.prototype.turn = function() {
  * @return {string}
  *    chess.js's {@link #turn} output expanded to "White" or "Black".
  */
-Controller.prototype.turnColor = function() {
+RecordCtrl.prototype.turnColor = function() {
   return this.chessjs_.turn();
 };
 
@@ -382,23 +408,23 @@ Controller.prototype.turnColor = function() {
 /**
  * @param {string} file
  * @param {number} rank
- * @return {?Controller.TransitionState}
+ * @return {?RecordCtrl.TransitionState}
  *    null if there is no piece occupying the square to report a transition
  *    state for.
  */
-Controller.prototype.getTransitionState = function(file, rank) {
-  var square = Controller.getAlgebraicCoordinate_(file, rank);
+RecordCtrl.prototype.getTransitionState = function(file, rank) {
+  var square = RecordCtrl.getAlgebraicCoordinate_(file, rank);
   if (this.pieceInTransit_) {
-    if (Controller.pieceEquals(this.pieceInTransit_, square)) {
-      return Controller.TransitionState.CANCEL;
+    if (RecordCtrl.pieceEquals(this.pieceInTransit_, square)) {
+      return RecordCtrl.TransitionState.CANCEL;
     } else {
-      return Controller.TransitionState.VALID;
+      return RecordCtrl.TransitionState.VALID;
     }
   } else if (this.pieceExists_(file, rank) &&
              this.chessjs_.get(file + rank).color == this.chessjs_.turn()) {
-    return Controller.TransitionState.START;
+    return RecordCtrl.TransitionState.START;
   } else {
-    return Controller.TransitionState.INVALID;
+    return RecordCtrl.TransitionState.INVALID;
   }
 
   return null;  // empty square, no transition
@@ -409,7 +435,7 @@ Controller.prototype.getTransitionState = function(file, rank) {
  * @return {boolean}
  *     Whether the last move put opponent in check.
  */
-Controller.prototype.wasCheck = function() {
+RecordCtrl.prototype.wasCheck = function() {
   return !!(this.chessjs_.history().length &&
             this.chessjs_.history().pop().match(/\+/));
 };
@@ -420,24 +446,24 @@ Controller.prototype.wasCheck = function() {
  * @param {number} rank
  * @return {string}
  */
-Controller.prototype.getMoveTransitionStateMessage = function(file, rank) {
+RecordCtrl.prototype.getMoveTransitionStateMessage = function(file, rank) {
   var transitionState = this.getTransitionState(file, rank);
   if (transitionState === null) {
     return '';
   }
 
   switch (transitionState) {
-      case Controller.TransitionState.CANCEL:
+      case RecordCtrl.TransitionState.CANCEL:
         return 'Cancels move';
 
-      case Controller.TransitionState.VALID:
+      case RecordCtrl.TransitionState.VALID:
         return 'Sets piece on ' + file + rank +
             ', from ' + this.pieceInTransit_.file + this.pieceInTransit_.rank;
 
-      case Controller.TransitionState.START:
+      case RecordCtrl.TransitionState.START:
         return 'Starts move of piece ' + file + rank;
 
-      case Controller.TransitionState.INVALID:
+      case RecordCtrl.TransitionState.INVALID:
         return 'Invalid start; currently ' + this.turn() + "'s turn to move.";
 
       default:
@@ -449,19 +475,19 @@ Controller.prototype.getMoveTransitionStateMessage = function(file, rank) {
 
 
 /** Chess.js {@link #undo} */
-Controller.prototype.undo = function() {
+RecordCtrl.prototype.undo = function() {
   this.chessjs_.undo();
 };
 
 
 /** @return {boolean} */
-Controller.prototype.gameStarted = function() {
+RecordCtrl.prototype.gameStarted = function() {
   return !!this.gameKey_;
 };
 
 
 /** @return {string} */
-Controller.prototype.getGameResolution = function() {
+RecordCtrl.prototype.getGameResolution = function() {
   return this.chessjsService_.util.getGameResolution(this.chessjs_);
 };
 
@@ -472,7 +498,7 @@ Controller.prototype.getGameResolution = function() {
  * @return {string}
  *     "light" or "dark" as per underlying chess.js {@link #square_color}.
  */
-Controller.prototype.squareColor = function(file, rank) {
+RecordCtrl.prototype.squareColor = function(file, rank) {
   return this.chessjs_.square_color(file + rank);
 };
 
@@ -481,7 +507,7 @@ Controller.prototype.squareColor = function(file, rank) {
  * @return {string}
  *     Chess.js {@link #pgn}.
  */
-Controller.prototype.toPgn = function() {
+RecordCtrl.prototype.toPgn = function() {
   var pgnDump = this.chessjs_.pgn({
     max_width: 5,
     newline_char: '\n'
@@ -490,6 +516,11 @@ Controller.prototype.toPgn = function() {
   if (this.gameStarted() && this.chessjs_.history().length) {
     // Start recording dumps, once a game has started.
     this.historyService_.writePgnDump(this.gameKey_, pgnDump);
+
+    // If this is the first save, head to the permalink of this game.
+    if (!this.getGameKeyPath_()) {
+      this.location_.path('/record:' + this.gameKey_);
+    }
   }
 
   return pgnDump;
@@ -497,16 +528,33 @@ Controller.prototype.toPgn = function() {
 
 
 /**
+ * @return {number}
+ * @private
+ */
+RecordCtrl.prototype.getGameKeyPath_ = function() {
+  var gameKey = this.routeParams_.gamekey.replace(/^:/, '');
+
+  if (gameKey.match(/^\d+$/)) {
+    return parseInt(gameKey, 10);
+  } else {
+    // TODO(zacsh): Consider temporary message explaining invlaid gamekey as
+    // reason for redirect
+    this.location_.path('/record:0');
+  }
+};
+
+
+/**
  *
  */
-Controller.prototype.newGame = function() {
+RecordCtrl.prototype.newGame = function() {
   this.gameKey_ = HistoryService.newGameKey();
 
   if (this.scope_.white_name) {
     this.historyService_.setMostRecentName(
         this.scope_.white_name, true  /* for white */);
   } else {
-    this.scope_.white_name = Controller.DefaultWhiteName;
+    this.scope_.white_name = RecordCtrl.DefaultWhiteName;
   }
   this.chessjs_.header('White', this.scope_.white_name);
 
@@ -514,7 +562,7 @@ Controller.prototype.newGame = function() {
     this.historyService_.setMostRecentName(
         this.scope_.black_name, false  /* for white */);
   } else {
-    this.scope_.black_name = Controller.DefaultBlackName;
+    this.scope_.black_name = RecordCtrl.DefaultBlackName;
   }
   this.chessjs_.header('Black', this.scope_.black_name);
 
@@ -526,7 +574,7 @@ Controller.prototype.newGame = function() {
  * @return {boolean}
  *     Whether any unfinished games are saved in history.
  */
-Controller.prototype.haveUnfinishedGame = function() {
+RecordCtrl.prototype.haveUnfinishedGame = function() {
   if (this.gameStarted()) {
     // Only trigger this prompt when a game hasn't been started.
     return false;
@@ -550,10 +598,12 @@ Controller.prototype.haveUnfinishedGame = function() {
 
 angular.
   module('chessLoggerApp').
-  controller('MainCtrl', [
-    '$scope',
+  controller('RecordCtrl', [
+    '$location',
     '$q',
+    '$routeParams',
+    '$scope',
     'chessjsService',
     'historyService',
-    Controller
+    RecordCtrl
   ]);

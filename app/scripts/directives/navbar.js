@@ -56,7 +56,7 @@ var clNavbarFactory = function clNavbarFactory($location, $route) {
        * @type {!Object.<string, string>}
        */
       scope.nav_items = {
-        '/': 'Record',
+        'record': 'Record',
         'history': 'History',
         'review': 'Review'
       };
@@ -106,6 +106,8 @@ var clNavbarFactory = function clNavbarFactory($location, $route) {
       // this:
       scope.nav_items['review:0'] = scope.nav_items['review'];
       delete scope.nav_items.review;
+      scope.nav_items['record:0'] = scope.nav_items['record'];
+      delete scope.nav_items.record;
     }
   };
 };

@@ -145,8 +145,7 @@ HistoryCtrl.prototype.getPlayerIcon = function(player) {
  */
 HistoryCtrl.prototype.winningPlayer = function(gameKey) {
   var game = this.getAllGames()[gameKey];
-  return game.game_over() && game.turn() === 'w' ?
-         'b' : 'w';
+  return (game && game.game_over() && game.turn() === 'w') ? 'b' : 'w';
 };
 
 
@@ -156,7 +155,7 @@ HistoryCtrl.prototype.winningPlayer = function(gameKey) {
  */
 HistoryCtrl.prototype.getGameResolution = function(gameKey) {
   return this.chessjsService_.util.
-      getGameResolution(this.getAllGames()[gameKey]) || 'in progress';
+      getGameResolution(this.getAllGames()[gameKey]) || 'ongoing, ';
 };
 
 

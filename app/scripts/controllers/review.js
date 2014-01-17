@@ -15,6 +15,7 @@ var ReviewCtrl = function ReviewCtrl(
     $location, $routeParams, $scope, chessjsService, historyService) {
   /** @private {!angular.$location} */
   this.location_ = $location;
+
   /** @private {!angular.$routeParams} */
   this.routeParams_ = $routeParams;
 
@@ -97,17 +98,32 @@ ReviewCtrl.prototype.isRawPgnValid = function(rawPgn) {
 
 
 /**
+ * PGN allows for almost the entire file to be on one line, break this up.
+ *
+ * @param {string} rawPgn
+ * @return {string}
+ *     {@code rawPgn} with linebreaks inserted for human-readability.
+ * @private
+ */
+ReviewCtrl.prototype.lineBreakifyRawPgn_ = function(rawPgn) {
+  return rawPgn.
+
+    // breaks up each header field.
+    replace(/\]\s*/g, ']\n').
+
+    // breaks up each pair of moves.
+    replace(/(\ )(\d+\.)/g, '$1\n$2');
+};
+
+
+/**
  * @param {string} rawPgn
  *    Manually entered (or pasted) PGN dump provided by user for save and
  *    review.
  */
 ReviewCtrl.prototype.submitRawGamePgn = function(rawPgn) {
   var gameKey = HistoryService.newGameKey();
-
-  // chessjs.load_pgn allows entire headers on single line; break this up.
-  var scrapedPgn = rawPgn.replace((new RegExp('\\]\\s*', 'g')), ']\n');
-
-  this.historyService_.writePgnDump(gameKey, scrapedPgn);
+  this.historyService_.writePgnDump(gameKey, this.lineBreakifyRawPgn_(rawPgn));
   this.location_.path('/review:' + gameKey);
 };
 

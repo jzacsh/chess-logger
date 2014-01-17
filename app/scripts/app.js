@@ -11,9 +11,9 @@ angular.
       '$routeProvider',
       function($locationProvider, $routeProvider) {
         $routeProvider.
-            when('/', {
-              templateUrl: 'views/main.html',
-              controller: 'MainCtrl'
+            when('/record:gamekey', {
+              templateUrl: 'views/record.html',
+              controller: 'RecordCtrl'
             }).
             when('/history', {
               templateUrl: 'views/history.html',
@@ -24,7 +24,7 @@ angular.
               controller: 'ReviewCtrl'
             }).
             otherwise({
-              redirectTo: '/'
+              redirectTo: '/history'
             });
         $locationProvider.hashPrefix('!');
       }

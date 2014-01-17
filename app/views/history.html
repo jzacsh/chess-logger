@@ -46,7 +46,11 @@
 
         <td class="winner" ng-bind-html="controller.getWiningPlayerIcon(key)"></td>
 
-        <td>{{controller.getGameResolution(key)}}</td>
+        <td>
+          {{controller.getGameResolution(key)}}
+          <a ng-hide="controller.gameOver(key)"
+              ng-href="/#!/record:{{key}}">continue</a>
+        </td>
 
         <td>{{controller.getMoveCount(key)}}</td>
       </tr>

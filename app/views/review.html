@@ -2,12 +2,12 @@
 
 <div class="row marketing"></div>
 
-<div ng-if="chessjs"
+<div ng-if="game.chessjs"
      class="jumbotron game-review"
-     ng-class="{active: chessjs.history().length}"
+     ng-class="{active: game.chessjs.history().length}"
      data-active-move="{{controller.getMoveNumber()}}">
   <ul class="pgn-dump metadata">
-    <li ng-repeat="metadata in formatted_pgn_dump.metadata">
+    <li ng-repeat="metadata in game.formatted_pgn_dump.metadata">
       {{metadata}}
     </li>
   </ul>
@@ -17,29 +17,28 @@
         ng-repeat="rank in board.getRanks()">
       <td data-chess-position="{{file}}{{rank}}"
           data-chess-file="{{file}}"
-          data-chess-sqr-color="{{chessjs.square_color(file + rank)}}"
-          data-chess-occupation="{{board.getOccupationColor(chessjs, file, rank)}}"
+          data-chess-sqr-color="{{game.chessjs.square_color(file + rank)}}"
+          data-chess-occupation="{{board.getOccupationColor(game.chessjs, file, rank)}}"
           ng-repeat="file in board.getFiles()">
-        <button ng-bind-html="board.getCurrentPiece(chessjs, file, rank)">
-        </button>
+        <button ng-bind-html="board.getCurrentPiece(game.chessjs, file, rank)"></button>
       </td>
     </tr>
   </table>
 
   <label class="jumpto">
-    Jump to &#40;{{(controller.readableIndex(jump_to))}}&#41;:
+    Jump to &#40;{{(controller.readableIndex(game.jump_to))}}&#41;:
     <input class="playback"
-           ng-change="controller.jumpTo(jump_to)"
-           ng-model="jump_to"
+           ng-change="controller.jumpTo(game.jump_to)"
+           ng-model="game.jump_to"
            type="range"
            step="1"
            min="0"
-           max="{{last_move_index}}" />
+           max="{{game.last_move_index}}" />
   </label>
 
   <ul class="pgn-dump exchanges">
     <li data-exchange-index="{{$index}}"
-        ng-repeat="exchange in formatted_pgn_dump.moves"
+        ng-repeat="exchange in game.formatted_pgn_dump.moves"
         ng-class="{active: $index === controller.getExchangeNumber()}">
       {{exchange}}
     </li>

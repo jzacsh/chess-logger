@@ -3,6 +3,7 @@
 
 
 /**
+ * @param {!angular.$location} $location
  * @param {!angular.$routeParams} $routeParams
  * @param {!angular.Scope} $scope
  * @param {!Object} chessjsService
@@ -11,12 +12,17 @@
  * @constructor
  */
 var ReviewCtrl = function ReviewCtrl(
-    $routeParams, $scope, chessjsService, historyService) {
+    $location, $routeParams, $scope, chessjsService, historyService) {
+  /** @private {!angular.$location} */
+  this.location_ = $location;
   /** @private {!angular.$routeParams} */
-  this.$routeParams_ = $routeParams;
+  this.routeParams_ = $routeParams;
 
   /** @private {!angular.Scope} */
   this.scope_ = $scope;
+
+  /** @type {boolean} */
+  this.scope_.upload_game = false;
 
   /** @private {!Object} */
   this.chessjsService_ = chessjsService;
@@ -28,7 +34,7 @@ var ReviewCtrl = function ReviewCtrl(
   this.scope_.board = chessjsService.util;
 
   /** @type {!Object} */
-  this.scope_.game = ReviewCtrl.DefaultGameData;
+  this.scope_.game = angular.copy(ReviewCtrl.DefaultGameData);
 
   // Try loading the current URL's game.
   this.loadCurrentGame_();
@@ -37,7 +43,19 @@ var ReviewCtrl = function ReviewCtrl(
 };
 
 
-/** @const */
+/**
+ * Game key param intended to indicate user is attempting to enter a new game
+ * PGN dump manually, not found in existing game history.
+ *
+ * @type {number}
+ */
+ReviewCtrl.NewGameKey = 0;
+
+
+/**
+ * @const
+ * @type {!Object}
+ */
 ReviewCtrl.DefaultGameData = {
   pgn_dump: null,
   chessjs: null,
@@ -58,12 +76,39 @@ ReviewCtrl.prototype.readableIndex = function(index) {
 
 /** @private */
 ReviewCtrl.prototype.loadCurrentGame_ = function() {
-  var gameKey = this.$routeParams_.gameid.replace(/^:/, '');
-  if (gameKey &&
-      Object.keys(this.historyService_.readPgnDumps()).length &&
+  var gameKey = this.routeParams_.gameid.replace(/^:/, '');
+  if (parseInt(gameKey, 10) === ReviewCtrl.NewGameKey) {
+    this.scope_.upload_game = true;
+  } else if (Object.keys(this.historyService_.readPgnDumps()).length &&
       this.historyService_.readPgnDumps()[gameKey]) {
     this.loadGame_(this.historyService_.readPgnDumps()[gameKey]);
   }
+};
+
+
+/**
+ * @param {string} rawPgn
+ * @return {boolean}
+ *     Whether Chessjs recognized {@code rawPgn} as valid PGN format.
+ */
+ReviewCtrl.prototype.isRawPgnValid = function(rawPgn) {
+  return rawPgn ? new this.chessjsService_.Chessjs().load_pgn(rawPgn) : false;
+};
+
+
+/**
+ * @param {string} rawPgn
+ *    Manually entered (or pasted) PGN dump provided by user for save and
+ *    review.
+ */
+ReviewCtrl.prototype.submitRawGamePgn = function(rawPgn) {
+  var gameKey = HistoryService.newGameKey();
+
+  // chessjs.load_pgn allows entire headers on single line; break this up.
+  var scrapedPgn = rawPgn.replace((new RegExp('\\]\\s*', 'g')), ']\n');
+
+  this.historyService_.writePgnDump(gameKey, scrapedPgn);
+  this.location_.path('/review:' + gameKey);
 };
 
 
@@ -160,6 +205,7 @@ ReviewCtrl.prototype.getExchangeNumber = function() {
 angular.
     module('chessLoggerApp').
     controller('ReviewCtrl', [
+      '$location',
       '$routeParams',
       '$scope',
       'chessjsService',

@@ -2,6 +2,20 @@
 
 <div class="row marketing"></div>
 
+
+<form ng-if="upload_game"
+      name="uploadGameForm"
+      class="jumbotron game-upload">
+  <button class="btn btn-primary"
+          ng-disabled="!controller.isRawPgnValid(raw_pgn_upload)"
+          ng-click="controller.submitRawGamePgn(raw_pgn_upload)">
+    Review PGN Text</button>
+  <textarea ng-model="raw_pgn_upload"
+            name="raw_pgn_upload"
+            rows="10"
+            required></textarea>
+</form>
+
 <div ng-if="game.chessjs"
      class="jumbotron game-review"
      ng-class="{active: game.chessjs.history().length}"

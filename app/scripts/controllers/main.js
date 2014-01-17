@@ -491,7 +491,7 @@ Controller.prototype.toPgn = function() {
  *
  */
 Controller.prototype.newGame = function() {
-  var now = new Date();
+  this.gameKey_ = HistoryService.newGameKey();
 
   if (this.scope_.white_name) {
     this.historyService_.setMostRecentName(
@@ -509,14 +509,7 @@ Controller.prototype.newGame = function() {
   }
   this.chessjs_.header('Black', this.scope_.black_name);
 
-  var iso8601Date = [
-    now.getUTCFullYear(),
-    (now.getUTCMonth() + 1),
-    now.getUTCDate()
-  ].join('-');
-  this.chessjs_.header('Date', iso8601Date);
-
-  this.gameKey_ = now.getTime();
+  this.chessjs_.header('Date', HistoryService.buildDateHeader(this.gameKey_));
 };
 
 

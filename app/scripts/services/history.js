@@ -69,6 +69,31 @@ HistoryService.MaxPgnHistory = 20;
 
 
 /**
+ * @return {number}
+ *     {@code new Date().getTime()}
+ */
+HistoryService.newGameKey = function() {
+  return new Date().getTime();
+};
+
+
+/**
+ * @param {number} gameKey
+ * @return {string}
+ *     "Date" header as specified by PGN format. This is just an ISO-8601 date
+ *     string.
+ */
+HistoryService.buildDateHeader = function(gameKey) {
+  var gameDate = new Date(gameKey);
+  return [
+    gameDate.getUTCFullYear(),
+    (gameDate.getUTCMonth() + 1),
+    gameDate.getUTCDate()
+  ].join('-');
+};
+
+
+/**
  * Initializes PGN dump history to expected data structure.
  * @private
  */

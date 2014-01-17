@@ -3,6 +3,27 @@
   text-align: left;
 }
 
+[data-ctrl="review"] .game-upload {
+  text-align: center;
+}
+
+[data-ctrl="review"] .game-upload > * {
+  padding: 1em;
+}
+
+[data-ctrl="review"] .game-upload label {
+  width: 100%;
+}
+
+[data-ctrl="review"] .game-upload textarea {
+  width: 100%;
+  line-height: 1.25em;
+  display: block;
+  font-family: monospace;
+  white-space: pre;
+  color: #444;
+}
+
 [data-ctrl="review"] ul.pgn-dump {
   padding: 0;
 }

@@ -241,12 +241,19 @@ table.chess-board button:active {
   outline: none;
 }
 
-table.chess-board [data-chess-occupation="b"] {
+table.chess-board [data-chess-occupation="b"] button {
   -webkit-transform: rotate(180deg);
   -moz-transform: rotate(180deg);
   -o-transform: rotate(180deg);
   -ms-transform: rotate(180deg);
   transform: rotate(180deg);
+}
+
+table.chess-board [data-chess-occupation=""] button {
+  opacity: 0;
+  /* hack to allow for invisible space-occupying symbol
+   * see: https://github.com/jzacsh/chess-logger/issues/7
+   */
 }
 
 table.chess-board td:first-child {

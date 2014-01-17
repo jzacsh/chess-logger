@@ -18,9 +18,9 @@
       <td data-chess-position="{{file}}{{rank}}"
           data-chess-file="{{file}}"
           data-chess-sqr-color="{{chessjs.square_color(file + rank)}}"
+          data-chess-occupation="{{board.getOccupationColor(chessjs, file, rank)}}"
           ng-repeat="file in board.getFiles()">
-        <button ng-bind-html="board.getCurrentPiece(chessjs, file, rank)"
-                data-chess-occupation="{{board.getOccupationColor(chessjs, file, rank)}}">
+        <button ng-bind-html="board.getCurrentPiece(chessjs, file, rank)">
         </button>
       </td>
     </tr>

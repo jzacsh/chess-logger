@@ -80,7 +80,7 @@ ChessUtil.getOccupationColor = function(chessjs, file, rank) {
  */
 ChessUtil.getCurrentPiece = function(chessjs, file, rank) {
   return ChessUtil.
-      pieceToHtmlEntity_(chessjs.get(file + rank)) || '&nbsp;';
+      pieceToHtmlEntity_(chessjs.get(file + rank)) || '&#9816;';
 };
 
 

@@ -76,7 +76,7 @@ ReviewCtrl.prototype.readableIndex = function(index) {
 
 /** @private */
 ReviewCtrl.prototype.loadCurrentGame_ = function() {
-  var gameKey = this.routeParams_.gameid.replace(/^:/, '');
+  var gameKey = this.routeParams_.gamekey.replace(/^:/, '');
   if (parseInt(gameKey, 10) === ReviewCtrl.NewGameKey) {
     this.scope_.upload_game = true;
   } else if (Object.keys(this.historyService_.readPgnDumps()).length &&

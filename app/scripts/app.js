@@ -19,7 +19,7 @@ angular.
               templateUrl: 'views/history.html',
               controller: 'HistoryCtrl'
             }).
-            when('/review:gameid', {
+            when('/review:gamekey', {
               templateUrl: 'views/review.html',
               controller: 'ReviewCtrl'
             }).

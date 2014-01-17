@@ -52,7 +52,7 @@ ReviewCtrl.DefaultGameData = {
  * @return {number}
  */
 ReviewCtrl.prototype.readableIndex = function(index) {
-  return parseInt(index) + 1;
+  return parseInt(index, 10) + 1;
 };
 
 
@@ -82,7 +82,8 @@ ReviewCtrl.prototype.loadGame_ = function(pgnDump) {
 
   this.scope_.game.chessjs = new this.chessjsService_.Chessjs();
   this.scope_.game.chessjs.load_pgn(this.scope_.game.pgn_dump);
-  this.scope_.game.last_move_index = this.scope_.game.jump_to = this.getLastMoveIndex();
+  this.scope_.game.last_move_index = this.scope_.
+      game.jump_to = this.getLastMoveIndex();
 
   this.formatPgnDump_();
 };

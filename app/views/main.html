@@ -88,7 +88,9 @@
     <textarea class="data pgn-dump" ng-bind-html="controller.toPgn()"></textarea>
 
     <div class="login">
-      <a class="save download btn btn-info" ng-click="controller.download()">
+      <a class="save download btn btn-info"
+         cl-download-txt="controller.toPgn()"
+         cl-download-file="controller.getDownloadFileName()">
         Download</a>
       <a href="#"
          class="login save"

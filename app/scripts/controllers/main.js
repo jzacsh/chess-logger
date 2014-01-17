@@ -77,6 +77,10 @@ var Controller = function Controller(
 };
 
 
+/** @type {string} */
+Controller.DownloadFileNamePrefix = 'chess.jzacsh.com_game-';
+
+
 /**
  * @typedef {{file: string, rank: number}}
  */
@@ -127,10 +131,12 @@ Controller.TransitionState = {
 };
 
 
-
-/** Download current PGN output. */
-Controller.prototype.download = function() {
-  throw new Error('`download` not yet implemented');
+/**
+ * @return {string}
+ *     Download-file name for a PGN dump of the current game.
+ */
+Controller.prototype.getDownloadFileName = function() {
+  return Controller.DownloadFileNamePrefix + this.gameKey_ + '.txt';
 };
 
 

@@ -66,7 +66,7 @@ var clNavbarFactory = function clNavbarFactory($location, $route) {
        * @return {string}
        */
       scope.format = function(url) {
-        return url === '/' ? url : ('/' + url);
+        return url === '/' ? url : ('/#!/' + url);
       };
 
       // Ensure the current loaded page has been configured with this directive.

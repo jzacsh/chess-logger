@@ -38,17 +38,34 @@
       </td>
     </tr>
   </table>
-
-  <label class="jumpto">
-    Jump to &#40;{{(controller.readableIndex(game.jump_to))}}&#41;:
-    <input class="playback"
-           ng-change="controller.jumpTo(game.jump_to)"
-           ng-model="game.jump_to"
-           type="range"
-           step="1"
-           min="0"
-           max="{{game.last_move_index}}" />
-  </label>
+  <ul class="controls">
+    <li class="previous">
+      <label>
+        <button class="btn btn-info"
+                ng-disabled="!controller.canJumpPrevious()"
+                ng-click="controller.jumpPrevious()">Previous</button>
+      </label>
+    </li>
+    <li class="jump">
+      <label class="jumpto">
+        move &#35;{{controller.readableIndex(game.jump_to)}}
+        <input class="playback"
+               ng-change="controller.jumpTo(game.jump_to)"
+               ng-model="game.jump_to"
+               type="range"
+               step="1"
+               min="0"
+               max="{{controller.getLastPossibleIndex()}}" />
+      </label>
+    </li>
+    <li class="next">
+      <label>
+        <button class="btn btn-info"
+                ng-disabled="!controller.canJumpNext()"
+                ng-click="controller.jumpNext()">Next</button>
+      </label>
+    </li>
+  </ul>
 
   <ul class="pgn-dump exchanges">
     <li data-exchange-index="{{$index}}"

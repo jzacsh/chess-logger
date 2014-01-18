@@ -60,8 +60,8 @@ ReviewCtrl.NewGameKey = 0;
 ReviewCtrl.DefaultGameData = {
   pgn_dump: null,
   chessjs: null,
+  original: null,
   formatted_pgn_dump: null,
-  last_move_index: 0,
   jump_to: 0
 };
 
@@ -141,10 +141,15 @@ ReviewCtrl.prototype.getLastMoveIndex = function() {
 ReviewCtrl.prototype.loadGame_ = function(pgnDump) {
   this.scope_.game.pgn_dump = pgnDump;
 
+  // The live game, on display
   this.scope_.game.chessjs = new this.chessjsService_.Chessjs();
   this.scope_.game.chessjs.load_pgn(this.scope_.game.pgn_dump);
-  this.scope_.game.last_move_index = this.scope_.
-      game.jump_to = this.getLastMoveIndex();
+
+  // Full game in its entirety, for readonly purposes
+  this.scope_.game.original = new this.chessjsService_.Chessjs();
+  this.scope_.game.original.load_pgn(this.scope_.game.pgn_dump);
+
+  this.scope_.game.jump_to = this.getLastPossibleIndex();
 
   this.formatPgnDump_();
 };
@@ -154,19 +159,64 @@ ReviewCtrl.prototype.loadGame_ = function(pgnDump) {
  * @param {number} jumpTo
  */
 ReviewCtrl.prototype.jumpTo = function(jumpTo) {
-  if (!this.scope_.game.chessjs) {
+  var jump = parseInt(jumpTo, 10);
+  if (!this.scope_.game.chessjs ||
+      !this.canJumpTo(jump)) {
     return;
   }
 
   // Load any potentially missing history
-  if (jumpTo > this.getLastMoveIndex()) {
-    this.scope_.game.chessjs.load_pgn(this.scope_.game.pgn_dump);
+  if (jump > this.getLastMoveIndex()) {
+    this.scope_.game.chessjs.load_pgn(this.scope_.game.original.pgn());
   }
 
   // Undo any moves occuring in history, *after* requested jump
-  while (jumpTo < this.getLastMoveIndex()) {
+  while (jump < this.getLastMoveIndex()) {
     this.scope_.game.chessjs.undo();  // Removes last index from history
   }
+};
+
+
+/** @return {number} */
+ReviewCtrl.prototype.getLastPossibleIndex = function() {
+  return this.scope_.game.original.history().length - 1;
+};
+
+
+/**
+ * @param {number} jumpTo
+ * @return {boolean}
+ *     Whether {@code jumpTo} is a real location in history of this game.
+ */
+ReviewCtrl.prototype.canJumpTo = function(jumpTo) {
+  return jumpTo < this.getLastPossibleIndex() && jumpTo >= 0;
+};
+
+
+/** {@link #jumpTo} wrapper. */
+ReviewCtrl.prototype.jumpPrevious = function() {
+  if (this.canJumpPrevious()) {
+    this.jumpTo(--parseInt(this.scope_.game.jump_to, 10));
+  }
+};
+
+
+/** @return {boolean} */
+ReviewCtrl.prototype.canJumpPrevious = function() {
+  return this.canJumpTo(parseInt(this.scope_.game.jump_to, 10) - 1);
+};
+
+
+/** {@link #jumpTo} wrapper. */
+ReviewCtrl.prototype.jumpNext = function() {
+  if (this.canJumpNext()) {
+    this.jumpTo(--parseInt(this.scope_.game.jump_to, 10));
+  }
+};
+
+/** @return {boolean} */
+ReviewCtrl.prototype.canJumpNext = function() {
+  return this.canJumpTo(parseInt(this.scope_.game.jump_to, 10) + 1);
 };
 
 

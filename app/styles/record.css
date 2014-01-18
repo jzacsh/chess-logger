@@ -207,7 +207,7 @@ table.chess-board button {
 }
 
 table.chess-board [data-chess-transitioning="true"] button {
-  text-decoration: underline;
+  background-color: pink;
 }
 
 table.chess-board [data-chess-transition="start"] {
@@ -230,6 +230,10 @@ table.chess-board button,
 table.chess-board td {
   margin: 0;
   padding: 0;
+}
+
+table.chess-board td:active {
+  background-color: pink;
 }
 
 table.chess-board button:focus,

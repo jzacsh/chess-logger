@@ -79,6 +79,7 @@ HistoryService.newGameKey = function() {
 
 /**
  * @param {number} gameKey
+ *     @see {@link #newGameKey}.
  * @return {string}
  *     "Date" header as specified by PGN format. This is just an ISO-8601 date
  *     string.

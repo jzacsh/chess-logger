@@ -509,8 +509,7 @@ RecordCtrl.prototype.squareColor = function(file, rank) {
  */
 RecordCtrl.prototype.toPgn = function() {
   var pgnDump = this.chessjs_.pgn({
-    max_width: 5,
-    newline_char: '\n'
+    max_width: 5
   });
 
   if (this.gameStarted() && this.chessjs_.history().length) {

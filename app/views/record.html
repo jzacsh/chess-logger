@@ -30,17 +30,18 @@
        data-chess-turn="{{controller.turnColor()}}"
        ng-class="{gameover: controller.getGameResolution()}">
 
-    <p data-chess-turn="b">
-      <strong ng-show="controller.wasCheck()">Check!</strong> Black's move. </p>
+    <div class="instructions" data-chess-turn="b">
+      <p class="move-status">
+        <strong ng-show="controller.wasCheck()">Check!</strong> Black's move. </p>
 
-    <ul data-chess-turn="b"
-        class="pawn-promotion"
-        ng-show="game.pawn_promotion">
-      <li ng-repeat="target in controller.getPossibleBlackPromotions()">
-        <a ng-click="game.pawn_promotion.resolve(target)"
-           ng-bind-html="entity_to_piece(target)"></a>
-      </li>
-    </ul>
+      <ul class="pawn-promotion"
+          ng-show="game.pawn_promotion">
+        <li ng-repeat="target in controller.getPossibleBlackPromotions()">
+          <a ng-click="game.pawn_promotion.resolve(target)"
+             ng-bind-html="game.ui_board.toHtmlEntity(target)"></a>
+        </li>
+      </ul>
+    </div>
 
     <table class="chess-board" ng-class="{unfocus: game.pawn_promotion}">
       <tr data-chess-rank="{{rank}}"
@@ -58,17 +59,19 @@
         </td>
       </tr>
     </table>
-    <p data-chess-turn="w">
-      <strong ng-show="controller.wasCheck()">Check!</strong> White's move.</p>
 
-    <ul data-chess-turn="w"
-        class="pawn-promotion"
-        ng-show="game.pawn_promotion">
-      <li ng-repeat="target in controller.getPossibleWhitePromotions()">
-        <a ng-click="game.pawn_promotion.resolve(target)"
-           ng-bind-html="game.ui_board.toHtmlEntity(target)"></a>
-      </li>
-    </ul>
+    <div class="instructions" data-chess-turn="w">
+      <p class="move-status">
+        <strong ng-show="controller.wasCheck()">Check!</strong> White's move. </p>
+
+      <ul class="pawn-promotion"
+          ng-show="game.pawn_promotion">
+        <li ng-repeat="target in controller.getPossibleWhitePromotions()">
+          <a ng-click="game.pawn_promotion.resolve(target)"
+             ng-bind-html="game.ui_board.toHtmlEntity(target)"></a>
+        </li>
+      </ul>
+    </div>
 
     <p class="status" ng-show="controller.getGameResolution()">
       {{controller.getGameResolution()}}

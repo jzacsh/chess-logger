@@ -330,7 +330,8 @@ RecordCtrl.prototype.pawnPromtionHandler_ = function(destination, response) {
       get(RecordCtrl.coordinateToSan_(this.pieceInTransit_)).
       color === 'w';
 
-  var promoteTo = RecordCtrl.getPieceFromNumericEntity(response, isWhite);
+  var promoteTo = this.scope_.game.ui_board.
+      getPieceFromNumericEntity(response, isWhite);
   this.movePiece_(
       this.pieceInTransit_,
       destination,

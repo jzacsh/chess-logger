@@ -29,9 +29,24 @@ describe('Service: historyService', function() {
   });
 
   it('should init PgnHistory when constructing HistoryService', function() {
-    this.fail(
-      'test setting HistoryService.EmptyPgnHistory both' +
-      ' with no history, and with zero-length history');
+    expect(mockStorejs.set).toHaveBeenCalledWith(
+        HistoryService.StorageKeyPgnHistory, HistoryService.EmptyPgnHistory);
+    var callCount = mockStorejs.set.callCount;
+    expect(callCount).toBe(1);
+
+    mockStorejs.get = jasmine.createSpy().andCallFake(function(storageKey) {
+      expect(storageKey).toBe(HistoryService.StorageKeyPgnHistory);
+
+      var existingData = {};
+      existingData[testGameKey] = 'foo';
+      return existingData;
+    });
+
+    // Re-construct HistoryService, given new storage
+    new HistoryService(storejsService);
+
+    // Expect no further initialization, given existing data
+    expect(mockStorejs.set.callCount).toBe(callCount);
   });
 
   it('should construct new game key', function() {

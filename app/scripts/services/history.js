@@ -22,7 +22,8 @@ var HistoryService = function HistoryService(storejsService) {
    */
   this.lastPgnRead_ = {};
 
-  this.initPgnHistory_();
+  // Update PGN cache, or fallback to above setting.
+  this.lastPgnRead_ = this.readPgnDumps();
 };
 
 
@@ -100,17 +101,6 @@ HistoryService.buildDateHeader = function(gameKey) {
     (gameDate.getUTCMonth() + 1),
     gameDate.getUTCDate()
   ].join('-');
-};
-
-
-/**
- * Initializes PGN dump history to expected data structure.
- * @private
- */
-HistoryService.prototype.initPgnHistory_ = function() {
-  if (!this.readPgnDumps() || !Object.keys(this.readPgnDumps()).length) {
-    this.writePgnHistory_(HistoryService.EmptyPgnHistory);
-  }
 };
 
 

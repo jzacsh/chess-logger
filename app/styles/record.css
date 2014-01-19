@@ -241,6 +241,11 @@ table.chess-board button:active {
   outline: none;
 }
 
+.game-play .instructions {
+  margin: 1ex 0;
+}
+
+.game-play .instructions[data-chess-turn="b"],
 table.chess-board [data-chess-occupation="b"] button {
   -webkit-transform: rotate(180deg);
   -moz-transform: rotate(180deg);

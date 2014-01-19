@@ -115,12 +115,39 @@ describe('Service: historyService', function() {
       expect(Object.keys(existingData).length).toBe(actualHistoryLength);
       return existingData;
     });
-
-    // Re-construct HistoryService, given new storage
     new HistoryService(storejsService);
 
     expect(historyService.writePgnDump(testGameKey, testPgnDump)).
         toBe(actualHistoryLength);
     expect(mockStorejs.set.callCount).toBe(existingWriteCount);
+  });
+
+  it('should write new data to storage', function() {
+    var existingWriteCount = mockStorejs.set.callCount;
+    expect(existingWriteCount).toBe(1);
+
+    var testPgnDump = 'fake pgn data';
+    var initialHistoryLength = 1;
+
+    var existingData = {};
+    mockStorejs.get = jasmine.createSpy().andCallFake(function(storageKey) {
+      expect(storageKey).toBe(HistoryService.StorageKeyPgnHistory);
+
+      existingData[testGameKey] = testPgnDump;
+      expect(Object.keys(existingData).length).toBe(initialHistoryLength);
+      return existingData;
+    });
+
+    // new history to write
+    var testGameKeyB = String(testGameKey) + String(testGameKey),
+        testPgnDumpB = testPgnDump + testPgnDump;
+
+    new HistoryService(storejsService);
+    var currentHistoryLength = historyService.
+        writePgnDump(testGameKeyB, testPgnDumpB);
+
+    var existingDataLength = Object.keys(existingData).length;
+    expect(existingDataLength).toBe(currentHistoryLength);
+    expect(currentHistoryLength).toBe(2);
   });
 });

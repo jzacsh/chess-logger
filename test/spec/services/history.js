@@ -99,4 +99,28 @@ describe('Service: historyService', function() {
     expect(historyService.getMostRecentName(false)).toBe('squirrel');
     expect(mockStorejs.get.callCount).toBe(5);
   });
+
+  it('should not re-write existing PGN dumps to disk', function() {
+    var existingWriteCount = mockStorejs.set.callCount;
+    expect(existingWriteCount).toBe(1);
+
+    var testPgnDump = 'fake pgn data';
+    var actualHistoryLength = 1;
+
+    mockStorejs.get = jasmine.createSpy().andCallFake(function(storageKey) {
+      expect(storageKey).toBe(HistoryService.StorageKeyPgnHistory);
+
+      var existingData = {};
+      existingData[testGameKey] = testPgnDump;
+      expect(Object.keys(existingData).length).toBe(actualHistoryLength);
+      return existingData;
+    });
+
+    // Re-construct HistoryService, given new storage
+    new HistoryService(storejsService);
+
+    expect(historyService.writePgnDump(testGameKey, testPgnDump)).
+        toBe(actualHistoryLength);
+    expect(mockStorejs.set.callCount).toBe(existingWriteCount);
+  });
 });

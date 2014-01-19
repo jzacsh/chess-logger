@@ -3,6 +3,14 @@
 
 var ChessUtil = {};
 
+
+/**
+ * HTML entity used to populate empty squares no chessboard, to fill space.
+ * @type {string}
+ */
+ChessUtil.EmptySquareHack = '&#9816;';
+
+
 /** @return {!Array.<string> */
 ChessUtil.getRanks = function() {
   return ChessUtil.BoardGrid.rank;
@@ -64,6 +72,17 @@ ChessUtil.getOccupationColor = function(chessjs, file, rank) {
 
 
 /**
+ * @param {string} numericEntity
+ * @return {string}
+ *     The HTML entity (eg: &#40; for open parenthesis "(") that
+ *     {@code numericEntity}'s number represents.
+ */
+ChessUtil.toHtmlEntity = function(numericEntity) {
+  return '&#' + numericEntity + ';';
+};
+
+
+/**
  * @param {!Object} chessjs
  * @param {string} file
  * @param {number} rank
@@ -71,7 +90,18 @@ ChessUtil.getOccupationColor = function(chessjs, file, rank) {
  */
 ChessUtil.getCurrentPiece = function(chessjs, file, rank) {
   return ChessUtil.
-      pieceToHtmlEntity_(chessjs.get(file + rank)) || '&#9816;';
+      pieceToHtmlEntity_(chessjs.get(file + rank)) || ChessUtil.EmptySquareHack;
+};
+
+
+/**
+ * @param {string} sanPiece
+ * @param {boolean} forWhite
+ * @return {number}
+ */
+ChessUtil.getNumericPieceEntity = function(sanPiece, forWhite) {
+  return ChessUtil.WhiteChessPieceEntity[sanPiece] +
+    (forWhite ? 0 : ChessUtil.NumericEntityBlackOffset);
 };
 
 
@@ -88,28 +118,6 @@ ChessUtil.pieceToHtmlEntity_ = function(chessPiece) {
     return ChessUtil.toHtmlEntity(numericEntity);
   }
   return '';
-};
-
-
-/**
- * @param {string} numericEntity
- * @return {string}
- *     The HTML entity (eg: &#40; for open parenthesis "(") that
- *     {@code numericEntity}'s number represents.
- */
-ChessUtil.toHtmlEntity = function(numericEntity) {
-  return '&#' + numericEntity + ';';
-};
-
-
-/**
- * @param {string} sanPiece
- * @param {boolean} forWhite
- * @return {number}
- */
-ChessUtil.getNumericPieceEntity = function(sanPiece, forWhite) {
-  return ChessUtil.WhiteChessPieceEntity[sanPiece] +
-    (forWhite ? 0 : ChessUtil.NumericEntityBlackOffset);
 };
 
 

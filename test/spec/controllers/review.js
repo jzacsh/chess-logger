@@ -1,22 +1,32 @@
 'use strict';
 
 describe('Controller: ReviewCtrl', function() {
-
-  // load the controller's module
-  beforeEach(module('chessLoggerApp'));
-
   var ReviewCtrl,
       scope;
 
-  // Initialize the controller and a mock scope
-  beforeEach(inject(function($controller, $rootScope) {
-    scope = $rootScope.$new();
-    ReviewCtrl = $controller('ReviewCtrl', {
-      $scope: scope
-    });
-  }));
+  var testGameKey = 1390120529865;
 
-  it('should attach a list of awesomeThings to the scope', function() {
-    expect(scope.awesomeThings.length).toBe(3);
+  beforeEach(function() {
+    module(
+        'chessLoggerApp',
+        function($provide) {
+          $provide.value('$routeParams', {gamekey: String(testGameKey)});
+          $provide.factory('storejsService', function() {
+            return {storejs: {
+              get: jasmine.createSpy(),
+              set: jasmine.createSpy()
+            }};
+          });
+        });
+    inject(function($controller, $rootScope) {
+      scope = $rootScope.$new();
+      ReviewCtrl = $controller('ReviewCtrl', {
+        $scope: scope
+      });
+    });
+  });
+
+  it('should write test', function() {
+    this.fail('write me!');
   });
 });

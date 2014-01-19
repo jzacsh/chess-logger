@@ -41,7 +41,16 @@ HistoryService.EmptyPgnHistory = {};
 
 
 /**
- * @typedef {{}}
+ * General settings aside from game history to be saved.
+ *
+ * <p>
+ * "player_w" and "player_b" to indicate player names.
+ * </p>
+ *
+ * @typedef {{
+ *     player_b: string,
+ *     player_w: string
+ *     }}
  */
 HistoryService.GameSettings;
 

@@ -199,10 +199,10 @@ describe('Service: chessjsService', function() {
   });
 
   it('should get piece from Numeric entity', function() {
-    expect(util.getPieceFromNumericEntity(9814, true)).toBe('&#9814;');
-    expect(util.getPieceFromNumericEntity(9814, false)).toBe('&#9820;');
+    expect(util.getPieceFromNumericEntity(9814, true  /* white */)).toBe('r');
+    expect(util.getPieceFromNumericEntity(9820, false  /* black */)).toBe('r');
 
-    expect(util.getPieceFromNumericEntity(9818, true)).toBe('&#9818;');
-    expect(util.getPieceFromNumericEntity(9818, false)).toBe('&#9812;');
+    expect(util.getPieceFromNumericEntity(9812, true  /* white */)).toBe('k');
+    expect(util.getPieceFromNumericEntity(9818, false  /* black */)).toBe('k');
   });
 });

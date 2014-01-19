@@ -105,6 +105,30 @@ HistoryService.buildDateHeader = function(gameKey) {
 
 
 /**
+ * @param {string} pgnKey
+ * @param {string} pgnDump
+ * @return {boolean}
+ *     Whether {@code pgnDump} is already stored under {@code pgnKey}.
+ * @private
+ */
+HistoryService.prototype.havePgnDump_ = function(pgnKey, pgnDump) {
+  return this.havePgnKey_(pgnKey) && pgnDump === this.readPgnDumps()[pgnKey];
+};
+
+
+/**
+ * @param {string} pgnKey
+ * @return {boolean}
+ *     Whether a PGN dump seems to exist under {@code pgnKey}.
+ * @private
+ */
+HistoryService.prototype.havePgnKey_ = function(pgnKey) {
+  return Object.keys(this.readPgnDumps()).length &&
+         !!this.readPgnDumps()[pgnKey];
+};
+
+
+/**
  * Writes PGN dump of a game, {@code pgnDump},
  * to {@link HistoryService.PgnHistory}.
  *
@@ -115,9 +139,7 @@ HistoryService.buildDateHeader = function(gameKey) {
  */
 HistoryService.prototype.writePgnDump = function(pgnKey, pgnDump) {
   var modifiedHistory;
-  if (!Object.keys(this.readPgnDumps()).length ||
-      !this.readPgnDumps()[pgnKey] ||
-      pgnDump !== this.readPgnDumps()[pgnKey]) {
+  if (!this.havePgnDump_(pgnKey, pgnDump)) {
     modifiedHistory = this.readPgnDumps();
     modifiedHistory[pgnKey] = pgnDump;
 

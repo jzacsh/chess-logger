@@ -80,27 +80,6 @@ describe('Service: historyService', function() {
         HistoryService.StorageKeyPgnHistory, {1234: 'foo'});
   });
 
-  it('should get most recently used player names', function() {
-    expect(historyService.getMostRecentName(false)).toBe('');
-    expect(mockStorejs.get).
-        toHaveBeenCalledWith(HistoryService.StorageKeyRecentSettings);
-    expect(mockStorejs.get.callCount).toBe(initialReadCount + 1);
-    expect(historyService.getMostRecentName(true)).toBe('');
-    expect(mockStorejs.get.callCount).toBe(initialReadCount + 2);
-
-    var testRecentSettings = {
-      player_b: 'squirrel',
-      player_w: 'hippo'
-    };
-
-    mockStorejs.get.andReturn(testRecentSettings);
-    expect(historyService.getMostRecentName(true)).toBe('hippo');
-    expect(mockStorejs.get.callCount).toBe(initialReadCount + 3);
-
-    expect(historyService.getMostRecentName(false)).toBe('squirrel');
-    expect(mockStorejs.get.callCount).toBe(initialReadCount + 4);
-  });
-
   it('should not re-write existing PGN dumps to disk', function() {
     var testPgnDump = 'fake pgn data';
     var actualHistoryLength = 1;
@@ -257,28 +236,72 @@ describe('Service: historyService', function() {
     expect(historyService.readPgnDumps()).toBe(existingData);
   });
 
-  it('should set most recent name', function() {
+  describe('preferences & settings', function() {
     var expectedSettings = {};
 
-    mockStorejs.get.andCallFake(function(storageKey) {
-      expect(storageKey).toBe(HistoryService.StorageKeyRecentSettings);
-      return expectedSettings;
+    beforeEach(function() {
+      mockStorejs.get.andCallFake(function(storageKey) {
+        expect(storageKey).toBe(HistoryService.StorageKeyRecentSettings);
+        return expectedSettings;
+      });
+      expect(historyService.haveSettingsSaved()).toBe(false);
     });
 
-    expectedSettings[HistoryService.PlayerSettingPrefix + 'w'] = 'Squirrel';
-    historyService.setMostRecentName('Squirrel', true  /* white */);
-    expect(mockStorejs.set.callCount).toBe(initialWriteCount + 1);
-    expect(mockStorejs.set.mostRecentCall.args[0]).
-        toEqual(HistoryService.StorageKeyRecentSettings);
-    expect(mockStorejs.set.mostRecentCall.args[1]).
-        toEqual(expectedSettings);
+    it('should get most recently used player names', function() {
+      expect(historyService.getMostRecentName(false)).toBe('');
+      expect(mockStorejs.get).
+          toHaveBeenCalledWith(HistoryService.StorageKeyRecentSettings);
+      expect(mockStorejs.get.callCount).toBe(initialReadCount + 1);
+      expect(historyService.getMostRecentName(true)).toBe('');
+      expect(mockStorejs.get.callCount).toBe(initialReadCount + 2);
 
-    expectedSettings[HistoryService.PlayerSettingPrefix + 'b'] = 'Hippo';
-    historyService.setMostRecentName('Hippo', false  /* black */);
-    expect(mockStorejs.set.callCount).toBe(initialWriteCount + 2);
-    expect(mockStorejs.set.mostRecentCall.args[0]).
-        toEqual(HistoryService.StorageKeyRecentSettings);
-    expect(mockStorejs.set.mostRecentCall.args[1]).
-        toEqual(expectedSettings);
+      var testRecentSettings = {
+        player_b: 'squirrel',
+        player_w: 'hippo'
+      };
+
+      mockStorejs.get.andReturn(testRecentSettings);
+      expect(historyService.getMostRecentName(true)).toBe('hippo');
+      expect(mockStorejs.get.callCount).toBe(initialReadCount + 3);
+
+      expect(historyService.getMostRecentName(false)).toBe('squirrel');
+      expect(mockStorejs.get.callCount).toBe(initialReadCount + 4);
+
+      expect(historyService.haveSettingsSaved()).toBe(true);
+    });
+
+    it('should set most recent name', function() {
+      expectedSettings[HistoryService.PlayerSettingPrefix + 'w'] = 'Squirrel';
+      historyService.setMostRecentName('Squirrel', true  /* white */);
+      expect(mockStorejs.set.callCount).toBe(initialWriteCount + 1);
+      expect(mockStorejs.set.mostRecentCall.args[0]).
+          toEqual(HistoryService.StorageKeyRecentSettings);
+      expect(mockStorejs.set.mostRecentCall.args[1]).
+          toEqual(expectedSettings);
+
+      expectedSettings[HistoryService.PlayerSettingPrefix + 'b'] = 'Hippo';
+      historyService.setMostRecentName('Hippo', false  /* black */);
+      expect(mockStorejs.set.callCount).toBe(initialWriteCount + 2);
+      expect(mockStorejs.set.mostRecentCall.args[0]).
+          toEqual(HistoryService.StorageKeyRecentSettings);
+      expect(mockStorejs.set.mostRecentCall.args[1]).
+          toEqual(expectedSettings);
+
+      expect(historyService.haveSettingsSaved()).toBe(true);
+    });
+
+    it('should remove most recent name', function() {
+      expect(historyService.getMostRecentName(true  /* white */)).toBe('');
+
+      var testName = 'Hippo';
+      historyService.setMostRecentName(testName, true  /* white */);
+
+      expect(historyService.getMostRecentName(true)).toBe(testName);
+      expect(historyService.haveSettingsSaved()).toBe(true);
+
+      historyService.rmMostRecentName(testName, true  /* white */);
+
+      expect(historyService.haveSettingsSaved()).toBe(false);
+    });
   });
 });

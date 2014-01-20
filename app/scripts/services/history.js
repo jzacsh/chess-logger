@@ -294,9 +294,10 @@ HistoryService.prototype.getMostRecentName = function(isForWhite) {
   var recentSettings = this.storejs_.get(
       HistoryService.StorageKeyRecentSettings);
   if (recentSettings) {
-    return isForWhite ?
+    var recentName = isForWhite ?
            recentSettings[HistoryService.PlayerSettingPrefix + 'w'] :
            recentSettings[HistoryService.PlayerSettingPrefix + 'b'];
+    return recentName || '';
   }
   return '';
 };

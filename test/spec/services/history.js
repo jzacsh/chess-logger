@@ -237,14 +237,17 @@ describe('Service: historyService', function() {
   });
 
   describe('preferences & settings', function() {
-    var expectedSettings = {};
+    var expectedSettings;
 
     beforeEach(function() {
-      mockStorejs.get.andCallFake(function(storageKey) {
+      expectedSettings = {};
+      mockStorejs.get = jasmine.createSpy().andCallFake(function(storageKey) {
         expect(storageKey).toBe(HistoryService.StorageKeyRecentSettings);
         return expectedSettings;
       });
       expect(historyService.haveSettingsSaved()).toBe(false);
+      initialReadCount = mockStorejs.get.callCount;
+      initialWriteCount = mockStorejs.set.callCount;
     });
 
     it('should get most recently used player names', function() {

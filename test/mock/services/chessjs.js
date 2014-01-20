@@ -6,20 +6,20 @@
 var MockChessjsService = function() {
   return {
     util: {
-      getOccupationColor: jasmine.createSpy()
+      getOccupationColor: jasmine.createSpy('ChessUtil.getOccupationColor')
     },
     Chessjs: function() {
       this.prototype = {
-        game_over: jasmine.createSpy(),
-        load_pgn: jasmine.createSpy(),
-        pgn: jasmine.createSpy(),
-        move: jasmine.createSpy(),
-        turn: jasmine.createSpy(),
-        get: jasmine.createSpy(),
-        history: jasmine.createSpy(),
-        undo: jasmine.createSpy(),
-        square_color: jasmine.createSpy(),
-        header: jasmine.createSpy()
+        game_over: jasmine.createSpy('Chessjs.game_over'),
+        load_pgn: jasmine.createSpy('Chessjs.load_pgn'),
+        pgn: jasmine.createSpy('Chessjs.pgn'),
+        move: jasmine.createSpy('Chessjs.move'),
+        turn: jasmine.createSpy('Chessjs.turn'),
+        get: jasmine.createSpy('Chessjs.get'),
+        history: jasmine.createSpy('Chessjs.history'),
+        undo: jasmine.createSpy('Chessjs.undo'),
+        square_color: jasmine.createSpy('Chessjs.square_color'),
+        header: jasmine.createSpy('Chessjs.header')
       };
     }
   };

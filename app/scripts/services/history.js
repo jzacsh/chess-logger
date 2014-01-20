@@ -55,6 +55,10 @@ HistoryService.EmptyPgnHistory = {};
 HistoryService.GameSettings;
 
 
+/** @type {string} */
+HistoryService.PlayerSettingPrefix = 'player_';
+
+
 /**
  * Storage key for PGN game data.
  * @type {string}
@@ -272,7 +276,8 @@ HistoryService.prototype.setMostRecentName = function(playerName, isForWhite) {
       HistoryService.StorageKeyRecentSettings);
   recentSettings = recentSettings || {};
 
-  var settingsKey = 'player_' + (isForWhite ? 'w' : 'b');
+  var settingsKey = HistoryService.
+      PlayerSettingPrefix + (isForWhite ? 'w' : 'b');
   recentSettings[settingsKey] = playerName;
   this.storejs_.set(HistoryService.StorageKeyRecentSettings, recentSettings);
 };
@@ -290,8 +295,8 @@ HistoryService.prototype.getMostRecentName = function(isForWhite) {
       HistoryService.StorageKeyRecentSettings);
   if (recentSettings) {
     return isForWhite ?
-           recentSettings.player_w :
-           recentSettings.player_b;
+           recentSettings[HistoryService.PlayerSettingPrefix + 'w'] :
+           recentSettings[HistoryService.PlayerSettingPrefix + 'b'];
   }
   return '';
 };
@@ -302,9 +307,9 @@ HistoryService.prototype.rmMostRecentName = function(isForWhite) {
   var recentSettings = this.storejs_.get(
       HistoryService.StorageKeyRecentSettings);
   if (isForWhite) {
-    delete recentSettings.player_w;
+    delete recentSettings[HistoryService.PlayerSettingPrefix + 'w'];
   } else {
-    delete recentSettings.player_b;
+    delete recentSettings[HistoryService.PlayerSettingPrefix + 'b'];
   }
   this.storejs_.set(HistoryService.StorageKeyRecentSettings, recentSettings);
 };

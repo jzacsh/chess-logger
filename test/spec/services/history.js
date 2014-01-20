@@ -8,6 +8,9 @@ describe('Service: historyService', function() {
 
   var mockStorejs;
 
+  var initialWriteCount,
+      initialReadCount;
+
   beforeEach(function() {
     module(
         'chessLoggerApp',
@@ -24,15 +27,15 @@ describe('Service: historyService', function() {
     expect(historyService).toBeDefined();
     expect(storejsService).toBeDefined();
 
-    expect(mockStorejs.get.callCount).toBe(1);
-    expect(mockStorejs.set.callCount).toBe(1);
+    initialReadCount = mockStorejs.get.callCount;
+    expect(initialReadCount).toBe(1);
+    initialWriteCount = mockStorejs.set.callCount;
+    expect(initialWriteCount).toBe(1);
   });
 
   it('should init PgnHistory when constructing HistoryService', function() {
     expect(mockStorejs.set).toHaveBeenCalledWith(
         HistoryService.StorageKeyPgnHistory, HistoryService.EmptyPgnHistory);
-    var callCount = mockStorejs.set.callCount;
-    expect(callCount).toBe(1);
 
     mockStorejs.get = jasmine.createSpy().andCallFake(function(storageKey) {
       expect(storageKey).toBe(HistoryService.StorageKeyPgnHistory);
@@ -46,7 +49,7 @@ describe('Service: historyService', function() {
     new HistoryService(storejsService);
 
     // Expect no further initialization, given existing data
-    expect(mockStorejs.set.callCount).toBe(callCount);
+    expect(mockStorejs.set.callCount).toBe(initialWriteCount);
   });
 
   it('should construct new game key', function() {
@@ -78,14 +81,12 @@ describe('Service: historyService', function() {
   });
 
   it('should get most recently used player names', function() {
-    expect(mockStorejs.get.callCount).toBe(1);
-
     expect(historyService.getMostRecentName(false)).toBe('');
     expect(mockStorejs.get).
         toHaveBeenCalledWith(HistoryService.StorageKeyRecentSettings);
-    expect(mockStorejs.get.callCount).toBe(2);
+    expect(mockStorejs.get.callCount).toBe(initialReadCount + 1);
     expect(historyService.getMostRecentName(true)).toBe('');
-    expect(mockStorejs.get.callCount).toBe(3);
+    expect(mockStorejs.get.callCount).toBe(initialReadCount + 2);
 
     var testRecentSettings = {
       player_b: 'squirrel',
@@ -94,16 +95,13 @@ describe('Service: historyService', function() {
 
     mockStorejs.get.andReturn(testRecentSettings);
     expect(historyService.getMostRecentName(true)).toBe('hippo');
-    expect(mockStorejs.get.callCount).toBe(4);
+    expect(mockStorejs.get.callCount).toBe(initialReadCount + 3);
 
     expect(historyService.getMostRecentName(false)).toBe('squirrel');
-    expect(mockStorejs.get.callCount).toBe(5);
+    expect(mockStorejs.get.callCount).toBe(initialReadCount + 4);
   });
 
   it('should not re-write existing PGN dumps to disk', function() {
-    var existingWriteCount = mockStorejs.set.callCount;
-    expect(existingWriteCount).toBe(1);
-
     var testPgnDump = 'fake pgn data';
     var actualHistoryLength = 1;
 
@@ -121,13 +119,10 @@ describe('Service: historyService', function() {
     expect(historyService.writePgnDump(testGameKey, testPgnDump)).
         toBe(actualHistoryLength);
 
-    expect(mockStorejs.set.callCount).toBe(existingWriteCount);
+    expect(mockStorejs.set.callCount).toBe(initialWriteCount);
   });
 
   it('should write new data to storage', function() {
-    var existingWriteCount = mockStorejs.set.callCount;
-    expect(existingWriteCount).toBe(1);
-
     var testPgnDump = 'fake pgn data';
     var initialHistoryLength = 1;
 
@@ -148,7 +143,7 @@ describe('Service: historyService', function() {
     var currentHistoryLength = historyService.
         writePgnDump(testGameKeyB, testPgnDumpB);
 
-    expect(mockStorejs.set.callCount).toBe(existingWriteCount + 1);
+    expect(mockStorejs.set.callCount).toBe(initialWriteCount + 1);
 
     // `writePgnDump` should report latest length correctly
     var existingDataLength = Object.keys(existingData).length;
@@ -158,9 +153,6 @@ describe('Service: historyService', function() {
   });
 
   it('should over-write existing data in storage', function() {
-    var existingWriteCount = mockStorejs.set.callCount;
-    expect(existingWriteCount).toBe(1);
-
     var testPgnDump = 'fake pgn data';
     var initialHistoryLength = 1;
 
@@ -176,15 +168,12 @@ describe('Service: historyService', function() {
     var currentHistoryLength = historyService.
         writePgnDump(testGameKey, testPgnDump + 'test update to pgn');
 
-    expect(mockStorejs.set.callCount).toBe(existingWriteCount + 1);
+    expect(mockStorejs.set.callCount).toBe(initialWriteCount + 1);
 
     expect(currentHistoryLength).toBe(initialHistoryLength);
   });
 
   it('should maintain cap on PGN histories on localStorage', function() {
-    var existingWriteCount = mockStorejs.set.callCount;
-    expect(existingWriteCount).toBe(1);
-
     var testPgnDump = 'fake pgn data';
 
     /**
@@ -214,7 +203,7 @@ describe('Service: historyService', function() {
     // Should allow just one more write
     var currentHistoryLength = historyService.
         writePgnDump(testGameKey, testPgnDump + 'test update to pgn');
-    expect(mockStorejs.set.callCount).toBe(existingWriteCount + 1);
+    expect(mockStorejs.set.callCount).toBe(initialWriteCount + 1);
     expect(currentHistoryLength).toBe(HistoryService.MaxPgnHistory);
 
     var expectedKeys = (function() {
@@ -239,7 +228,7 @@ describe('Service: historyService', function() {
     var overMaxCapKey = buildGameKey(HistoryService.MaxPgnHistory + 1);
     var currentHistoryLength = historyService.
         writePgnDump(overMaxCapKey, testPgnDump + 'test update to pgn');
-    expect(mockStorejs.set.callCount).toBe(existingWriteCount + 2);
+    expect(mockStorejs.set.callCount).toBe(initialWriteCount + 2);
 
     // Confirm reported and actual data length
     expect(currentHistoryLength).toBe(HistoryService.MaxPgnHistory);
@@ -266,5 +255,30 @@ describe('Service: historyService', function() {
 
     historyService = new HistoryService(storejsService);
     expect(historyService.readPgnDumps()).toBe(existingData);
+  });
+
+  it('should set most recent name', function() {
+    var expectedSettings = {};
+
+    mockStorejs.get.andCallFake(function(storageKey) {
+      expect(storageKey).toBe(HistoryService.StorageKeyRecentSettings);
+      return expectedSettings;
+    });
+
+    expectedSettings[HistoryService.PlayerSettingPrefix + 'w'] = 'Squirrel';
+    historyService.setMostRecentName('Squirrel', true  /* white */);
+    expect(mockStorejs.set.callCount).toBe(initialWriteCount + 1);
+    expect(mockStorejs.set.mostRecentCall.args[0]).
+        toEqual(HistoryService.StorageKeyRecentSettings);
+    expect(mockStorejs.set.mostRecentCall.args[1]).
+        toEqual(expectedSettings);
+
+    expectedSettings[HistoryService.PlayerSettingPrefix + 'b'] = 'Hippo';
+    historyService.setMostRecentName('Hippo', false  /* black */);
+    expect(mockStorejs.set.callCount).toBe(initialWriteCount + 2);
+    expect(mockStorejs.set.mostRecentCall.args[0]).
+        toEqual(HistoryService.StorageKeyRecentSettings);
+    expect(mockStorejs.set.mostRecentCall.args[1]).
+        toEqual(expectedSettings);
   });
 });

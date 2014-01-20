@@ -1,5 +1,13 @@
 'use strict';
 
+/**
+ * @param {string} content
+ * @return {string}
+ */
+var clDownloadBuildDataStream = function clDownloadBuildDataStream(content) {
+  return 'data:application/octet-stream;base64,' + btoa(content);
+};
+
 
 /**
  * Turns an ordinary anchor tag into a downloading anchor tag.
@@ -35,8 +43,7 @@ var clDownloadTxtFactory = function clDownloadTxtFactory($document) {
           return;
         }
 
-        element[0].
-            href = 'data:application/octet-stream;base64,' + btoa(fileContent);
+        element[0].href = clDownloadBuildDataStream(fileContent);
       });
     }
   };

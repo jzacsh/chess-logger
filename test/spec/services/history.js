@@ -115,7 +115,7 @@ describe('Service: historyService', function() {
       expect(Object.keys(existingData).length).toBe(actualHistoryLength);
       return existingData;
     });
-    new HistoryService(storejsService);
+    historyService = new HistoryService(storejsService);
 
     // `writePgnDump` should report latest length correctly
     expect(historyService.writePgnDump(testGameKey, testPgnDump)).
@@ -132,16 +132,16 @@ describe('Service: historyService', function() {
     var initialHistoryLength = 1;
 
     var existingData = {};
+    existingData[testGameKey] = testPgnDump;
+    expect(Object.keys(existingData).length).toBe(initialHistoryLength);
+
     mockStorejs.get = jasmine.createSpy().andCallFake(function(storageKey) {
       expect(storageKey).toBe(HistoryService.StorageKeyPgnHistory);
-
-      existingData[testGameKey] = testPgnDump;
-      expect(Object.keys(existingData).length).toBe(initialHistoryLength);
       return existingData;
     });
 
     // new history to write
-    var testGameKeyB = String(testGameKey) + String(testGameKey),
+    var testGameKeyB = testGameKey + 10,
         testPgnDumpB = testPgnDump + testPgnDump;
 
     new HistoryService(storejsService);
@@ -165,20 +165,106 @@ describe('Service: historyService', function() {
     var initialHistoryLength = 1;
 
     var existingData = {};
+    existingData[testGameKey] = testPgnDump;
+    expect(Object.keys(existingData).length).toBe(initialHistoryLength);
     mockStorejs.get = jasmine.createSpy().andCallFake(function(storageKey) {
       expect(storageKey).toBe(HistoryService.StorageKeyPgnHistory);
-
-      existingData[testGameKey] = testPgnDump;
-      expect(Object.keys(existingData).length).toBe(initialHistoryLength);
       return existingData;
     });
 
-    new HistoryService(storejsService);
+    historyService = new HistoryService(storejsService);
     var currentHistoryLength = historyService.
         writePgnDump(testGameKey, testPgnDump + 'test update to pgn');
 
     expect(mockStorejs.set.callCount).toBe(existingWriteCount + 1);
 
     expect(currentHistoryLength).toBe(initialHistoryLength);
+  });
+
+  it('should maintain cap on PGN histories on localStorage', function() {
+    var existingWriteCount = mockStorejs.set.callCount;
+    expect(existingWriteCount).toBe(1);
+
+    var testPgnDump = 'fake pgn data';
+
+    /**
+     * @param {number} index
+     * @return {string}
+     *     Consistent variation on {@code testGameKey}, based on {@code index}.
+     */
+    var buildGameKey = function(index) {
+      return testGameKey + index;
+    };
+
+    // Intialize storage close to the allowed cap
+    var existingData = {};
+    for (var i = 1; i < HistoryService.MaxPgnHistory; ++i) {
+      existingData[buildGameKey(i)] = testPgnDump;
+    }
+    expect(Object.keys(existingData).length).
+        toBe(HistoryService.MaxPgnHistory - 1);
+
+    mockStorejs.get = jasmine.createSpy().andCallFake(function(storageKey) {
+      expect(storageKey).toBe(HistoryService.StorageKeyPgnHistory);
+      return existingData;
+    });
+
+    historyService = new HistoryService(storejsService);
+
+    // Should allow just one more write
+    var currentHistoryLength = historyService.
+        writePgnDump(testGameKey, testPgnDump + 'test update to pgn');
+    expect(mockStorejs.set.callCount).toBe(existingWriteCount + 1);
+    expect(currentHistoryLength).toBe(HistoryService.MaxPgnHistory);
+
+    var expectedKeys = (function() {
+      var expectedKeys = [];
+      for (var i = 1; i < HistoryService.MaxPgnHistory; ++i) {
+        expectedKeys.push(buildGameKey(i));
+      }
+      // The last, max-limit, write:
+      expectedKeys.push(testGameKey);
+
+      return expectedKeys;
+    })();
+
+    // TODO(zacsh): why doesn't toEqual work?
+    // expect(Object.keys(existingData)).toEqual(expectedKeys);
+    expect(Object.keys(existingData).join('|')).toBe(expectedKeys.join('|'));
+
+    expect(Object.keys(existingData).length).
+        not.toBeGreaterThan(HistoryService.MaxPgnHistory);
+
+    // Should push off the oldest write
+    var overMaxCapKey = buildGameKey(HistoryService.MaxPgnHistory + 1);
+    var currentHistoryLength = historyService.
+        writePgnDump(overMaxCapKey, testPgnDump + 'test update to pgn');
+    expect(mockStorejs.set.callCount).toBe(existingWriteCount + 2);
+
+    // Confirm reported and actual data length
+    expect(currentHistoryLength).toBe(HistoryService.MaxPgnHistory);
+    expect(Object.keys(existingData).length).
+        not.toBeGreaterThan(HistoryService.MaxPgnHistory);
+
+
+    // Remove the oldest key that was added on, last.
+    expect(expectedKeys.pop()).toBe(testGameKey);
+    expectedKeys.push(overMaxCapKey);
+
+    expect(Object.keys(existingData).join('|')).
+        toBe(expectedKeys.join('|'));
+  });
+
+  it('should read existing data', function() {
+    var existingData = {};
+    existingData[testGameKey] = 'foo';
+    existingData[testGameKey + 5] = 'foo bar';
+    mockStorejs.get = jasmine.createSpy().andCallFake(function(storageKey) {
+      expect(storageKey).toBe(HistoryService.StorageKeyPgnHistory);
+      return existingData;
+    });
+
+    historyService = new HistoryService(storejsService);
+    expect(historyService.readPgnDumps()).toBe(existingData);
   });
 });

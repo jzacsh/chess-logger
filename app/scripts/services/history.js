@@ -20,10 +20,9 @@ var HistoryService = function HistoryService(storejsService) {
    *
    * @private {!HistoryService.PgnHistory}
    */
-  this.lastPgnRead_ = {};
+  this.lastPgnRead_ = null;
 
-  // Update PGN cache, or fallback to above setting.
-  this.lastPgnRead_ = this.readPgnDumps();
+  this.maybeInitStorage_();
 };
 
 
@@ -105,6 +104,25 @@ HistoryService.buildDateHeader = function(gameKey) {
 
 
 /**
+ * Initialize pgn-history structure in storage, if never initialized before.
+ * @private
+ */
+HistoryService.prototype.maybeInitStorage_ = function() {
+  // Update storage with empty history if this is first encounter
+  if (!this.getHistoryLength()) {
+    this.writePgnHistory_(
+        HistoryService.EmptyPgnHistory, false  /* cache */);
+  }
+};
+
+
+/** @return {number} */
+HistoryService.prototype.getHistoryLength = function() {
+  return Object.keys(this.readPgnDumps()).length;
+};
+
+
+/**
  * @param {string} pgnKey
  * @param {string} pgnDump
  * @return {boolean}
@@ -123,8 +141,8 @@ HistoryService.prototype.havePgnDump_ = function(pgnKey, pgnDump) {
  * @private
  */
 HistoryService.prototype.havePgnKey_ = function(pgnKey) {
-  return Object.keys(this.readPgnDumps()).length &&
-         !!this.readPgnDumps()[pgnKey];
+  return !!(this.getHistoryLength() &&
+            this.readPgnDumps()[pgnKey]);
 };
 
 
@@ -138,30 +156,32 @@ HistoryService.prototype.havePgnKey_ = function(pgnKey) {
  *     Returns the number of items in history.
  */
 HistoryService.prototype.writePgnDump = function(pgnKey, pgnDump) {
-  var modifiedHistory;
   if (!this.havePgnDump_(pgnKey, pgnDump)) {
-    modifiedHistory = this.readPgnDumps();
+    var modifiedHistory = this.readPgnDumps();
     modifiedHistory[pgnKey] = pgnDump;
 
     if (Object.keys(modifiedHistory).length > HistoryService.MaxPgnHistory) {
-      this.deletePgn(HistoryService.getOldestPgnKey_(modifiedHistory));
+      delete modifiedHistory[HistoryService.getOldestPgnKey_(modifiedHistory)];
     }
 
-    this.writePgnHistory_(modifiedHistory);
-    this.setPgnIOCache_({});
+    this.writePgnHistory_(modifiedHistory, false  /* no cache */);
+    this.setPgnIOCache_(/* clear cache */);
   }
-  return modifiedHistory ?
-         Object.keys(modifiedHistory).length :
-         Object.keys(this.readPgnDumps()).length;
+  return this.getHistoryLength();
 };
 
 
 /**
  * @param {string} pgnHistory
+ * @param {boolean} shouldCache
+ *     Whether {@code pgnHistory} should be written to internal cache.
  * @private
  */
-HistoryService.prototype.writePgnHistory_ = function(pgnHistory) {
+HistoryService.prototype.writePgnHistory_ = function(pgnHistory, shouldCache) {
   this.storejs_.set(HistoryService.StorageKeyPgnHistory, pgnHistory);
+  if (shouldCache) {
+    this.setPgnIOCache_(pgnHistory);
+  }
 };
 
 
@@ -172,16 +192,15 @@ HistoryService.prototype.writePgnHistory_ = function(pgnHistory) {
  */
 HistoryService.prototype.setPgnIOCache_ = function(setCacheTo) {
   this.lastPgnRead_ = setCacheTo || HistoryService.EmptyPgnHistory;
-  if (!setCacheTo) {
-    // Was empty
-    this.writePgnHistory_(this.lastPgnRead_);
-  }
 };
 
 
-/** @return {!HistoryService.PgnHistory} */
+/**
+ * NOTE: Always caches new reads from storage.
+ * @return {!HistoryService.PgnHistory}
+ */
 HistoryService.prototype.readPgnDumps = function() {
-  if (!Object.keys(this.lastPgnRead_).length) {
+  if (!this.lastPgnRead_ || !Object.keys(this.lastPgnRead_).length) {
     this.setPgnIOCache_(
         this.storejs_.get(HistoryService.StorageKeyPgnHistory));
   }
@@ -196,27 +215,36 @@ HistoryService.prototype.readPgnDumps = function() {
  * @private
  */
 HistoryService.getOldestPgnKey_ = function(pgnHistory) {
-  var oldest = new Date().getTime() + 9999999;
+  var dummyFutureKey = new Date().getTime() + 9999999;
+  var oldest = dummyFutureKey;
   angular.forEach(pgnHistory, function(pgnDump, pgnKey) {
     oldest = (pgnKey && pgnKey < oldest) ? pgnKey : oldest;
   });
+
+  if (oldest === dummyFutureKey) {
+    throw new Error(
+        'Dummy-future-key fail! report bug: could not find gameKey ' +
+        'newer than:' + dummyFutureKey);
+  }
+
   return oldest;
 };
 
 
 /**
  * @param {string} pgnKey
- * @return {number}
- *     New length of game-history, given deletion of {@code pgnKey}.
+ * @return {?number}
+ *     New length of game-history, given deletion of {@code pgnKey}, null
+ *     otherwise.
  */
 HistoryService.prototype.deletePgn = function(pgnKey) {
-  var pgnHistory = this.readPgnDumps();
-  if (pgnHistory[pgnKey]) {
+  if (this.havePgnKey_(pgnKey)) {
+    var pgnHistory = this.readPgnDumps();
     delete pgnHistory[pgnKey];
-    this.writePgnHistory_(pgnHistory);
+    this.writePgnHistory_(pgnHistory, true  /* cache */);
+    return this.getHistoryLength();
   }
-  this.setPgnIOCache_(pgnHistory);
-  return Object.keys(pgnHistory).length;
+  return null;
 };
 
 
@@ -226,9 +254,8 @@ HistoryService.prototype.deletePgn = function(pgnKey) {
  *     Number of games deleted.
  */
 HistoryService.prototype.deleteAllPgns = function() {
-  var numberDeleted = Object.keys(this.readPgnDumps()).length;
-  this.writePgnHistory_(HistoryService.EmptyPgnHistory);
-  this.setPgnIOCache_({});
+  var numberDeleted = this.getHistoryLength();
+  this.writePgnHistory_(HistoryService.EmptyPgnHistory, true  /* cache */);
   return numberDeleted;
 };
 
@@ -289,7 +316,7 @@ HistoryService.prototype.rmMostRecentName = function(isForWhite) {
  */
 HistoryService.prototype.haveSettingsSaved = function() {
   var settings = this.storejs_.get(HistoryService.StorageKeyRecentSettings);
-  return settings && Object.keys(settings).length;
+  return !!(settings && Object.keys(settings).length);
 };
 
 

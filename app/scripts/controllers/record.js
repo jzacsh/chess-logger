@@ -148,11 +148,20 @@ RecordCtrl.prototype.maybeLoadGame_ = function() {
   if (!this.gameKey_) {
     return;
   }
-  this.chessjs_.load_pgn(this.historyService_.readPgnDumps()[this.gameKey_]);
+
+  var requestedPgn = this.historyService_.readPgnDumps()[this.gameKey_];
+  if (!requestedPgn) {
+    // TODO(zacsh): Notify user that key wasn't found.
+    this.location_.path('/history');
+    return;
+  }
+
+  this.chessjs_.load_pgn(requestedPgn);
 
   // Don't allow editing of past games.
   if (this.chessjs_.game_over()) {
     this.location_.path('/review:' + this.gameKey_);
+    return;
   }
 };
 

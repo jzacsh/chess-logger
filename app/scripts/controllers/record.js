@@ -82,7 +82,7 @@ var RecordCtrl = function RecordCtrl(
       getMostRecentName(false  /* white */);
 
   /** @private {number} */
-  this.gameKey_ = this.getGameKeyPath_();
+  this.gameKey_ = this.getGameKeyFromPath_();
   this.maybeLoadGame_();
 
   return $scope.controller = this;
@@ -242,6 +242,13 @@ RecordCtrl.pieceEquals = function(pieceA, pieceB) {
 
 
 /**
+ * Either starts or completes transition of a piece from one square to another.
+ *
+ * If a move is already not underway, then {@code file} and {@code rank}
+ * indicate the piece to be moved. If a move is already underway, or a "piece
+ * is in transit", the {@code file} and {@code rank} indicates the square the
+ * current user wishes to move their piece.
+ *
  * @param {string} file
  * @param {number} rank
  */
@@ -251,26 +258,16 @@ RecordCtrl.prototype.moveTransition = function(file, rank) {
       (transitionState === RecordCtrl.TransitionState.VALID ||
        transitionState === RecordCtrl.TransitionState.CANCEL)) {
     // Allows user to start game by simply moving a piece on board (ignoring
-    // form fields).
-    this.initNewGame_();
+    // annoying form fields).
+    if (!this.gameStarted()) {
+      this.startNewGame();
+    }
 
     var destination = RecordCtrl.getAlgebraicCoordinate_(file, rank);
     this.maybeCompleteTransit_(destination).
         then(angular.bind(this, this.unsetPiecesInTransit_));
   } else if (transitionState === RecordCtrl.TransitionState.START) {
     this.pieceInTransit_ = RecordCtrl.getAlgebraicCoordinate_(file, rank);
-  }
-};
-
-
-/**
- * Initializes a new game, if one hasnt' already been created to save the
- * current moves.
- * @private
- */
-RecordCtrl.prototype.initNewGame_ = function() {
-  if (!this.gameStarted()) {
-    this.newGame();
   }
 };
 
@@ -288,15 +285,15 @@ RecordCtrl.prototype.unsetPiecesInTransit_ = function() {
 /**
  * @param {!RecordCtrl.AlgebraicCoordinate} destination
  * @return {boolean}
- *     Whether a pawn is in transit and only one move away from promotion.
+ *     Whether the piece completing transit to {@code destination} is a pawn
+ *     and said destination indicates a promotion.
  * @private
  */
 RecordCtrl.prototype.isPawnPromotion_ = function(destination) {
   var sanPieceInTransit = RecordCtrl.
       coordinateToSan_(this.pieceInTransit_ || {});
   var chessJsPiece = this.chessjs_.get(sanPieceInTransit);
-  return !!this.pieceInTransit_ &&
-         chessJsPiece.type === 'p' &&
+  return !!(this.pieceInTransit_ && chessJsPiece.type === 'p') &&
          ((chessJsPiece.color === 'b' && destination.rank == 1) ||
           (chessJsPiece.color === 'w' && destination.rank == 8));
 };
@@ -496,6 +493,12 @@ RecordCtrl.prototype.gameStarted = function() {
 };
 
 
+/** @return {boolean} */
+RecordCtrl.prototype.gameInProgress = function() {
+  return this.gameStarted() && !!this.chessjs_.history().length;
+};
+
+
 /** @return {string} */
 RecordCtrl.prototype.getGameResolution = function() {
   return this.chessjsService_.util.getGameResolution(this.chessjs_);
@@ -522,12 +525,12 @@ RecordCtrl.prototype.toPgn = function() {
     max_width: 5
   });
 
-  if (this.gameStarted() && this.chessjs_.history().length) {
+  if (this.gameInProgress()) {
     // Start recording dumps, once a game has started.
     this.historyService_.writePgnDump(this.gameKey_, pgnDump);
 
     // If this is the first save, head to the permalink of this game.
-    if (!this.getGameKeyPath_()) {
+    if (!this.getGameKeyFromPath_()) {
       this.location_.path('/record:' + this.gameKey_);
     }
   }
@@ -540,7 +543,7 @@ RecordCtrl.prototype.toPgn = function() {
  * @return {number}
  * @private
  */
-RecordCtrl.prototype.getGameKeyPath_ = function() {
+RecordCtrl.prototype.getGameKeyFromPath_ = function() {
   var gameKey = this.routeParams_.gamekey.replace(/^:/, '');
 
   if (gameKey.match(/^\d+$/)) {
@@ -554,9 +557,9 @@ RecordCtrl.prototype.getGameKeyPath_ = function() {
 
 
 /**
- *
+ * Logs the game and some metadata in history.
  */
-RecordCtrl.prototype.newGame = function() {
+RecordCtrl.prototype.startNewGame = function() {
   this.gameKey_ = HistoryService.newGameKey();
 
   if (this.scope_.white_name) {

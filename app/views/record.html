@@ -19,7 +19,7 @@
   <button class="btn new-game"
           ng-class="{'btn-info': !controller.gameStarted()}"
           ng-disabled="newGameForm.$invalid"
-          ng-click="controller.newGame()">
+          ng-click="controller.startNewGame()">
     <span ng-hide="controller.gameStarted()">New Game</span>
     <span ng-show="controller.gameStarted()">Clean Slate</span>
   </button>

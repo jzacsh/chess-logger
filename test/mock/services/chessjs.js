@@ -22,7 +22,7 @@ angular.forEach(mockChessjsMethods, function(method) {
 
 
 /** @constructor */
-var MockChessjsService = function() {
+var mockChessjsService = function() {
   return {
     util: {
       getOccupationColor: jasmine.createSpy('ChessUtil.getOccupationColor')

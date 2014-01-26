@@ -11,12 +11,7 @@ describe('Controller: ReviewCtrl', function() {
         'chessLoggerApp',
         function($provide) {
           $provide.value('$routeParams', {gamekey: String(testGameKey)});
-          $provide.factory('storejsService', function() {
-            return {storejs: {
-              get: jasmine.createSpy(),
-              set: jasmine.createSpy()
-            }};
-          });
+          $provide.factory('storejsService', mockStorejsService);
         });
     inject(function($controller, $rootScope) {
       scope = $rootScope.$new();

@@ -15,7 +15,7 @@ describe('Service: historyService', function() {
     module(
         'chessLoggerApp',
         function($provide) {
-          $provide.factory('storejsService', MockStorejsService);
+          $provide.factory('storejsService', mockStorejsService);
         });
     inject(function(_historyService_, _storejsService_) {
       historyService = _historyService_;

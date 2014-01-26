@@ -26,8 +26,8 @@ describe('Controller: RecordCtrl', function() {
             path: jasmine.createSpy('path')
           });
           $provide.value('$routeParams', {gamekey: '0'});
-          $provide.factory('chessjsService', MockChessjsService);
-          $provide.factory('storejsService', MockStorejsService);
+          $provide.factory('chessjsService', mockChessjsService);
+          $provide.factory('storejsService', mockStorejsService);
         });
     inject(function(
         _$controller_,

@@ -63,13 +63,13 @@
       <span ng-hide="history_service.haveSettingsSaved()">&#40;empty&#41;</span>
     </caption>
     
-    <thead ng-show="history_service.haveSettingsSaved()">
+    <thead ng-if="history_service.haveSettingsSaved()">
       <td>Delete</td>
       <td>Setting</td>
       <td>Value</td>
     </thead>
 
-    <tbody ng-show="history_service.haveSettingsSaved()">
+    <tbody ng-if="history_service.haveSettingsSaved()">
       <tr>
         <td><a ng-click="history_service.rmMostRecentName(true)">delete</a></td>
         <td>most recent white player</td>

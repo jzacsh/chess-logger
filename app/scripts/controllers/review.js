@@ -59,19 +59,10 @@ ReviewCtrl.NewGameKey = 0;
  */
 ReviewCtrl.DefaultGameData = {
   pgn_dump: null,
-  chessjs: null,
+  dynamic: null,
   original: null,
   formatted_pgn_dump: null,
   jump_to: 0
-};
-
-
-/**
- * @param {number} index
- * @return {number}
- */
-ReviewCtrl.prototype.readableIndex = function(index) {
-  return parseInt(index, 10) + 1;
 };
 
 
@@ -131,8 +122,20 @@ ReviewCtrl.prototype.submitRawGamePgn = function(rawPgn) {
 
 
 /** @return {number} */
-ReviewCtrl.prototype.getLastMoveIndex = function() {
-  return this.scope_.game.chessjs.history().length - 1;
+ReviewCtrl.prototype.getLastOriginalIndex = function() {
+  return this.scope_.game.original.history().length - 1;
+};
+
+
+/** @return {number} */
+ReviewCtrl.prototype.getLastDynamicIndex = function() {
+  return this.scope_.game.dynamic.history().length - 1;
+};
+
+
+/** @return {number} */
+ReviewCtrl.prototype.getDynamicReadableIndex = function() {
+  return parseInt(this.getLastDynamicIndex(), 10) + 1;
 };
 
 
@@ -141,7 +144,7 @@ ReviewCtrl.prototype.getLastMoveIndex = function() {
  *     Number of the current player exchange in view on the board.
  */
 ReviewCtrl.prototype.getMoveLineNumber = function() {
-  var lastMoveIndex = this.getLastMoveIndex();
+  var lastMoveIndex = this.getLastDynamicIndex();
   return lastMoveIndex ? Math.floor(lastMoveIndex / 2) : 0;
 };
 
@@ -154,14 +157,14 @@ ReviewCtrl.prototype.loadGame_ = function(pgnDump) {
   this.scope_.game.pgn_dump = pgnDump;
 
   // The live game, on display
-  this.scope_.game.chessjs = new this.chessjsService_.Chessjs();
-  this.scope_.game.chessjs.load_pgn(this.scope_.game.pgn_dump);
+  this.scope_.game.dynamic = new this.chessjsService_.Chessjs();
+  this.scope_.game.dynamic.load_pgn(this.scope_.game.pgn_dump);
 
   // Full game in its entirety, for readonly purposes
   this.scope_.game.original = new this.chessjsService_.Chessjs();
   this.scope_.game.original.load_pgn(this.scope_.game.pgn_dump);
 
-  this.scope_.game.jump_to = this.getLastPossibleIndex();
+  this.scope_.game.jump_to = this.getLastOriginalIndex();
 
   this.formatPgnDump_();
 };
@@ -172,26 +175,20 @@ ReviewCtrl.prototype.loadGame_ = function(pgnDump) {
  */
 ReviewCtrl.prototype.jumpTo = function(jumpTo) {
   var jump = parseInt(jumpTo, 10);
-  if (!this.scope_.game.chessjs ||
+  if (!this.scope_.game.dynamic ||
       !this.canJumpTo_(jump)) {
     return;
   }
 
   // Load any potentially missing history
-  if (jump > this.getLastMoveIndex()) {
-    this.scope_.game.chessjs.load_pgn(this.scope_.game.original.pgn());
+  if (jump > this.getLastDynamicIndex()) {
+    this.scope_.game.dynamic.load_pgn(this.scope_.game.original.pgn());
   }
 
   // Undo any moves occuring in history, *after* requested jump
-  while (jump < this.getLastMoveIndex()) {
-    this.scope_.game.chessjs.undo();  // Removes last index from history
+  while (jump < this.getLastDynamicIndex()) {
+    this.scope_.game.dynamic.undo();  // Removes last index from history
   }
-};
-
-
-/** @return {number} */
-ReviewCtrl.prototype.getLastPossibleIndex = function() {
-  return this.scope_.game.original.history().length - 1;
 };
 
 
@@ -202,7 +199,7 @@ ReviewCtrl.prototype.getLastPossibleIndex = function() {
  * @private
  */
 ReviewCtrl.prototype.canJumpTo_ = function(jumpTo) {
-  return jumpTo < this.getLastPossibleIndex() && jumpTo >= 0;
+  return jumpTo < this.getLastOriginalIndex() && jumpTo >= 0;
 };
 
 

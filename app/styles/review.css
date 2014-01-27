@@ -52,8 +52,8 @@
 }
 
 [data-ctrl="review"] .pgn-dump.exchanges {
-  column-count: 4;
-  column-gap: 1em;
+  column-count: 3;
+  column-gap: 1ex;
 }
 
 [data-ctrl="review"] .game-review.active .pgn-dump .active {

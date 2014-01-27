@@ -16,10 +16,10 @@
             required></textarea>
 </form>
 
-<div ng-if="game.chessjs"
+<div ng-if="game.dynamic"
      class="jumbotron game-review"
-     ng-class="{active: game.chessjs.history().length}"
-     data-active-move="{{controller.getLastMoveIndex()}}">
+     ng-class="{active: game.dynamic.history().length}"
+     data-active-move="{{controller.getLastDynamicIndex()}}">
   <ul class="pgn-dump metadata">
     <li ng-repeat="metadata in game.formatted_pgn_dump.metadata">
       {{metadata}}
@@ -31,10 +31,10 @@
         ng-repeat="rank in board.getRanks()">
       <td data-chess-position="{{file}}{{rank}}"
           data-chess-file="{{file}}"
-          data-chess-sqr-color="{{game.chessjs.square_color(file + rank)}}"
-          data-chess-occupation="{{board.getOccupationColor(game.chessjs, file, rank)}}"
+          data-chess-sqr-color="{{game.dynamic.square_color(file + rank)}}"
+          data-chess-occupation="{{board.getOccupationColor(game.dynamic, file, rank)}}"
           ng-repeat="file in board.getFiles()">
-        <button ng-bind-html="board.getCurrentPiece(game.chessjs, file, rank)"></button>
+        <button ng-bind-html="board.getCurrentPiece(game.dynamic, file, rank)"></button>
       </td>
     </tr>
   </table>
@@ -48,14 +48,14 @@
     </li>
     <li class="jump">
       <label class="jumpto">
-        move &#35;{{controller.readableIndex(game.jump_to)}}
+        move &#35;{{controller.getDynamicReadableIndex()}}
         <input class="playback"
                ng-change="controller.jumpTo(game.jump_to)"
                ng-model="game.jump_to"
                type="range"
                step="1"
                min="0"
-               max="{{controller.getLastPossibleIndex()}}" />
+               max="{{controller.getLastOriginalIndex()}}" />
       </label>
     </li>
     <li class="next">
@@ -70,6 +70,7 @@
   <ul class="pgn-dump exchanges">
     <li data-exchange-index="{{$index}}"
         ng-repeat="exchange in game.formatted_pgn_dump.moves"
+        ng-click="controller.jumpTo($index * 2)"
         ng-class="{active: $index === controller.getMoveLineNumber()}">
       {{exchange}}
     </li>

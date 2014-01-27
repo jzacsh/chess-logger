@@ -93,7 +93,9 @@ ReviewCtrl.prototype.loadCurrentGame_ = function() {
  *     Whether Chessjs recognized {@code rawPgn} as valid PGN format.
  */
 ReviewCtrl.prototype.isRawPgnValid = function(rawPgn) {
-  return rawPgn ? new this.chessjsService_.Chessjs().load_pgn(rawPgn) : false;
+  return rawPgn ?
+         !!(new this.chessjsService_.Chessjs().load_pgn(rawPgn)) :
+         false;
 };
 
 
@@ -135,6 +137,16 @@ ReviewCtrl.prototype.getLastMoveIndex = function() {
 
 
 /**
+ * @return {number}
+ *     Number of the current player exchange in view on the board.
+ */
+ReviewCtrl.prototype.getMoveLineNumber = function() {
+  var lastMoveIndex = this.getLastMoveIndex();
+  return lastMoveIndex ? Math.floor(lastMoveIndex / 2) : 0;
+};
+
+
+/**
  * @param {string} pgnDump
  * @private
  */
@@ -161,7 +173,7 @@ ReviewCtrl.prototype.loadGame_ = function(pgnDump) {
 ReviewCtrl.prototype.jumpTo = function(jumpTo) {
   var jump = parseInt(jumpTo, 10);
   if (!this.scope_.game.chessjs ||
-      !this.canJumpTo(jump)) {
+      !this.canJumpTo_(jump)) {
     return;
   }
 
@@ -187,8 +199,9 @@ ReviewCtrl.prototype.getLastPossibleIndex = function() {
  * @param {number} jumpTo
  * @return {boolean}
  *     Whether {@code jumpTo} is a real location in history of this game.
+ * @private
  */
-ReviewCtrl.prototype.canJumpTo = function(jumpTo) {
+ReviewCtrl.prototype.canJumpTo_ = function(jumpTo) {
   return jumpTo < this.getLastPossibleIndex() && jumpTo >= 0;
 };
 
@@ -203,7 +216,7 @@ ReviewCtrl.prototype.jumpPrevious = function() {
 
 /** @return {boolean} */
 ReviewCtrl.prototype.canJumpPrevious = function() {
-  return this.canJumpTo(parseInt(this.scope_.game.jump_to, 10) - 1);
+  return this.canJumpTo_(parseInt(this.scope_.game.jump_to, 10) - 1);
 };
 
 
@@ -216,7 +229,7 @@ ReviewCtrl.prototype.jumpNext = function() {
 
 /** @return {boolean} */
 ReviewCtrl.prototype.canJumpNext = function() {
-  return this.canJumpTo(parseInt(this.scope_.game.jump_to, 10) + 1);
+  return this.canJumpTo_(parseInt(this.scope_.game.jump_to, 10) + 1);
 };
 
 
@@ -230,7 +243,7 @@ ReviewCtrl.prototype.formatPgnDump_ = function() {
       this.scope_.game.pgn_dump.split('\n'),
       angular.bind(this, function(line, index) {
         if (line) {
-          if (this.isExchange(line)) {
+          if (this.isMoveLine_(line)) {
             this.scope_.game.formatted_pgn_dump.moves.push(line);
           } else {
             this.scope_.game.formatted_pgn_dump.metadata.push(line);
@@ -243,28 +256,10 @@ ReviewCtrl.prototype.formatPgnDump_ = function() {
 /**
  * @param {string} pgnLine
  * @return {boolean}
+ * @private
  */
-ReviewCtrl.prototype.isExchange = function(pgnLine) {
+ReviewCtrl.prototype.isMoveLine_ = function(pgnLine) {
   return !pgnLine.match(/\[/);  // Metadata is surrounded in square brackets
-};
-
-
-/**
- * @return {number}
- *     Number of the last move in the game currently being displayed.
- */
-ReviewCtrl.prototype.getMoveNumber = function() {
-  return this.scope_.game.chessjs ?
-         this.scope_.game.chessjs.history().length : 0;
-};
-
-
-/**
- * @return {number}
- *     Number of the current player exchange in view on the board.
- */
-ReviewCtrl.prototype.getExchangeNumber = function() {
-  return Math.floor(this.getMoveNumber() ? (this.getMoveNumber() / 2) : 0);
 };
 
 

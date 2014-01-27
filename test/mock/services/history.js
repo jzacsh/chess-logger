@@ -8,6 +8,7 @@
  */
 var historyServiceMockApis = [
   'readPgnDumps',
+  'writePgnDump',
   'deletePgn',
   'deleteAllPgns',
   'haveSettingsSaved',
@@ -16,7 +17,7 @@ var historyServiceMockApis = [
 ];
 
 
-var mockhistoryService = function() {
+var mockHistoryService = function() {
   var mockService = {};
   angular.forEach(historyServiceMockApis, function(method) {
     mockService[method] = jasmine.createSpy('hisotryService#' + method);

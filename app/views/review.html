@@ -19,7 +19,7 @@
 <div ng-if="game.chessjs"
      class="jumbotron game-review"
      ng-class="{active: game.chessjs.history().length}"
-     data-active-move="{{controller.getMoveNumber()}}">
+     data-active-move="{{controller.getLastMoveIndex()}}">
   <ul class="pgn-dump metadata">
     <li ng-repeat="metadata in game.formatted_pgn_dump.metadata">
       {{metadata}}
@@ -70,7 +70,7 @@
   <ul class="pgn-dump exchanges">
     <li data-exchange-index="{{$index}}"
         ng-repeat="exchange in game.formatted_pgn_dump.moves"
-        ng-class="{active: $index === controller.getExchangeNumber()}">
+        ng-class="{active: $index === controller.getMoveLineNumber()}">
       {{exchange}}
     </li>
   </ul>

@@ -12,7 +12,7 @@ describe('Controller: HistoryCtrl', function() {
         'chessLoggerApp',
         function($provide) {
           $provide.factory('chessjsService', mockChessjsService);
-          $provide.factory('historyService', mockhistoryService);
+          $provide.factory('historyService', mockHistoryService);
         });
     inject(function($controller, $rootScope, _historyService_) {
       scope = $rootScope.$new();

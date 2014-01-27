@@ -2,6 +2,26 @@
 
 
 /**
+ * Map of single-page paths to their titles.
+ *
+ * @type {!Object.<string, string>}
+ */
+var clNavbarItems = {
+  'record': {
+    title: 'Record',
+    append: ':0'
+  },
+  'history': {
+    title: 'History'
+  },
+  'review': {
+    title: 'Review',
+    append: ':0'
+  }
+};
+
+
+/**
  * @param {string|undefined} registeredRoute
  * @return
  *     Given {@link angular.$route} registry, {@code registeredRoute}, return
@@ -34,46 +54,33 @@ var clNavbarFactory = function clNavbarFactory($location, $route) {
     replace: true,
     template:
         '<div class="header cl-navbar">' +
-        '  <h1 class="text-muted">Chess Logger: {{nav_items[current]}}</h1>' +
+        '  <h1 class="text-muted">' +
+        '    Chess Logger: {{nav_items[cl_nav_current].title}}' +
+        '  </h1>' +
+
         '  <ul>' +
-        '    <li ng-class="{' +
-        '          ' + "'btn-info'" + ': normalize(url) !== current,' +
-        '          ' + "'btn'" + ': normalize(url) === current' +
+        '    <li data-ctrl-nav="{{cl_nav_current}}"' +
+        '        ng-class="{' +
+        '          ' + "'btn-info'" + ': path !== cl_nav_current,' +
+        '          ' + "'btn'" + ': path === cl_nav_current' +
         '        }"' +
-        '        ng-repeat="(url,item) in nav_items">' +
-        '      <a ng-hide="normalize(url) == current"' +
-        '         ng-href="{{format(url)}}">{{item}}</a>' +
-        '      <span ng-show="normalize(url) == current" >{{item}}</span>' +
+        '        ng-repeat="(path, data) in nav_items">' +
+
+        '      <a ng-hide="path == cl_nav_current"' +
+        '         ng-href="/#!/{{path}}{{data.append}}">{{data.title}}</a>' +
+        '      <span ng-show="path == cl_nav_current">{{data.title}}</span>' +
+
         '    </li>' +
         '  </ul>' +
         '</div>',
     link: function postLink(scope, element, attrs) {
-      scope.normalize = extractSinglePagePart;
-
-      /**
-       * Map of single-page paths to their titles.
-       *
-       * @type {!Object.<string, string>}
-       */
-      scope.nav_items = {
-        'record': 'Record',
-        'history': 'History',
-        'review': 'Review'
-      };
-
-      /**
-       * @param {string} url
-       * @return {string}
-       */
-      scope.format = function(url) {
-        return url === '/' ? url : ('/#!/' + url);
-      };
+      scope.nav_items = clNavbarItems;
 
       // Ensure the current loaded page has been configured with this directive.
-      scope.current = extractSinglePagePart($location.path());
-      if (!scope.nav_items[scope.current]) {
+      scope.cl_nav_current = extractSinglePagePart($location.path());
+      if (!scope.nav_items[scope.cl_nav_current]) {
         throw new Error(
-            'Could not find path "' + scope.current +
+            'Could not find path "' + scope.cl_nav_current +
             '" in configured nav items');
       }
 
@@ -100,14 +107,6 @@ var clNavbarFactory = function clNavbarFactory($location, $route) {
             ' routes registered with angular.$route ("' +
             foundRoutesPages.join('", "') + '").');
       }
-
-      // TODO(zacsh): Figure out how to get rid of this entire directive's
-      // hackery by getting a cleaner version of $route.routes map, then delete
-      // this:
-      scope.nav_items['review:0'] = scope.nav_items['review'];
-      delete scope.nav_items.review;
-      scope.nav_items['record:0'] = scope.nav_items['record'];
-      delete scope.nav_items.record;
     }
   };
 };

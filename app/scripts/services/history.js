@@ -142,7 +142,6 @@ HistoryService.prototype.havePgnDump_ = function(pgnKey, pgnDump) {
  * @param {string} pgnKey
  * @return {boolean}
  *     Whether a PGN dump seems to exist under {@code pgnKey}.
- * @private
  */
 HistoryService.prototype.havePgnKey = function(pgnKey) {
   return !!(this.getHistoryLength() &&

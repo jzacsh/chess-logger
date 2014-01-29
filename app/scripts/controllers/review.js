@@ -71,8 +71,7 @@ ReviewCtrl.prototype.loadCurrentGame_ = function() {
   var gameKey = this.routeParams_.gamekey.replace(/^:/, '');
   if (parseInt(gameKey, 10) === ReviewCtrl.NewGameKey) {
     this.scope_.upload_game = true;
-  } else if (Object.keys(this.historyService_.readPgnDumps()).length &&
-      this.historyService_.readPgnDumps()[gameKey]) {
+  } else if (this.historyService_.havePgnKey(gameKey)) {
     this.loadGame_(this.historyService_.readPgnDumps()[gameKey]);
   }
 };
@@ -175,8 +174,7 @@ ReviewCtrl.prototype.loadGame_ = function(pgnDump) {
  */
 ReviewCtrl.prototype.jumpTo = function(jumpTo) {
   var jump = parseInt(jumpTo, 10);
-  if (!this.scope_.game.dynamic ||
-      !this.canJumpTo_(jump)) {
+  if (!this.scope_.game.dynamic || !this.canJumpTo_(jump)) {
     return;
   }
 

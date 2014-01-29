@@ -134,7 +134,7 @@ HistoryService.prototype.getHistoryLength = function() {
  * @private
  */
 HistoryService.prototype.havePgnDump_ = function(pgnKey, pgnDump) {
-  return this.havePgnKey_(pgnKey) && pgnDump === this.readPgnDumps()[pgnKey];
+  return this.havePgnKey(pgnKey) && pgnDump === this.readPgnDumps()[pgnKey];
 };
 
 
@@ -144,7 +144,7 @@ HistoryService.prototype.havePgnDump_ = function(pgnKey, pgnDump) {
  *     Whether a PGN dump seems to exist under {@code pgnKey}.
  * @private
  */
-HistoryService.prototype.havePgnKey_ = function(pgnKey) {
+HistoryService.prototype.havePgnKey = function(pgnKey) {
   return !!(this.getHistoryLength() &&
             this.readPgnDumps()[pgnKey]);
 };
@@ -242,7 +242,7 @@ HistoryService.getOldestPgnKey_ = function(pgnHistory) {
  *     otherwise.
  */
 HistoryService.prototype.deletePgn = function(pgnKey) {
-  if (this.havePgnKey_(pgnKey)) {
+  if (this.havePgnKey(pgnKey)) {
     var pgnHistory = this.readPgnDumps();
     delete pgnHistory[pgnKey];
     this.writePgnHistory_(pgnHistory, true  /* cache */);

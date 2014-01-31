@@ -68,7 +68,7 @@ module.exports = function(grunt) {
       options: {
         port: grunt.option('port') || 2223,
         hostname: '0.0.0.0',
-        livereload: 35729
+        livereload: false  // 35729
       },
       livereload: {
         options: {

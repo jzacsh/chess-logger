@@ -257,15 +257,20 @@ RecordCtrl.prototype.moveTransition = function(file, rank) {
   if (this.pieceInTransit_ &&
       (transitionState === RecordCtrl.TransitionState.VALID ||
        transitionState === RecordCtrl.TransitionState.CANCEL)) {
-    // Allows user to start game by simply moving a piece on board (ignoring
-    // annoying form fields).
-    if (!this.gameStarted()) {
-      this.startNewGame();
-    }
 
-    var destination = RecordCtrl.getAlgebraicCoordinate_(file, rank);
-    this.maybeCompleteTransit_(destination).
-        then(angular.bind(this, this.unsetPiecesInTransit_));
+    if (transitionState === RecordCtrl.TransitionState.CANCEL) {
+      this.unsetPiecesInTransit_();  // User is cancelling operation
+    } else {
+      // Allows user to start game by simply moving a piece on board (ignoring
+      // annoying form fields).
+      if (!this.gameStarted()) {
+        this.startNewGame();
+      }
+
+      var destination = RecordCtrl.getAlgebraicCoordinate_(file, rank);
+      this.maybeCompleteTransit_(destination).
+          then(angular.bind(this, this.unsetPiecesInTransit_));
+    }
   } else if (transitionState === RecordCtrl.TransitionState.START) {
     this.pieceInTransit_ = RecordCtrl.getAlgebraicCoordinate_(file, rank);
   }
@@ -307,11 +312,6 @@ RecordCtrl.prototype.isPawnPromotion_ = function(destination) {
  */
 RecordCtrl.prototype.maybeCompleteTransit_ = function(destination) {
   var deferred = this.q_.defer();
-  if (RecordCtrl.pieceEquals(this.pieceInTransit_, destination)) {
-    deferred.reject();
-    return deferred.promise;  // User is cancelling operation
-  }
-
   if (this.isPawnPromotion_(destination)) {
     this.scope_.game.pawn_promotion = deferred;
 

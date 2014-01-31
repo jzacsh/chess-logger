@@ -102,7 +102,16 @@ module.exports = function(grunt) {
           basePath: '<%= yeoman.dist %>',
           hash: true,
           timestamp: true,
-          excludeDirs: true
+          excludeDirs: true,
+          process: function(file, section) {
+            // TODO(zacsh): Come up with real solution, beyond keeping manifest
+            // from failing.
+            var awsEncoded = [];
+            encodeURI(file).split('/').forEach(function(path, index) {
+              awsEncoded.push(encodeURIComponent(path));
+            });
+            return awsEncoded.join('/');
+          }
         },
         dest: '<%= yeoman.dist %>/chess-jzacsh-com.manifest',
         src: '**'

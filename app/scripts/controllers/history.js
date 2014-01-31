@@ -59,6 +59,14 @@ HistoryCtrl.UndoTimeout = 5000;
 
 
 /**
+ * Pseudo-gamekey used to identify DELETE-ALL pending game action.
+ *
+ * @type {number}
+ */
+HistoryCtrl.DeleteAllUndoKey = -1;
+
+
+/**
  * {@link RegExp} string intended to be suffixed to "Black" or "White",
  * intended in extracting player names.
  *
@@ -106,14 +114,8 @@ HistoryCtrl.prototype.deleteGame = function(gameKey) {
 };
 
 
-HistoryCtrl.DeleteAllUndoKey = -1;
-
-
 /**
  * Deletes all game history.
- *
- * @return {number}
- *     Number of games deleted.
  */
 HistoryCtrl.prototype.deleteAllGames = function() {
   this.scope_.undo_limbo[HistoryCtrl.DeleteAllUndoKey] = this.scope_.timeout(

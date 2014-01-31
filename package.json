@@ -41,7 +41,9 @@
     "karma-ng-html2js-preprocessor": "~0.1.0",
     "closure-linter-wrapper": "~0.2.9",
     "grunt-gjslint": "~0.1.3",
-    "grunt-manifest": "https://github.com/jzacsh/grunt-manifest/archive/master.tar.gz"
+    "grunt-manifest": "https://github.com/jzacsh/grunt-manifest/archive/master.tar.gz",
+    "grunt-istanbul-coverage": "0.0.2",
+    "karma-coverage": "~0.1.5"
   },
   "engines": {
     "node": ">=0.8.0"

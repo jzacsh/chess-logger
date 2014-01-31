@@ -149,6 +149,7 @@ module.exports = function(grunt) {
           ]
         }]
       },
+      gen: 'gen/**',
       server: '.tmp'
     },
 
@@ -380,6 +381,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('test', [
+    'clean:gen',
     'clean:server',
     'concurrent:test',
     'autoprefixer',
@@ -389,6 +391,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('build', [
     'clean:dist',
+    'clean:gen',
     'bower-install',
     'useminPrepare',
     'concurrent:dist',

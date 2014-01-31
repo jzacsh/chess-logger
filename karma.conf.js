@@ -23,6 +23,21 @@ module.exports = function(config) {
       'app/views/*.html'
     ],
 
+    // Test Coverage
+    // TODO(zacsh): Fix below to not:
+    //   a) prevent karma:unit output
+    //   b) cause strange `app/views/review.html:1 Syntax Parse Error`
+//  reporters: ['progress', 'coverage'],
+
+//  preprocessors: {
+//    'app/scripts/{**/,}*.js':  ['coverage']
+// },
+
+//  coverageReporter: {
+//    type: 'text',
+//    dir: 'gen/coverage/',
+//  },
+
     // list of files / patterns to exclude
     exclude: [],
 
@@ -36,7 +51,6 @@ module.exports = function(config) {
 
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: false,
-
 
     // Start these browsers, currently available:
     // - Chrome

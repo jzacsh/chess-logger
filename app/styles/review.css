@@ -1,6 +1,13 @@
+.container {
+  padding-right: 0;
+  padding-left: 0;
+}
+
 [data-ctrl="review"] .jumbotron {
   font-size: 2ex;
   text-align: left;
+  padding-right: 0;
+  padding-left: 0;
 }
 
 [data-ctrl="review"] .game-upload {

@@ -47,6 +47,7 @@ describe('Directive: clSquarify', function() {
 
   it('should make element square, relative to height', function() {
     scope.based_on = 'height';
+
     testClientDimension = 500;
     compileElement();
 

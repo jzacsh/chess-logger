@@ -26,7 +26,7 @@
     </li>
   </ul>
 
-  <table class="chess-board">
+  <table cl-squarify="width" class="chess-board">
     <tr data-chess-rank="{{rank}}"
         ng-repeat="rank in board.getRanks()">
       <td data-chess-position="{{file}}{{rank}}"

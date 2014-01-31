@@ -43,7 +43,9 @@
       </ul>
     </div>
 
-    <table class="chess-board" ng-class="{unfocus: game.pawn_promotion}">
+    <table cl-squarify="width"
+           class="chess-board"
+           ng-class="{unfocus: game.pawn_promotion}">
       <tr data-chess-rank="{{rank}}"
           ng-repeat="rank in game.ui_board.getRanks()">
         <td data-chess-position="{{file}}{{rank}}"

@@ -187,6 +187,8 @@ ReviewCtrl.prototype.jumpTo = function(jumpTo) {
   while (jump < this.getLastDynamicIndex()) {
     this.scope_.game.dynamic.undo();  // Removes last index from history
   }
+
+  this.scope_.game.jump_to = jump;
 };
 
 
@@ -197,14 +199,15 @@ ReviewCtrl.prototype.jumpTo = function(jumpTo) {
  * @private
  */
 ReviewCtrl.prototype.canJumpTo_ = function(jumpTo) {
-  return jumpTo < this.getLastOriginalIndex() && jumpTo >= 0;
+  return jumpTo <= this.getLastOriginalIndex() && jumpTo >= 0;
 };
 
 
-/** {@link #jumpTo} wrapper. */
+/** {@link #jumpTo} wrapper */
 ReviewCtrl.prototype.jumpPrevious = function() {
   if (this.canJumpPrevious()) {
-    this.jumpTo(--parseInt(this.scope_.game.jump_to, 10));
+    var jumpTo = parseInt(this.scope_.game.jump_to, 10);
+    this.jumpTo(--jumpTo);
   }
 };
 
@@ -218,7 +221,8 @@ ReviewCtrl.prototype.canJumpPrevious = function() {
 /** {@link #jumpTo} wrapper. */
 ReviewCtrl.prototype.jumpNext = function() {
   if (this.canJumpNext()) {
-    this.jumpTo(--parseInt(this.scope_.game.jump_to, 10));
+    var jumpTo = parseInt(this.scope_.game.jump_to, 10);
+    this.jumpTo(++jumpTo);
   }
 };
 

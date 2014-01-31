@@ -3,9 +3,16 @@
 <div class="row marketing"></div>
 
 <div class="jumbotron history-review">
-  <a ng-show="controller.gameCount()"
+  <a ng-show="controller.gameCount() && !undo_limbo[Ctrl.DeleteAllUndoKey]"
      ng-click="controller.deleteAllGames()">delete all games</a>
-  <table class="history-review">
+  <a ng-show="undo_limbo[Ctrl.DeleteAllUndoKey]"
+     ng-click="timeout.cancel(undo_limbo[Ctrl.DeleteAllUndoKey])">
+     <em>Undo Delete&ndash;All!</em></a>
+  <span ng-show="undo_limbo[Ctrl.DeleteAllUndoKey]">
+    ({{Ctrl.UndoTimeout / 1000}} seconds)</span>
+
+  <table class="history-review"
+         data-undo-limbo="{{undo_limbo[Ctrl.DeleteAllUndoKey] && 'deleteall'}}">
     <caption>
       <span ng-hide="controller.gameCount()">No</span> Past Games
     </caption>
@@ -23,14 +30,23 @@
       <tr data-gameover="{{controller.gameOver(key)}}"
           ng-show="key"
           ng-repeat="(key, game) in controller.getAllGames()">
-        <td>
+        <td ng-show="undo_limbo[key]" colspan="6">
+          <a class="btn btn-primary"
+             ng-click="timeout.cancel(undo_limbo[key])">
+             Undo Delete</a>
+          <em>({{Ctrl.UndoTimeout / 1000}} seconds)</em>
+        </td>
+        <td ng-hide="undo_limbo[key]">
           <a title="delete this game"
              ng-click="controller.deleteGame(key)">x</a>
         </td>
 
-        <td><a ng-href="/#!/review:{{key}}">{{key | date:'yyyy-mm-dd h:mma'}}</a></td>
+        <td ng-hide="undo_limbo[key]">
+          <a ng-href="/#!/review:{{key}}">{{key | date:'yyyy-mm-dd h:mma'}}</a>
+        </td>
 
-        <td class="players">
+        <td class="players"
+            ng-hide="undo_limbo[key]">
           <span title="white">
             {{controller.getPlayerWhite(key)}}
             &#40;<span ng-bind-html="controller.getPlayerIcon('w')"></span>&#41;
@@ -44,15 +60,17 @@
           </span>
         </td>
 
-        <td class="winner" ng-bind-html="controller.getWiningPlayerIcon(key)"></td>
+        <td class="winner"
+            ng-hide="undo_limbo[key]"
+            ng-bind-html="controller.getWiningPlayerIcon(key)"></td>
 
-        <td>
+        <td ng-hide="undo_limbo[key]">
           {{controller.getGameResolution(key)}}
           <a ng-hide="controller.gameOver(key)"
               ng-href="/#!/record:{{key}}">continue</a>
         </td>
 
-        <td>{{controller.getMoveCount(key)}}</td>
+        <td ng-hide="undo_limbo[key]">{{controller.getMoveCount(key)}}</td>
       </tr>
     <tbody>
   </table>

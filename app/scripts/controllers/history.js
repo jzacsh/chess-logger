@@ -4,14 +4,27 @@
 
 /**
  * @param {!angular.Scope} $scope
+ * @param {!angular.$timeout} $timeout
  * @param {!Object} chessjsService
  *     github.com/jhlywa/chess.js
  * @param {!Object} historyService
  * @constructor
  */
-var HistoryCtrl = function HistoryCtrl($scope, chessjsService, historyService) {
+var HistoryCtrl = function HistoryCtrl(
+    $scope, $timeout, chessjsService, historyService) {
   /** @private {!angular.Scope} */
   this.scope_ = $scope;
+
+  /** @type {!angular.$timeout} */
+  this.scope_.timeout = $timeout;
+
+  /**
+   * Promises of pending action being kept in limbo for users to undo, keyed by
+   * the gamekey the action will be taken on.
+   *
+   * @type {!Object.<string, !angular.$q.Promise>}
+   */
+  this.scope_.undo_limbo = {};
 
   /** @private {!Object} */
   this.chessjsService_ = chessjsService;
@@ -26,8 +39,23 @@ var HistoryCtrl = function HistoryCtrl($scope, chessjsService, historyService) {
    */
   this.chessGames_ = null;
 
+  /**
+   * Static reference to {@link HistoryCtrl} constructor.
+   *
+   * @type {HistoryCtrl}.
+   */
+  this.scope_.Ctrl = HistoryCtrl;
+
   return this.scope_.controller = this;
 };
+
+
+/**
+ * Milliseconds allowed for user to undo action.
+ *
+ * @type {number}
+ */
+HistoryCtrl.UndoTimeout = 5000;
 
 
 /**
@@ -62,14 +90,23 @@ HistoryCtrl.prototype.getAllGames = function() {
 
 /**
  * @param {string} gameKey
- * @return {number}
- *     New length of game-history, given deletion of {@code gameKey}.
  */
 HistoryCtrl.prototype.deleteGame = function(gameKey) {
-  this.chessGames_ = null;
-  this.scope_.history_service.deletePgn(gameKey);
-  return Object.keys(this.getAllGames()).length;
+  this.scope_.undo_limbo[gameKey] = this.scope_.timeout(
+      angular.bind(this, function() {
+        this.chessGames_ = null;
+        this.scope_.history_service.deletePgn(gameKey);
+      }),
+      HistoryCtrl.UndoTimeout);
+
+  var cleanUpLimbo = angular.bind(this, function() {
+    this.scope_.undo_limbo[gameKey] = false;
+  });
+  this.scope_.undo_limbo[gameKey].then(cleanUpLimbo, cleanUpLimbo);
 };
+
+
+HistoryCtrl.DeleteAllUndoKey = -1;
 
 
 /**
@@ -79,8 +116,18 @@ HistoryCtrl.prototype.deleteGame = function(gameKey) {
  *     Number of games deleted.
  */
 HistoryCtrl.prototype.deleteAllGames = function() {
-  this.chessGames_ = null;
-  return this.scope_.history_service.deleteAllPgns();
+  this.scope_.undo_limbo[HistoryCtrl.DeleteAllUndoKey] = this.scope_.timeout(
+      angular.bind(this, function() {
+        this.chessGames_ = null;
+        this.scope_.history_service.deleteAllPgns();
+      }),
+      HistoryCtrl.UndoTimeout);
+
+  var cleanUpLimbo = angular.bind(this, function() {
+    this.scope_.undo_limbo[HistoryCtrl.DeleteAllUndoKey] = false;
+  });
+  this.scope_.undo_limbo[HistoryCtrl.DeleteAllUndoKey].
+      then(cleanUpLimbo, cleanUpLimbo);
 };
 
 
@@ -175,6 +222,7 @@ angular.
   module('chessLoggerApp').
   controller('HistoryCtrl', [
     '$scope',
+    '$timeout',
     'chessjsService',
     'historyService',
     HistoryCtrl

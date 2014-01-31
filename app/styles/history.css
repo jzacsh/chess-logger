@@ -37,10 +37,6 @@
   padding: 0 1ex;
 }
 
-.history-review td.winner {
-  opacity: 0;
-}
-
 .history-review tr[data-gameover="true"] td.winner {
   opacity: inherit;
 }

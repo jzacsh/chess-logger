@@ -113,7 +113,8 @@ HistoryCtrl.prototype.getPlayerBlack = function(gameKey) {
  * @return {boolean}
  */
 HistoryCtrl.prototype.gameOver = function(gameKey) {
-  return this.getAllGames()[gameKey].game_over();
+  return !!this.getAllGames()[gameKey] &&
+         this.getAllGames()[gameKey].game_over();
 };
 
 
@@ -123,7 +124,8 @@ HistoryCtrl.prototype.gameOver = function(gameKey) {
  *     HTML markup for the King of the winning color.
  */
 HistoryCtrl.prototype.getWiningPlayerIcon = function(gameKey) {
-  return this.getPlayerIcon(this.winningPlayer(gameKey));
+  var winningPlayer = this.winningPlayer(gameKey);
+  return winningPlayer ? this.getPlayerIcon(winningPlayer) : 'N/A';
 };
 
 
@@ -141,11 +143,12 @@ HistoryCtrl.prototype.getPlayerIcon = function(player) {
 
 /**
  * @param {number} gameKey
- * @return {string}
+ * @return {?string}
  */
 HistoryCtrl.prototype.winningPlayer = function(gameKey) {
-  var game = this.getAllGames()[gameKey];
-  return (game && game.game_over() && game.turn() === 'w') ? 'b' : 'w';
+  return this.gameOver(gameKey) ?
+         (this.getAllGames()[gameKey].turn() === 'w' ? 'b' : 'w') :
+         null;
 };
 
 
@@ -155,7 +158,7 @@ HistoryCtrl.prototype.winningPlayer = function(gameKey) {
  */
 HistoryCtrl.prototype.getGameResolution = function(gameKey) {
   return this.chessjsService_.util.
-      getGameResolution(this.getAllGames()[gameKey]) || 'ongoing, ';
+      getGameResolution(this.getAllGames()[gameKey]);
 };
 
 

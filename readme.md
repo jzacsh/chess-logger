@@ -11,4 +11,5 @@ native android app, but was frustrated with a few missing features.
 
 ## Disclaimer & License
 See [LICENSE](LICENSE). Note: this is **not** a Google product. This is just a fun, personal
-weekend project I whipped up when I got frustrated trying to learn to finger-spell.
+weekend project I whipped up when I got frustrated trying to review previously
+logged chess games.

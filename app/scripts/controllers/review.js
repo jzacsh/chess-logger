@@ -66,9 +66,15 @@ ReviewCtrl.DefaultGameData = {
 };
 
 
+/** @return {string} */
+ReviewCtrl.prototype.getGamekey = function() {
+  return this.routeParams_.gamekey.replace(/^:/, '');
+};
+
+
 /** @private */
 ReviewCtrl.prototype.loadCurrentGame_ = function() {
-  var gameKey = this.routeParams_.gamekey.replace(/^:/, '');
+  var gameKey = this.getGamekey();
   if (parseInt(gameKey, 10) === ReviewCtrl.NewGameKey) {
     this.scope_.upload_game = true;
   } else if (this.historyService_.havePgnKey(gameKey)) {

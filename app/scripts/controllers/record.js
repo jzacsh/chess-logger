@@ -89,10 +89,6 @@ var RecordCtrl = function RecordCtrl(
 };
 
 
-/** @type {string} */
-RecordCtrl.DownloadFileNamePrefix = 'chess.jzacsh.com_game-';
-
-
 /**
  * @typedef {{file: string, rank: number}}
  */
@@ -166,12 +162,9 @@ RecordCtrl.prototype.maybeLoadGame_ = function() {
 };
 
 
-/**
- * @return {string}
- *     Download-file name for a PGN dump of the current game.
- */
-RecordCtrl.prototype.getDownloadFileName = function() {
-  return RecordCtrl.DownloadFileNamePrefix + this.gameKey_ + '.txt';
+/** @return {?string} */
+RecordCtrl.prototype.getGamekey = function() {
+  return this.gameKey_;
 };
 
 

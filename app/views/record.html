@@ -93,18 +93,17 @@
     <textarea class="data pgn-dump" ng-bind-html="controller.toPgn()"></textarea>
 
     <div class="login">
-      <a class="save download btn btn-info"
-         cl-download-txt="controller.toPgn()"
-         cl-download-file="controller.getDownloadFileName()">
-        Download</a>
+      <cl-download-pgn
+          ng-show="controller.getGamekey()"
+          cl-gamekey="controller.getGamekey()">
+        Download</cl-download-pgn>
       <a href="#"
          class="login save"
          title="Save, replay, share previous games"
          ng-click="controller.login()">
         <span ng-show="controller.gameStarted()">or</span>
         login &amp; sync with cloud
-      </div>
-    </p>
+    </div>
   </div>
 </div>
 

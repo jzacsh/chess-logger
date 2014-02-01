@@ -75,6 +75,14 @@
       {{exchange}}
     </li>
   </ul>
+
+  <p class="pgn-review">
+    <cl-download-pgn
+        ng-show="controller.getGamekey()"
+        cl-gamekey="controller.getGamekey()">
+      Download
+    </cl-download-pgn>
+  </p>
 </div>
 
 <div class="row marketing"></div>

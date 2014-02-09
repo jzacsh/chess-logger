@@ -170,6 +170,28 @@ ChessUtil.WhiteEntityToNotation = {
 
 
 
+/**
+ * @param {string} pgnDump
+ * @return {string}
+ *     "Date" header of {@code pgnDump}.
+ */
+// TODO(zacsh): now I have two problems. come up with non-linebreak dependent
+// logic.
+ChessUtil.getDate = function(pgnDump) {
+  var date = '';
+  var pgnLines = pgnDump.split('\n');
+  angular.forEach(pgnLines, function(line, index) {
+    if (date || !line.match(/\[(\s*)?date/i)) {
+      return;
+    }
+    var dateMatch = line.match(/(\d\d\d\d-\d\d?-\d\d?)/);
+    date = dateMatch ? dateMatch[1] : '';
+  });
+  return date;
+};
+
+
+
 /** @constructor */
 var ChessjsService = function ChessjsService() {
   /** chess.js global, loaded before angular is */

@@ -12,8 +12,8 @@
     ({{Ctrl.UndoTimeout / 1000}} seconds)</span>
 
   <ul class="show-preview">
-    <li ng-repeat="(key, game) in controller.getAllGames()"
-        ng-show="show_preview === key">{{game.ascii()}}</li></ul>
+    <li ng-repeat="(key, chessjs) in controller.getAllGames()"
+        ng-show="show_preview === key">{{chessjs.game.ascii()}}</li></ul>
 
   <table class="history-review"
          data-undo-limbo="{{undo_limbo[Ctrl.DeleteAllUndoKey] && 'deleteall'}}">
@@ -36,7 +36,7 @@
           ng-click="controller.togglePreview(key)"
           ng-mouseover="controller.setShowPreview(key)"
           ng-mouseleave="controller.setShowPreview()"
-          ng-repeat="(key, game) in controller.getAllGames()">
+          ng-repeat="(key, chessjs) in controller.getAllGames()">
         <td ng-show="undo_limbo[key]" colspan="6">
           <a class="btn btn-primary"
              ng-click="timeout.cancel(undo_limbo[key])">
@@ -49,7 +49,7 @@
         </td>
 
         <td ng-hide="undo_limbo[key]">
-          <a ng-href="/#!/review:{{key}}">{{key | date:'yyyy-mm-dd h:mma'}}</a>
+          <a ng-href="/#!/review:{{key}}">{{chess_util.getDate(chessjs.pgn)}}</a>
         </td>
 
         <td class="players"

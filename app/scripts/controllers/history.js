@@ -36,6 +36,9 @@ var HistoryCtrl = function HistoryCtrl(
   /** @type {!Object} */
   this.scope_.history_service = historyService;
 
+  /** @type {!Object} */
+  this.scope_.chess_util = chessjsService.util;
+
   /**
    * Gamekey for which to show a preview of the gamestate.
    * @type {string}
@@ -45,7 +48,7 @@ var HistoryCtrl = function HistoryCtrl(
   /**
    * Map of chess.js instances, representing games loaded from history, keyed
    * by their same keys used for historyService.
-   * @private {Object.<string, !Object>}
+   * @private {Object.<string, {game: !Object, pgn: string}>}
    */
   this.chessGames_ = null;
 
@@ -125,8 +128,11 @@ HistoryCtrl.prototype.getAllGames = function() {
     angular.forEach(
         this.scope_.history_service.readPgnDumps(),
         angular.bind(this, function(game, key) {
-          this.chessGames_[key] = new this.chessjsService_.Chessjs();
-          this.chessGames_[key].load_pgn(game);
+          this.chessGames_[key] = {
+            pgn: game,
+            game: new this.chessjsService_.Chessjs()
+          };
+          this.chessGames_[key].game.load_pgn(game);
         }));
   }
   return this.chessGames_;
@@ -141,7 +147,7 @@ HistoryCtrl.prototype.getAllGames = function() {
 HistoryCtrl.prototype.deleteGame = function(gameKey) {
   this.scope_.undo_limbo[gameKey] = this.scope_.timeout(
       angular.bind(this, function() {
-        this.chessGames_ = null;
+        this.chessGames_[gameKey] = null;
         this.scope_.history_service.deletePgn(gameKey);
       }),
       HistoryCtrl.UndoTimeout);
@@ -180,9 +186,9 @@ HistoryCtrl.prototype.deleteAllGames = function() {
  * @param {number} gameKey
  * @return {string}
  */
+// TODO(zacsh): move to chessUtils
 HistoryCtrl.prototype.getPlayerWhite = function(gameKey) {
-  var matches = this.getAllGames()[gameKey].
-      pgn().
+  var matches = this.getAllGames()[gameKey].pgn.
       match(new RegExp('White' + HistoryCtrl.PgnPlayerSuffixRegExp));
   return matches ? matches.pop() : '';
 };
@@ -192,9 +198,9 @@ HistoryCtrl.prototype.getPlayerWhite = function(gameKey) {
  * @param {number} gameKey
  * @return {string}
  */
+// TODO(zacsh): move to chessUtils
 HistoryCtrl.prototype.getPlayerBlack = function(gameKey) {
-  var matches = this.getAllGames()[gameKey].
-      pgn().
+  var matches = this.getAllGames()[gameKey].pgn.
       match(new RegExp('Black' + HistoryCtrl.PgnPlayerSuffixRegExp));
   return matches ? matches.pop() : '';
 };
@@ -204,9 +210,10 @@ HistoryCtrl.prototype.getPlayerBlack = function(gameKey) {
  * @param {number} gameKey
  * @return {boolean}
  */
+// TODO(zacsh): move to chessUtils
 HistoryCtrl.prototype.gameOver = function(gameKey) {
   return !!this.getAllGames()[gameKey] &&
-         this.getAllGames()[gameKey].game_over();
+         this.getAllGames()[gameKey].game.game_over();
 };
 
 
@@ -239,7 +246,7 @@ HistoryCtrl.prototype.getPlayerIcon = function(player) {
  */
 HistoryCtrl.prototype.winningPlayer = function(gameKey) {
   return this.gameOver(gameKey) ?
-         (this.getAllGames()[gameKey].turn() === 'w' ? 'b' : 'w') :
+         (this.getAllGames()[gameKey].game.turn() === 'w' ? 'b' : 'w') :
          null;
 };
 
@@ -250,7 +257,7 @@ HistoryCtrl.prototype.winningPlayer = function(gameKey) {
  */
 HistoryCtrl.prototype.getGameResolution = function(gameKey) {
   return this.chessjsService_.util.
-      getGameResolution(this.getAllGames()[gameKey]);
+      getGameResolution(this.getAllGames()[gameKey].game);
 };
 
 
@@ -259,7 +266,7 @@ HistoryCtrl.prototype.getGameResolution = function(gameKey) {
  * @return {number}
  */
 HistoryCtrl.prototype.getMoveCount = function(gameKey) {
-  return this.getAllGames()[gameKey].history().length;
+  return this.getAllGames()[gameKey].game.history().length;
 };
 
 

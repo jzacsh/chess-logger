@@ -248,7 +248,7 @@ ReviewCtrl.prototype.formatPgnDump_ = function() {
       this.scope_.game.pgn_dump.split('\n'),
       angular.bind(this, function(line, index) {
         if (line) {
-          if (this.isMoveLine_(line)) {
+          if (ReviewCtrl.isMoveLine_(line)) {
             this.scope_.game.formatted_pgn_dump.moves.push(line);
           } else {
             this.scope_.game.formatted_pgn_dump.metadata.push(line);
@@ -263,7 +263,7 @@ ReviewCtrl.prototype.formatPgnDump_ = function() {
  * @return {boolean}
  * @private
  */
-ReviewCtrl.prototype.isMoveLine_ = function(pgnLine) {
+ReviewCtrl.isMoveLine_ = function(pgnLine) {
   return !pgnLine.match(/\[/);  // Metadata is surrounded in square brackets
 };
 

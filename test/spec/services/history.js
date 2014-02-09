@@ -230,7 +230,7 @@ describe('Service: historyService', function() {
       expect(storageKey).toBe(HistoryService.StorageKeyPgnHistory);
       return existingData;
     });
-    historyService = new HistoryService(storejsService);
+    historyService = new HistoryService(gdriveHistoryService, storejsService);
     expect(historyService.readPgnDumps()).toBe(existingData);
     expect(historyService.readPgnDumps()).toBe(existingData);
     expect(historyService.havePgnDumps()).toBe(false);

@@ -2,11 +2,16 @@
 
 
 /**
+ * @param {!Object} gdriveHistoryService
  * @param {!Object} storejsService
  *     github.com/marcuswestin/store.js
  * @constructor
  */
-var HistoryService = function HistoryService(storejsService) {
+var HistoryService = function HistoryService(
+    gdriveHistoryService, storejsService) {
+  /** @private {!Object} */
+  this.gdriveHistoryService_ = gdriveHistoryService;
+
   /**
    * localStorage API from github.com/marcuswestin/store.js
    *
@@ -325,10 +330,27 @@ HistoryService.prototype.haveSettingsSaved = function() {
 };
 
 
+/**
+ * Authorizes for, synchronizes to, and shifts storage solution to third-party
+ * cloud storage.
+ *
+ * @return {!angular.$q.Promise}
+ */
+HistoryService.prototype.syncAndShiftToCloud = function() {
+  return this.gdriveHistoryService_.loadAuthorization(true  /* prompt user */);
+};
+
+
+/** @return {!angular.$q.Promise} */
+HistoryService.prototype.isUsingCloudStorage = function() {
+  return this.gdriveHistoryService_.isAuthorized();
+};
+
 
 angular.
   module('chessLoggerApp').
   service('historyService', [
+    'gdriveHistoryService',
     'storejsService',
     HistoryService
   ]);

@@ -41,6 +41,9 @@ var RecordCtrl = function RecordCtrl(
   /** @private {!Object} */
   this.historyService_ = historyService;
 
+  /** @type {boolean} */
+  this.scope_.synced_to_cloud = this.isSyncedToCloud();
+
   /**
    * File and rank of the chess piece currently in transit, if any.
    *
@@ -168,9 +171,26 @@ RecordCtrl.prototype.getGamekey = function() {
 };
 
 
-/** Authenticate against 3rd party API. */
+/**
+ * @return {!angular.$q.Promise}
+ *     Promise that user is authenticated against 3rd party API.
+ */
 RecordCtrl.prototype.login = function() {
-  throw new Error('`login` not yet implemented');
+  return this.historyService_.syncAndShiftToCloud();
+};
+
+
+/**
+ * @return {!angular.$q.Promise}
+ *     Promise determining whether current user has recently authenticated this
+ *     application to access their third-party cloud storage.
+ */
+RecordCtrl.prototype.isSyncedToCloud = function() {
+  return this.scope_.synced_to_cloud || this.historyService_.
+      isUsingCloudStorage().then(
+          angular.bind(this, function() {
+            this.scope_.synced_to_cloud = true;
+          }));
 };
 
 

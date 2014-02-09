@@ -97,12 +97,19 @@
           ng-show="controller.getGamekey()"
           cl-gamekey="controller.getGamekey()">
         Download</cl-download-pgn>
-      <a href="#"
-         class="login save"
+      or
+
+      <a title="Review and analyze previous games"
+         ng-show="synced_to_cloud"
+         ng-href="/#!/history">
+       review games synced to cloud</a>
+
+      <a class="login save"
          title="Save, replay, share previous games"
+         ng-hide="synced_to_cloud"
          ng-click="controller.login()">
-        <span ng-show="controller.gameStarted()">or</span>
-        login &amp; sync with cloud
+       login &amp; sync with cloud</a>
+
     </div>
   </div>
 </div>

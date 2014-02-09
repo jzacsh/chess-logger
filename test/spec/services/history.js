@@ -1,8 +1,10 @@
 'use strict';
 
 describe('Service: historyService', function() {
+  // ngInjects
   var historyService,
-      storejsService;
+      storejsService,
+      gdriveHistoryService;
 
   var testGameKey = 1390115196954;
 
@@ -11,14 +13,25 @@ describe('Service: historyService', function() {
   var initialWriteCount,
       initialReadCount;
 
+  beforeEach(module(function($provide) {
+    $provide.provider('gdriveHistoryService', mockGdriveHistoryServiceProvider);
+    $provide.factory('storejsService', mockStorejsService);
+  }));
+
   beforeEach(function() {
     module(
         'chessLoggerApp',
-        function($provide) {
-          $provide.factory('storejsService', mockStorejsService);
+        function(gdriveHistoryServiceProvider) {
+          expect(gdriveHistoryServiceProvider.setClientId).
+              not.toHaveBeenCalled();
+          gdriveHistoryServiceProvider.setClientId('foo');
         });
-    inject(function(_historyService_, _storejsService_) {
+    inject(function(
+        _historyService_,
+        _gdriveHistoryService_,
+        _storejsService_) {
       historyService = _historyService_;
+      gdriveHistoryService = _gdriveHistoryService_;
       storejsService = _storejsService_;
 
       mockStorejs = storejsService.storejs;
@@ -31,6 +44,14 @@ describe('Service: historyService', function() {
     expect(initialReadCount).toBe(1);
     initialWriteCount = mockStorejs.set.callCount;
     expect(initialWriteCount).toBe(1);
+  });
+
+  it('should test `syncAndShiftToCloud`', function() {
+    this.fail('write me!'); //@TODO: remove me!!
+  });
+
+  it('should test `isUsingCloudStorage`', function() {
+    this.fail('write me!'); //@TODO: remove me!!
   });
 
   it('should init PgnHistory when constructing HistoryService', function() {
@@ -46,7 +67,7 @@ describe('Service: historyService', function() {
     });
 
     // Re-construct HistoryService, given new storage
-    new HistoryService(storejsService);
+    new HistoryService(gdriveHistoryService, storejsService);
 
     // Expect no further initialization, given existing data
     expect(mockStorejs.set.callCount).toBe(initialWriteCount);
@@ -92,7 +113,7 @@ describe('Service: historyService', function() {
       expect(Object.keys(existingData).length).toBe(actualHistoryLength);
       return existingData;
     });
-    historyService = new HistoryService(storejsService);
+    historyService = new HistoryService(gdriveHistoryService, storejsService);
 
     // `writePgnDump` should report latest length correctly
     expect(historyService.writePgnDump(testGameKey, testPgnDump)).
@@ -118,7 +139,7 @@ describe('Service: historyService', function() {
     var testGameKeyB = testGameKey + 10,
         testPgnDumpB = testPgnDump + testPgnDump;
 
-    new HistoryService(storejsService);
+    new HistoryService(gdriveHistoryService, storejsService);
     var currentHistoryLength = historyService.
         writePgnDump(testGameKeyB, testPgnDumpB);
 
@@ -143,7 +164,7 @@ describe('Service: historyService', function() {
       return existingData;
     });
 
-    historyService = new HistoryService(storejsService);
+    historyService = new HistoryService(gdriveHistoryService, storejsService);
     var currentHistoryLength = historyService.
         writePgnDump(testGameKey, testPgnDump + 'test update to pgn');
 
@@ -177,7 +198,7 @@ describe('Service: historyService', function() {
       return existingData;
     });
 
-    historyService = new HistoryService(storejsService);
+    historyService = new HistoryService(gdriveHistoryService, storejsService);
 
     // Should allow just one more write
     var currentHistoryLength = historyService.
@@ -232,7 +253,7 @@ describe('Service: historyService', function() {
       return existingData;
     });
 
-    historyService = new HistoryService(storejsService);
+    historyService = new HistoryService(gdriveHistoryService, storejsService);
     expect(historyService.readPgnDumps()).toBe(existingData);
   });
 

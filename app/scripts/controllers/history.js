@@ -3,6 +3,7 @@
 
 
 /**
+ * @param {!angular.$location} $location
  * @param {!angular.Scope} $scope
  * @param {!angular.$timeout} $timeout
  * @param {!Object} chessjsService
@@ -11,7 +12,10 @@
  * @constructor
  */
 var HistoryCtrl = function HistoryCtrl(
-    $scope, $timeout, chessjsService, historyService) {
+    $location, $scope, $timeout, chessjsService, historyService) {
+  /** @private {!angular.$location} */
+  this.location_ = $location;
+
   /** @private {!angular.Scope} */
   this.scope_ = $scope;
 
@@ -42,12 +46,23 @@ var HistoryCtrl = function HistoryCtrl(
   /**
    * Static reference to {@link HistoryCtrl} constructor.
    *
-   * @type {HistoryCtrl}.
+   * @type {HistoryCtrl}
    */
   this.scope_.Ctrl = HistoryCtrl;
 
+  this.maybeRedirectAway_();
+
   return this.scope_.controller = this;
 };
+
+
+/**
+ * Alternative path to redirect to as a splash page, should a this controller
+ * load and not have anything to show.
+ *
+ * @type {string}
+ */
+HistoryCtrl.EmptyRedirectDestination = '/record:0';
 
 
 /**
@@ -75,6 +90,19 @@ HistoryCtrl.DeleteAllUndoKey = -1;
 HistoryCtrl.PgnPlayerSuffixRegExp = '\ \"(.*)\"';
 
 
+/**
+ * Redirects to a better splash page if there is nothing for this controller
+ * show or do.
+ * @private
+ */
+HistoryCtrl.prototype.maybeRedirectAway_ = function() {
+  if (!this.scope_.history_service.havePgnDumps() &&
+      !this.scope_.history_service.haveSettingsSaved()) {
+    this.location_.path(HistoryCtrl.EmptyRedirectDestination);
+  }
+};
+
+
 /** @return {number} */
 HistoryCtrl.prototype.gameCount = function() {
   return Object.keys(this.getAllGames()).length;
@@ -84,6 +112,9 @@ HistoryCtrl.prototype.gameCount = function() {
 /** @return {!HistoryService.PgnHistory} */
 HistoryCtrl.prototype.getAllGames = function() {
   if (!this.chessGames_) {
+    if (!this.scope_.history_service.havePgnDumps()) {
+      return {};
+    }
     this.chessGames_ = {};
     angular.forEach(
         this.scope_.history_service.readPgnDumps(),
@@ -98,6 +129,8 @@ HistoryCtrl.prototype.getAllGames = function() {
 
 /**
  * @param {string} gameKey
+ * @return {!angular.$q.Promise}
+ *     Promise to delete game under {@code gameKey}.
  */
 HistoryCtrl.prototype.deleteGame = function(gameKey) {
   this.scope_.undo_limbo[gameKey] = this.scope_.timeout(
@@ -106,16 +139,19 @@ HistoryCtrl.prototype.deleteGame = function(gameKey) {
         this.scope_.history_service.deletePgn(gameKey);
       }),
       HistoryCtrl.UndoTimeout);
+  var promise = this.scope_.undo_limbo[gameKey];
 
-  var cleanUpLimbo = angular.bind(this, function() {
+  promise['finally'](angular.bind(this, function() {
     this.scope_.undo_limbo[gameKey] = false;
-  });
-  this.scope_.undo_limbo[gameKey].then(cleanUpLimbo, cleanUpLimbo);
+  }));
+
+  return promise;
 };
 
 
 /**
- * Deletes all game history.
+ * @return {!angular.$q.Promise}
+ *     Promise to delete all game history.
  */
 HistoryCtrl.prototype.deleteAllGames = function() {
   this.scope_.undo_limbo[HistoryCtrl.DeleteAllUndoKey] = this.scope_.timeout(
@@ -124,12 +160,13 @@ HistoryCtrl.prototype.deleteAllGames = function() {
         this.scope_.history_service.deleteAllPgns();
       }),
       HistoryCtrl.UndoTimeout);
+  var promise = this.scope_.undo_limbo[HistoryCtrl.DeleteAllUndoKey];
 
-  var cleanUpLimbo = angular.bind(this, function() {
+  promise['finally'](angular.bind(this, function() {
     this.scope_.undo_limbo[HistoryCtrl.DeleteAllUndoKey] = false;
-  });
-  this.scope_.undo_limbo[HistoryCtrl.DeleteAllUndoKey].
-      then(cleanUpLimbo, cleanUpLimbo);
+  }));
+
+  return promise;
 };
 
 
@@ -223,6 +260,7 @@ HistoryCtrl.prototype.getMoveCount = function(gameKey) {
 angular.
   module('chessLoggerApp').
   controller('HistoryCtrl', [
+    '$location',
     '$scope',
     '$timeout',
     'chessjsService',

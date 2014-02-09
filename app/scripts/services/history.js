@@ -198,6 +198,12 @@ HistoryService.prototype.setPgnIOCache_ = function(setCacheTo) {
 };
 
 
+/** @return {boolean} */
+HistoryService.prototype.havePgnDumps = function() {
+  return !!Object.keys(this.readPgnDumps()).length;
+};
+
+
 /**
  * NOTE: Always caches new reads from storage.
  * @return {!HistoryService.PgnHistory}

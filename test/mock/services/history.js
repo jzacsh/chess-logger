@@ -7,6 +7,7 @@
  * @type {!Array.<string>}
  */
 var historyServiceMockApis = [
+  'havePgnDumps',
   'readPgnDumps',
   'writePgnDump',
   'deletePgn',

@@ -225,14 +225,19 @@ describe('Service: historyService', function() {
 
   it('should read existing data', function() {
     var existingData = {};
-    existingData[testGameKey] = 'foo';
-    existingData[testGameKey + 5] = 'foo bar';
     mockStorejs.get = jasmine.createSpy().andCallFake(function(storageKey) {
       expect(storageKey).toBe(HistoryService.StorageKeyPgnHistory);
       return existingData;
     });
-
     historyService = new HistoryService(storejsService);
+    expect(historyService.readPgnDumps()).toBe(existingData);
+    expect(historyService.readPgnDumps()).toBe(existingData);
+    expect(historyService.havePgnDumps()).toBe(false);
+
+    existingData[testGameKey] = 'foo';
+    existingData[testGameKey + 5] = 'foo bar';
+
+    expect(historyService.havePgnDumps()).toBe(true);
     expect(historyService.readPgnDumps()).toBe(existingData);
   });
 

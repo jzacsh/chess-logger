@@ -37,6 +37,12 @@ var HistoryCtrl = function HistoryCtrl(
   this.scope_.history_service = historyService;
 
   /**
+   * Gamekey for which to show a preview of the gamestate.
+   * @type {string}
+   */
+  this.scope_.show_preview = '';
+
+  /**
    * Map of chess.js instances, representing games loaded from history, keyed
    * by their same keys used for historyService.
    * @private {Object.<string, !Object>}
@@ -254,6 +260,23 @@ HistoryCtrl.prototype.getGameResolution = function(gameKey) {
  */
 HistoryCtrl.prototype.getMoveCount = function(gameKey) {
   return this.getAllGames()[gameKey].history().length;
+};
+
+
+/**
+ * @param {number=} opt_gameKey
+ *     Defaults to unsetting any preview state.
+ */
+HistoryCtrl.prototype.setShowPreview = function(opt_gameKey) {
+  this.scope_.show_preview = opt_gameKey || '';
+};
+
+
+/**
+ * @param {number} gameKey
+ */
+HistoryCtrl.prototype.togglePreview = function(gameKey) {
+  this.scope_.show_preview = this.scope_.show_preview ? '' : gameKey;
 };
 
 

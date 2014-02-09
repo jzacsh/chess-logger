@@ -27,7 +27,34 @@
   margin-bottom: 0;
 }
 
+[data-ctrl="history"] ul.show-preview {
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  list-style-type: none;
+  margin: 0;
+  font-size: .75ex;
+  padding: 1em;
+}
+
+[data-ctrl="history"] .show-preview li {
+  display: inline-block;
+  white-space: pre;
+}
+
 .history-review {
+  padding-top: 8ex;
+}
+
+
+/** have these two work together: */
+[data-ctrl="history"] ul.show-preview {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.history-review {
+  position: relative;
+  padding-top: 10ex;
 }
 
 .history-review .vs {

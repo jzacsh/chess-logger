@@ -11,6 +11,10 @@
   <span ng-show="undo_limbo[Ctrl.DeleteAllUndoKey]">
     ({{Ctrl.UndoTimeout / 1000}} seconds)</span>
 
+  <ul class="show-preview">
+    <li ng-repeat="(key, game) in controller.getAllGames()"
+        ng-show="show_preview === key">{{game.ascii()}}</li></ul>
+
   <table class="history-review"
          data-undo-limbo="{{undo_limbo[Ctrl.DeleteAllUndoKey] && 'deleteall'}}">
     <caption>
@@ -29,6 +33,9 @@
     <tbody>
       <tr data-gameover="{{controller.gameOver(key)}}"
           ng-show="key"
+          ng-click="controller.togglePreview(key)"
+          ng-mouseover="controller.setShowPreview(key)"
+          ng-mouseleave="controller.setShowPreview()"
           ng-repeat="(key, game) in controller.getAllGames()">
         <td ng-show="undo_limbo[key]" colspan="6">
           <a class="btn btn-primary"

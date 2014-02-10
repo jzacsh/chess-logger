@@ -75,3 +75,7 @@ a:hover {
     margin-bottom: 0;
   }
 }
+
+thead {
+  font-weight: bold;
+}

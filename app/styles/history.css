@@ -21,7 +21,6 @@
 
 [data-ctrl="history"] thead {
   opacity: .8;
-  font-weight: bold;
 }
 
 [data-ctrl="history"] caption {

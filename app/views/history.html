@@ -15,7 +15,7 @@
     <li ng-repeat="(key, chessjs) in controller.getAllGames()"
         ng-show="show_preview === key">{{chessjs.game.ascii()}}</li></ul>
 
-  <table class="history-review"
+  <table class="past-games"
          data-undo-limbo="{{undo_limbo[Ctrl.DeleteAllUndoKey] && 'deleteall'}}">
     <caption>
       <span ng-hide="controller.gameCount()">No</span> Past Games

@@ -3,6 +3,12 @@
   text-align: right;
 }
 
+[data-ctrl="history"] .history-review {
+  padding: 0;
+  padding-top: 10ex;
+  position: relative;
+}
+
 [data-ctrl="history"] table {
   font-size: 1.25ex;
   width: 100%;
@@ -15,6 +21,7 @@
 
 [data-ctrl="history"] thead {
   opacity: .8;
+  font-weight: bold;
 }
 
 [data-ctrl="history"] caption {
@@ -41,34 +48,25 @@
   white-space: pre;
 }
 
-.history-review {
-  padding-top: 8ex;
-}
-
-
 /** have these two work together: */
 [data-ctrl="history"] ul.show-preview {
   position: absolute;
   top: 0;
   right: 0;
 }
-.history-review {
-  position: relative;
-  padding-top: 10ex;
+
+.past-games .vs {
 }
 
-.history-review .vs {
-}
-
-.history-review thead {
+.past-games thead {
   text-align: center;
 }
 
-.history-review td {
+.past-games td {
   padding: 0 1ex;
 }
 
-.history-review tr[data-gameover="true"] td.winner {
+.past-games tr[data-gameover="true"] td.winner {
   opacity: inherit;
 }
 

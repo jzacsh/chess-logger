@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 
-pushd dist/
-
 # See https://github.com/aws/aws-cli for more
-aws s3 cp ./ s3://jzacsh.com-chess/ --recursive
+LOCAL_SRC='./dist'
+AWS_S3_BUCKET='s3://jzacsh.com-chess/'
 
-popd
+
+# Make bucket look like "$LOCAL_SRC"
+aws s3 sync \
+  --delete \
+  --acl="public-read" \
+  "$LOCAL_SRC" "$AWS_S3_BUCKET"
+
+# Set cache manifest HTTP header
+aws s3 cp \
+  --acl="public-read" \
+  --content-type="text/cache-manifest" \
+  "${LOCAL_SRC}/chess-jzacsh-com.manifest" "$AWS_S3_BUCKET"

@@ -47,6 +47,7 @@
 [data-ctrl="review"] .pgn-dump li {
   font-family: monospace;
   font-size: 1.75ex;
+  text-align: center;
 }
 
 [data-ctrl="review"] .pgn-dump.metadata {

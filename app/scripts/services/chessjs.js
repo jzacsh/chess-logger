@@ -184,7 +184,7 @@ ChessUtil.getDate = function(pgnDump) {
     if (date || !line.match(/\[(\s*)?date/i)) {
       return;
     }
-    var dateMatch = line.match(/(\d\d\d\d-\d\d?-\d\d?)/);
+    var dateMatch = line.match(/(\d\d\d\d\.\d\d\.\d\d)/);
     date = dateMatch ? dateMatch[1] : '';
   });
   return date;

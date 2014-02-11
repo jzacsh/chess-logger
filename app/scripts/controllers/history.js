@@ -130,9 +130,9 @@ HistoryCtrl.prototype.getAllGames = function() {
         angular.bind(this, function(game, key) {
           this.chessGames_[key] = {
             pgn: game,
-            game: new this.chessjsService_.Chessjs()
+            chessjs: new this.chessjsService_.Chessjs()
           };
-          this.chessGames_[key].game.load_pgn(game);
+          this.chessGames_[key].chessjs.load_pgn(game);
         }));
   }
   return this.chessGames_;
@@ -147,7 +147,7 @@ HistoryCtrl.prototype.getAllGames = function() {
 HistoryCtrl.prototype.deleteGame = function(gameKey) {
   this.scope_.undo_limbo[gameKey] = this.scope_.timeout(
       angular.bind(this, function() {
-        this.chessGames_[gameKey] = null;
+        delete this.chessGames_[gameKey];
         this.scope_.history_service.deletePgn(gameKey);
       }),
       HistoryCtrl.UndoTimeout);
@@ -213,7 +213,7 @@ HistoryCtrl.prototype.getPlayerBlack = function(gameKey) {
 // TODO(zacsh): move to chessUtils
 HistoryCtrl.prototype.gameOver = function(gameKey) {
   return !!this.getAllGames()[gameKey] &&
-         this.getAllGames()[gameKey].game.game_over();
+         this.getAllGames()[gameKey].chessjs.game_over();
 };
 
 
@@ -246,7 +246,7 @@ HistoryCtrl.prototype.getPlayerIcon = function(player) {
  */
 HistoryCtrl.prototype.winningPlayer = function(gameKey) {
   return this.gameOver(gameKey) ?
-         (this.getAllGames()[gameKey].game.turn() === 'w' ? 'b' : 'w') :
+         (this.getAllGames()[gameKey].chessjs.turn() === 'w' ? 'b' : 'w') :
          null;
 };
 
@@ -257,7 +257,7 @@ HistoryCtrl.prototype.winningPlayer = function(gameKey) {
  */
 HistoryCtrl.prototype.getGameResolution = function(gameKey) {
   return this.chessjsService_.util.
-      getGameResolution(this.getAllGames()[gameKey].game);
+      getGameResolution(this.getAllGames()[gameKey].chessjs);
 };
 
 
@@ -266,7 +266,7 @@ HistoryCtrl.prototype.getGameResolution = function(gameKey) {
  * @return {number}
  */
 HistoryCtrl.prototype.getMoveCount = function(gameKey) {
-  return this.getAllGames()[gameKey].game.history().length;
+  return this.getAllGames()[gameKey].chessjs.history().length;
 };
 
 

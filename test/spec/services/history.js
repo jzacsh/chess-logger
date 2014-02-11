@@ -59,9 +59,10 @@ describe('Service: historyService', function() {
   });
 
   it('should build PGN date header', function() {
-    var pgnDateHeader = HistoryService.buildDateHeader(testGameKey);
+    var testKey = 1389243600000;  // new Date('2014-1-9').getTime()
+    var pgnDateHeader = HistoryService.buildDateHeader(testKey);
     expect(pgnDateHeader).toEqual(jasmine.any(String));
-    expect(pgnDateHeader).toMatch('2014-1-19');
+    expect(pgnDateHeader).toBe('2014.01.09');
   });
 
   it('should delete all PGNs from history', function() {

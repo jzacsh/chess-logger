@@ -99,11 +99,31 @@ HistoryService.newGameKey = function() {
  */
 HistoryService.buildDateHeader = function(gameKey) {
   var gameDate = new Date(gameKey);
+
+  /** @type {function(number) : string} */
+  var zeroPad = angular.bind(null, HistoryService.leadWithPadding_, 2, '0');
+
   return [
     gameDate.getUTCFullYear(),
-    (gameDate.getUTCMonth() + 1),
-    gameDate.getUTCDate()
-  ].join('-');
+    zeroPad(gameDate.getUTCMonth() + 1),
+    zeroPad(gameDate.getUTCDate())
+  ].join('.');
+};
+
+
+/**
+ * @param {number} length
+ * @param {string} padding
+ * @param {string|number} base
+ * @return {string}
+ * @private
+ */
+HistoryService.leadWithPadding_ = function(length, padding, base) {
+  base = String(base);
+  var leading = base.length < length ?
+                new Array(length - base.length + 1).join(padding) :
+                '';
+  return leading + base;
 };
 
 

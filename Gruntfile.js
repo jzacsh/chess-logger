@@ -28,7 +28,12 @@ module.exports = function(grunt) {
     yeoman: {
       // configurable paths
       app: require('./bower.json').appPath || 'app',
-      dist: 'dist'
+      dist: 'dist',
+      saneShellOptions: {
+        failOnError: true,
+        stdout: true,
+        stderr: true
+      }
     },
 
     // Watches files for changes and runs tasks based on the changed files
@@ -354,9 +359,29 @@ module.exports = function(grunt) {
         configFile: 'karma-e2e.conf.js',
         singleRun: true
       }
+    },
+
+    // See: https://github.com/sindresorhus/grunt-shell
+
+    shell: {
+      deployFiles: {
+        command: 'bin/deploy.sh',
+        options: '<%= yeoman.saneShellOptions %>'
+      },
+      invalidateCdn: {
+        command: 'bin/invalidate.js',
+        options: '<%= yeoman.saneShellOptions %>'
+      }
     }
   });
 
+  grunt.registerTask('deploy', function() {
+    grunt.task.run([
+      'build:dist',
+      'shell:deployFiles',
+      'shell:invalidateCdn'
+    ]);
+  });
 
   grunt.registerTask('serve', function(target) {
     if (target === 'dist') {

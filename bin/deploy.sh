@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+UPLOADED_LOG="$1"
+printf '' > "$UPLOADED_LOG"
+
 REMOTE_BUCKET='s3://jzacsh.com-chess/'
 DIR_BIN="$(readlink -f "$(dirname "${BASH_SOURCE[0]}")")"
 DIR_REPO="$(readlink -f "${DIR_BIN}/..")"
@@ -19,10 +22,23 @@ printf 'Deploying files from:\n\t%s\nto:\n\t%s\n\n\n' \
 
 # See https://github.com/aws/aws-cli for more
 
+AWS_SYNC_LOG="$(mktemp)"
+
 aws s3 sync \
   --delete \
   --acl="public-read" \
-  "$LOCAL_SRC" "$REMOTE_BUCKET"
+  "$LOCAL_SRC" "$REMOTE_BUCKET" \
+  | tee -a "$AWS_SYNC_LOG"
+
+# Cleanup awscli output:
+sed -e 's/^.*//g' "$AWS_SYNC_LOG" | \
+  grep 'upload: ' | \
+  sed -e 's|^upload:\ ||' | \
+  sed -e 's|\ to\ s3://.*$||' | \
+  sed -e 's|^dist/|/|' | \
+  sed -e '/^[:space:]*$/'d > "$UPLOADED_LOG"
+
+rm "$AWS_SYNC_LOG"
 
 # Set cache manifest HTTP header
 aws s3 cp \

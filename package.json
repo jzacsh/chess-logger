@@ -44,7 +44,9 @@
     "grunt-manifest": "https://github.com/jzacsh/grunt-manifest/archive/master.tar.gz",
     "grunt-istanbul-coverage": "0.0.2",
     "karma-coverage": "~0.1.5",
-    "grunt-shell": "~0.6.4"
+    "grunt-shell": "~0.6.4",
+    "q": "~1.0.0",
+    "aws-sdk": "~2.0.0-rc9"
   },
   "engines": {
     "node": ">=0.8.0"

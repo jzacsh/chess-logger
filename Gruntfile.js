@@ -33,6 +33,10 @@ module.exports = function(grunt) {
         failOnError: true,
         stdout: true,
         stderr: true
+      },
+      deployConfig: {
+        invalidationCacheFiles: '.tmp/invalidations.txt',
+        awsDistributionId: 'E1ID5P4VKY4XZS'
       }
     },
 
@@ -362,14 +366,23 @@ module.exports = function(grunt) {
     },
 
     // See: https://github.com/sindresorhus/grunt-shell
-
     shell: {
       deployFiles: {
-        command: 'bin/deploy.sh',
+        command: [
+          'bin/deploy.sh',
+          '<%= yeoman.deployConfig.invalidationCacheFiles %>'
+        ].join(' '),
         options: '<%= yeoman.saneShellOptions %>'
       },
       invalidateCdn: {
-        command: 'bin/invalidate.js',
+        command: [
+          [
+            'bin/invalidate.js ',
+            '<%= yeoman.deployConfig.invalidationCacheFiles %> ',
+            '<%= yeoman.deployConfig.awsDistributionId %>'
+          ].join(' '),
+          'rm -v <%= yeoman.deployConfig.invalidationCacheFiles %>'
+        ].join('&&'),
         options: '<%= yeoman.saneShellOptions %>'
       }
     }

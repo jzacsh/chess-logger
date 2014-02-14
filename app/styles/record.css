@@ -56,49 +56,52 @@ form[name="newGameForm"] input {
   font-size: .75em;
 }
 
-.log h4 {
+.progress {
+  position: relative;
+}
+.progress h4 {
   text-align: right;
   font-family: monospace;
 
   display: inline;
-  position: absolute;
   opacity: .3;
   margin-top: 1.5ex;
   font-size: 2em;
   z-index: -99;
-  right: 8ex;
+  position: absolute;
+  right: 2ex;
 }
 
-.log[data-game-started="false"] * {
+.progress[data-game-started="false"] * {
   visibility: hidden;
 }
 
-.log[data-game-started="true"] .login {
+.progress[data-game-started="true"] .login {
   visibility: visible;
 }
 
-.log .controls {
+.progress .controls {
   width: 100%;
 }
 
-.log .controls .undo {
+.progress .controls .undo {
   display: block;
 }
 
-.log .controls .undo,
-.log .controls .login {
+.progress .controls .undo,
+.progress .controls .login {
   text-align: center;
 }
 
-.log .save {
+.progress .save {
   line-height: 2em;
 }
 
-.log .download {
+.progress .download {
   margin-right: 1ex;
 }
 
-.log .data.pgn-dump {
+.progress .data.pgn-dump {
   height: 10em;
   width: 100%;
   max-width: 100%;

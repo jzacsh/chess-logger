@@ -86,16 +86,13 @@ var requestAwsCacheInvalidation = function(invalidPaths) {
       }
     };
 
-    console.log('creating invalidation request; caller ref:\t', awsCallerRef);
     new awsSdk.CloudFront({credentials: awsCredentials}).
         createInvalidation(invalidationBody, function(err, data) {
           if (err) {
-            console.error('aws-sdk CloudFront#createInvalidation');
-            console.error(err);
-            deferred.reject();
-            return;
+            deferred.reject(err);
+          } else {
+            deferred.resolve(data);
           }
-          deferred.resolve(data);
         });
   }, deferred.reject);
 
@@ -130,4 +127,48 @@ var getCacheInvalidationList = function(invalidationList) {
 };
 
 
-getCacheInvalidationList(fileList).then(requestAwsCacheInvalidation);
+/**
+ * Description of the less obvious, and more important properties of
+ * {@code resp}, pasted from:
+ * http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFront.html#createInvalidation-property
+ *
+ * <ul>
+ *   <li>Location:
+ *     The fully qualified URI of the distribution and invalidation batch
+ *     request, including the Invalidation ID.
+ *   <li>Id:
+ *     The identifier for the invalidation request. For example:
+ *     IDFDVBD632BHDS5.
+ *   <li>Status:
+ *     The status of the invalidation request. When the invalidation batch is
+ *     finished, the status is Completed.
+ * </ul>
+ *
+ * @param {{
+ *     Location: string,
+ *     Id: string,
+ *     Status: string
+ *     CreateTime: !Date,
+ *     InvalidationBatch: {
+ *       Paths: {Quantity: number, Items: !Array.<string>},
+ *       CallerReference: string
+ *     }}} resp
+ */
+var invalidationSuccessHandler = function(resp) {
+  console.log('SUCCESS\n\nCache invalidation started...');
+  console.log('\tRequest URI:\t%s', resp.Location);
+  console.log('\tcaller ref:\t%s', awsCallerRef);
+  console.log('\tinvalidationId\t%s', resp.Id);
+};
+
+
+/** @param {!Object} error */
+var invalidationErrorHanalder = function(error) {
+  console.log('FAILURE\tCache invalidation failed, reason:');
+  console.error(error);
+};
+
+
+getCacheInvalidationList(fileList).
+    then(requestAwsCacheInvalidation).
+    then(invalidationSuccessHandler, invalidationErrorHanalder);

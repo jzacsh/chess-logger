@@ -72,12 +72,15 @@ var requestAwsCacheInvalidation = function(invalidPaths) {
   var deferred = q.defer();
 
   getAwsConfig(awsConfigFile).then(function() {
+    var cleanedUpPaths = invalidPaths.filter(function(path) {
+      return !!path;
+    });
     var invalidationBody = {
       DistributionId: awsDistributionId,
       InvalidationBatch: {
         Paths: {
-          Quantity: invalidPaths.length,
-          Items: invalidPaths
+          Quantity: cleanedUpPaths.length,
+          Items: cleanedUpPaths
         },
         CallerReference:  String(awsCallerRef)
       }

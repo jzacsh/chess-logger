@@ -35,6 +35,7 @@ module.exports = function(grunt) {
         stderr: true
       },
       deployConfig: {
+        invalidateStatusOpt: grunt.option('invalidationid'),
         invalidationCacheFiles: '.tmp/invalidations.txt',
         awsDistributionId: 'E1ID5P4VKY4XZS'
       }
@@ -374,6 +375,14 @@ module.exports = function(grunt) {
         ].join(' '),
         options: '<%= yeoman.saneShellOptions %>'
       },
+      invalidateStatus: {
+        command: [
+          'bin/cachestatus.js',
+          '<%= yeoman.deployConfig.awsDistributionId %>',
+          '<%= yeoman.deployConfig.invalidateStatusOpt %>'
+        ].join(' '),
+        options: '<%= yeoman.saneShellOptions %>'
+      },
       invalidateCdn: {
         command: [
           [
@@ -391,15 +400,7 @@ module.exports = function(grunt) {
   grunt.registerTask('deploy', function(target) {
     var status = 'status';
     if (target === status) {
-      var expectedOpt = 'caller-ref';
-      var callerRef = grunt.option(expectedOpt);
-      if (!callerRef) {
-        throw new Error(
-            ':' + status + ' requires --' + expectedOpt + '=[FOO], an AWS ' +
-            'invalidation caller reference is passed.');
-      }
-
-      throw new Error('Not yet implemented.');
+      return grunt.task.run(['shell:invalidateStatus']);
     }
 
     grunt.task.run([

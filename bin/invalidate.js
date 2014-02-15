@@ -7,55 +7,15 @@
 var fs = require("fs");
 var q = require("q");
 var awsSdk = require('aws-sdk');
+var awsHelper = require('./awshelper');
 
-var awsCallerRef = new Date().getTime();
-var awsConfigFile = process.env.HOME + '/.aws/config';
+var awsCallerRef = awsHelper.buildCallerRef();
 
 // Read optiosn
 var args = process.argv.slice(2);
 var fileList = args[0];
 var awsDistributionId = args[1];
 var awsCredentials;
-
-
-/**
- * @param {string} configPath
- * @return {!Promise}
- *     Promise to resolve with a map of AWS config data as found in local file,
- *     {@code configPath}. Keys to the map will be "secretAccessKey" and
- *     "accessKeyId"
- */
-var getAwsConfig = function(configPath) {
-  var deferred = q.defer();
-  fs.readFile(configPath, {encoding: 'UTF-8'}, function(fsError, contents) {
-    if (fsError) {
-      console.error(fsError);
-      deferred.reject(fsError);
-      return;
-    }
-
-    /**
-     * @param {string} key
-     * @return {string}
-     *     Value associated with {@code key}.
-     */
-    var scrapeValue = function(key) {
-      var matches = contents.match(new RegExp(key + '=(.*)\\s'));
-      if (!matches || !matches[1]) {
-        throw new Error(
-            'Could not find value for "' + key +
-            '" in aws config file: ' + configPath);
-      }
-      return matches[1];
-    };
-
-    awsCredentials = new awsSdk.Credentials(
-        scrapeValue('aws_access_key_id'),
-        scrapeValue('aws_secret_access_key'));
-    deferred.resolve(true);
-  });
-  return deferred.promise;
-};
 
 
 /**
@@ -71,29 +31,25 @@ var getAwsConfig = function(configPath) {
 var requestAwsCacheInvalidation = function(invalidPaths) {
   var deferred = q.defer();
 
-  getAwsConfig(awsConfigFile).then(function() {
-    var cleanedUpPaths = invalidPaths.filter(function(path) {
-      return !!path;
-    });
+  awsHelper.buildAwsCloudFront().then(function(cloudFront) {
     var invalidationBody = {
       DistributionId: awsDistributionId,
       InvalidationBatch: {
         Paths: {
-          Quantity: cleanedUpPaths.length,
-          Items: cleanedUpPaths
+          Quantity: invalidPaths.length,
+          Items: invalidPaths
         },
         CallerReference:  String(awsCallerRef)
       }
     };
 
-    new awsSdk.CloudFront({credentials: awsCredentials}).
-        createInvalidation(invalidationBody, function(err, data) {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            deferred.resolve(data);
-          }
-        });
+    cloudFront.createInvalidation(invalidationBody, function(err, data) {
+      if (err) {
+        deferred.reject(err);
+      } else {
+        deferred.resolve(data);
+      }
+    });
   }, deferred.reject);
 
   return deferred.promise;
@@ -121,7 +77,11 @@ var getCacheInvalidationList = function(invalidationList) {
           deferred.reject(fsError);
           return;
         }
-        deferred.resolve(contents.split('\n'));
+
+        var paths = contents.split('\n').filter(function(path) {
+          return !!path;
+        });
+        deferred.resolve(paths);
       });
   return deferred.promise;
 };

@@ -388,7 +388,20 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('deploy', function() {
+  grunt.registerTask('deploy', function(target) {
+    var status = 'status';
+    if (target === status) {
+      var expectedOpt = 'caller-ref';
+      var callerRef = grunt.option(expectedOpt);
+      if (!callerRef) {
+        throw new Error(
+            ':' + status + ' requires --' + expectedOpt + '=[FOO], an AWS ' +
+            'invalidation caller reference is passed.');
+      }
+
+      throw new Error('Not yet implemented.');
+    }
+
     grunt.task.run([
       'build:dist',
       'shell:deployFiles',

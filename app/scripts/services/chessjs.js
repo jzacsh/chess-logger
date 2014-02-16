@@ -95,6 +95,53 @@ ChessUtil.getCurrentPiece = function(chessjs, file, rank) {
 
 
 /**
+ * @param {function(string) : void} callback
+ */
+ChessUtil.forEachSquare = function(callback) {
+  for (var rank = 1; rank <= 8; ++rank) {
+    'abcdefgh'.split('').forEach(function(file) {
+      callback(String(file + rank));
+    });
+  }
+};
+
+
+/**
+ * @enum {number}
+ */
+ChessUtil.RelativePieceValue = {
+  p: 1,
+  n: 3,
+  b: 3,
+  r: 5,
+  q: 9
+};
+
+
+/**
+ * @param {!Object} chessjs
+ * @return {{w: number, b: number}}
+ *     Combined relative value of every chess-piece for both players at current
+ *     point in {@code chessjs} game.
+ */
+ChessUtil.getTotalRelativeValues = function(chessjs) {
+  var valuations = {w: 0, b: 0};
+  ChessUtil.forEachSquare(function(coordinate) {
+    var occupation = chessjs.get(coordinate);
+    if (occupation && occupation.type !== 'k') {
+      if (!ChessUtil.RelativePieceValue[occupation.type]) {
+        throw new Error(
+            'RelativePieceValue missing property: "' + occupation.type + '".');
+      }
+      valuations[occupation.color] += ChessUtil.
+          RelativePieceValue[occupation.type];
+    }
+  });
+  return valuations;
+};
+
+
+/**
  * @param {string} sanPiece
  * @param {boolean} forWhite
  * @return {number}

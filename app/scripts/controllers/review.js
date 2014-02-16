@@ -25,6 +25,17 @@ var ReviewCtrl = function ReviewCtrl(
   /** @type {boolean} */
   this.scope_.upload_game = false;
 
+  this.scope_.time_series = {
+    /**
+     * Exchange number to total relative value of each players piece on the
+     * board.
+     *
+     * @type {!Array.<{w: number, b: number}>}
+     */
+    historic_relative_values: [],
+    exchange_part_of: 0
+  };
+
   /** @private {!Object} */
   this.chessjsService_ = chessjsService;
 
@@ -40,6 +51,7 @@ var ReviewCtrl = function ReviewCtrl(
   // Try loading the current URL's game.
   this.loadCurrentGame_();
 
+  this.scope_.Ctrl = ReviewCtrl;
   return this.scope_.controller = this;
 };
 
@@ -51,6 +63,12 @@ var ReviewCtrl = function ReviewCtrl(
  * @type {number}
  */
 ReviewCtrl.NewGameKey = 0;
+
+
+/**
+ * @type {number}
+ */
+ReviewCtrl.MaximumTotalValue = 39;
 
 
 /**
@@ -172,6 +190,42 @@ ReviewCtrl.prototype.loadGame_ = function(pgnDump) {
   this.scope_.game.jump_to = this.getLastOriginalIndex();
 
   this.formatPgnDump_();
+
+  this.buildTimeSeries_();
+};
+
+
+/** @private */
+ReviewCtrl.prototype.buildTimeSeries_ = function() {
+  var history = [];
+
+  // Load any potentially missing history
+  var review = new this.chessjsService_.Chessjs();
+  review.load_pgn(this.scope_.game.pgn_dump);
+
+  if (review.history().length % 2) {
+    review.undo();  // Undo white's move w/o response
+  }
+  this.scope_.time_series.exchange_part_of = parseFloat(
+      (100 / (review.history().length / 2)).toFixed(2), 10);
+  while (review.history().length) {
+    history.push(this.scope_.board.getTotalRelativeValues(review));
+
+    // Undo this exchange
+    review.undo();  // undo black's move
+    review.undo();  // undo white's move
+  }
+  this.scope_.time_series.historic_relative_values = history.reverse();
+};
+
+
+/**
+ * @param {number} value
+ * @return {number}
+ *     Percentage, relative to 39unit maximum.
+ */
+ReviewCtrl.getTimeSeriesRelativeHeight = function(value) {
+  return Math.floor(value / 39 * 100);
 };
 
 

@@ -69,6 +69,45 @@
   column-gap: 1ex;
 }
 
+[data-ctrl="review"] .relative-values {
+  height: 10em;
+  width: 100%;
+  padding: 1%;
+}
+
+[data-ctrl="review"] ul.relative-values {
+  margin: 0;
+  padding: 0;
+}
+
+[data-ctrl="review"] .relative-values li {
+  list-style-type: none;
+  display: inline-block;
+  -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+  padding: .5%;
+  cursor: pointer;
+}
+
+[data-ctrl="review"] .relative-values li.active {
+  outline: 1px solid #757575;
+}
+
+[data-ctrl="review"] .relative-values .total-value [data-player="w"] {
+  background-color: #fff;
+  outline: 1px solid #bbb;
+}
+
+[data-ctrl="review"] .relative-values .total-value [data-player="b"] {
+  background-color: #000;
+}
+
+[data-ctrl="review"] .relative-values .total-value > * {
+  width: 40%;
+  float: left;
+  margin: 5%;
+}
+
 [data-ctrl="review"] .game-review.active .pgn-dump .active {
   color: red;
   font-weight: bold;

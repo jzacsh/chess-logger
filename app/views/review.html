@@ -76,6 +76,21 @@
     </li>
   </ul>
 
+  <ul class="relative-values">
+    <li title="Exchange #{{move + 1}}"
+        class="total-value"
+        style="height: 100%; width: {{time_series.exchange_part_of}}%;"
+        data-exchange-index="{{$index}}"
+        ng-click="controller.jumpTo($index * 2)"
+        ng-class="{active: $index === controller.getMoveLineNumber()}"
+        ng-repeat="(move, total_values) in time_series.historic_relative_values">
+      <div data-player="b" style="height: {{Ctrl.getTimeSeriesRelativeHeight(total_values.b)}}%;">
+      </div>
+      <div data-player="w" style="height: {{Ctrl.getTimeSeriesRelativeHeight(total_values.w)}}%;">
+      </div>
+    </li>
+  </ul>
+
   <p class="pgn-review">
     <cl-download-pgn
         ng-show="controller.getGamekey()"

@@ -18,7 +18,7 @@ if (!distributionId) {
 }
 
 var invalidationId = String(args[invalidationIdArg]);
-if (!invalidationId) {
+if (!invalidationId || invalidationId === 'undefined') {
   throw new Error(
       'Expected InvalidationID as argument[' + invalidationIdArg +
       '] to script.');

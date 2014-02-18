@@ -31,11 +31,12 @@ helper.buildCallerRef = function() {
 helper.buildAwsCloudFront = function(opt_configPath) {
   var deferred = q.defer();
 
-  return helper.getAwsCredentials(opt_configPath).then(
+  helper.getAwsCredentials(opt_configPath).then(
       function(awsCredentials) {
         deferred.resolve(new awsSdk.CloudFront({credentials: awsCredentials}));
       },
       deferred.reject);
+  return deferred.promise;
 };
 
 

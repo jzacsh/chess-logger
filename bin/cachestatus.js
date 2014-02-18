@@ -34,7 +34,7 @@ awsHelper.buildAwsCloudFront().then(function(cloudFront) {
       console.error(err);
     } else {
       console.log(
-          'STATUS:\nt\tcreated:\t%s\n\n\tstatus:\t\n',
+          'Cache Invalidation STATUS:\n\tcreated:\t%s\n\tstatus :\t%s\n',
           data.CreateTime,
           data.Status);
     }

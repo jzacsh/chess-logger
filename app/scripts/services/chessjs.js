@@ -72,6 +72,17 @@ ChessUtil.getOccupationColor = function(chessjs, file, rank) {
 
 
 /**
+ * @param {string} pieceNotation
+ * @param {boolean} isForWhite
+ * @return {string}
+ */
+ChessUtil.buildHtmlPiece = function(pieceNotation, isForWhite) {
+  return ChessUtil.toHtmlEntity(
+      ChessUtil.getNumericPieceEntity(pieceNotation, isForWhite));
+};
+
+
+/**
  * @param {string} numericEntity
  * @return {string}
  *     The HTML entity (eg: &#40; for open parenthesis "(") that

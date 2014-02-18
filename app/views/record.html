@@ -5,16 +5,23 @@
     Continue some <strong>unfinished games</strong>, first!
   </a></p>
 
-  <input type="text"
-         name="white_name"
-         placeholder="white player's name"
-         ng-model="white_name"
-         required />
-  <input type="text"
-         name="black_name"
-         placeholder="black player's name"
-         ng-model="black_name"
-         required />
+  <label>
+    <span ng-bind-html="game.ui_board.buildHtmlPiece('k', true)"></span>
+    <input type="text"
+           name="white_name"
+           placeholder="white player's name"
+           ng-model="white_name"
+           required />
+  </label>
+
+  <label>
+    <span ng-bind-html="game.ui_board.buildHtmlPiece('k', false)"></span>
+    <input type="text"
+           name="black_name"
+           placeholder="black player's name"
+           ng-model="black_name"
+           required />
+  </label>
   
   <button class="btn new-game"
           ng-class="{'btn-info': !controller.gameStarted()}"

@@ -34,6 +34,18 @@ form[name="newGameForm"] input {
   color: #666;
 }
 
+form[name="newGameForm"] > * {
+  margin: 1ex;
+}
+
+@media (max-width: 450px) {
+  form[name="newGameForm"] > * {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+
 .game-play .status {
   font-style: italic;
 }

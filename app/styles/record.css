@@ -68,11 +68,11 @@
   font-size: .75em;
 }
 
-[data-ctrl="record"] .progress {
+[data-ctrl="record"] .game-progress {
   position: relative;
 }
 
-[data-ctrl="record"] .progress h4 {
+[data-ctrl="record"] .game-progress h4 {
   text-align: right;
   font-family: monospace;
 
@@ -85,36 +85,36 @@
   right: 2ex;
 }
 
-[data-ctrl="record"] .progress[data-game-started="false"] * {
+[data-ctrl="record"] .game-progress[data-game-started="false"] * {
   visibility: hidden;
 }
 
-[data-ctrl="record"] .progress[data-game-started="true"] .login {
+[data-ctrl="record"] .game-progress[data-game-started="true"] .login {
   visibility: visible;
 }
 
-[data-ctrl="record"] .progress .controls {
+[data-ctrl="record"] .game-progress .controls {
   width: 100%;
 }
 
-[data-ctrl="record"] .progress .controls .undo {
+[data-ctrl="record"] .game-progress .controls .undo {
   display: block;
 }
 
-[data-ctrl="record"] .progress .controls .undo,
-[data-ctrl="record"] .progress .controls .login {
+[data-ctrl="record"] .game-progress .controls .undo,
+[data-ctrl="record"] .game-progress .controls .login {
   text-align: center;
 }
 
-[data-ctrl="record"] .progress .save {
+[data-ctrl="record"] .game-progress .save {
   line-height: 2em;
 }
 
-[data-ctrl="record"] .progress .download {
+[data-ctrl="record"] .game-progress .download {
   margin-right: 1ex;
 }
 
-[data-ctrl="record"] .progress .data.pgn-dump {
+[data-ctrl="record"] .game-progress .data.pgn-dump {
   height: 10em;
   width: 100%;
   max-width: 100%;

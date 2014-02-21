@@ -79,3 +79,89 @@ a:hover {
 thead {
   font-weight: bold;
 }
+
+table.chess-board {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+}
+
+table.chess-board.unfocus {
+  transition-duration: 0.5s;
+  opacity: 0.75;
+}
+
+table.chess-board button {
+  background: transparent;
+  border: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 1.2em;
+  cursor: default;
+}
+
+table.chess-board [data-chess-transitioning="true"] button {
+  background-color: pink;
+}
+
+table.chess-board [data-chess-transition="start"] {
+  cursor: move;
+}
+
+table.chess-board [data-chess-transition="valid"] {
+  cursor: grab;  /* can be dropped (open hand) */
+}
+
+table.chess-board [data-chess-transition="invalid"] {
+  cursor: not-allowed;
+}
+
+table.chess-board [data-chess-transition="cancel"] {
+  cursor: none;
+}
+
+table.chess-board button,
+table.chess-board td {
+  margin: 0;
+  padding: 0;
+}
+
+table.chess-board td:active {
+  background-color: pink;
+}
+
+table.chess-board button:focus,
+table.chess-board button:active {
+  outline: none;
+}
+
+table.chess-board [data-chess-occupation="b"] button {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+table.chess-board [data-chess-occupation=""] button {
+  opacity: 0;
+  /* hack to allow for invisible space-occupying symbol
+   * see: https://github.com/jzacsh/chess-logger/issues/7
+   */
+}
+
+table.chess-board td:first-child {
+  border-left: 1px solid #bbb;
+}
+
+table.chess-board td:last-child {
+  border-right: 1px solid #bbb;
+}
+
+table.chess-board tr:first-child {
+  border-top: 1px solid #bbb;
+}
+
+table.chess-board tr:last-child {
+  border-bottom: 1px solid #bbb;
+}

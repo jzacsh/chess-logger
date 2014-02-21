@@ -1,77 +1,78 @@
-.game-play {
+[data-ctrl="record"] .game-play {
   margin: 0 auto;
 }
 
-.game-play.gameover [data-chess-turn] {
+[data-ctrl="record"] .game-play.gameover [data-chess-turn] {
   visibility: hidden;
 }
 
-.game-play[data-chess-turn="w"] [data-chess-turn="b"] {
+[data-ctrl="record"] .game-play[data-chess-turn="w"] [data-chess-turn="b"] {
   visibility: hidden;
 }
 
-.game-play[data-chess-turn="b"] [data-chess-turn="w"] {
+[data-ctrl="record"] .game-play[data-chess-turn="b"] [data-chess-turn="w"] {
   visibility: hidden;
 }
 
-form[name="newGameForm"] {
+[data-ctrl="record"] form[name="newGameForm"] {
   margin: 0.5ex;
 }
 
-form[name="newGameForm"],
-form[name="newGameForm"] input {
+[data-ctrl="record"] form[name="newGameForm"],
+[data-ctrl="record"] form[name="newGameForm"] input {
   text-align: center;
 }
 
-form[name="newGameForm"] button {
+[data-ctrl="record"] form[name="newGameForm"] button {
   padding: .5ex 1ex;
 }
 
-form[name="newGameForm"] input {
+[data-ctrl="record"] form[name="newGameForm"] input {
   border: none;
   outline: none;
   box-shadow: 1px 2px 2px #888;
   color: #666;
 }
 
-form[name="newGameForm"] > * {
+[data-ctrl="record"] form[name="newGameForm"] > * {
   margin: 1ex;
 }
 
 @media (max-width: 450px) {
-  form[name="newGameForm"] > * {
+  [data-ctrl="record"] form[name="newGameForm"] > * {
     display: block;
     margin-right: auto;
     margin-left: auto;
   }
 }
 
-.game-play .status {
+[data-ctrl="record"] .game-play .status {
   font-style: italic;
 }
 
-.game-play .pawn-promotion {
+[data-ctrl="record"] .game-play .pawn-promotion {
   margin: 0;
   padding: 0;
   line-height: 1ex;
 }
 
-.game-play .pawn-promotion li {
+[data-ctrl="record"] .game-play .pawn-promotion li {
   font-size: 2em;
   display: inline-block;
   list-style-type: none;
 }
 
-.game-play .pawn-promotion:before {
+[data-ctrl="record"] .game-play .pawn-promotion:before {
   content: "Promote to:";
   font-style: italic;
   font-size: .75em;
 }
 
-.progress {
+[data-ctrl="record"] .progress {
   position: relative;
 }
-.progress h4 {
+
+[data-ctrl="record"] .progress h4 {
   text-align: right;
   font-family: monospace;
 
@@ -84,36 +85,36 @@ form[name="newGameForm"] > * {
   right: 2ex;
 }
 
-.progress[data-game-started="false"] * {
+[data-ctrl="record"] .progress[data-game-started="false"] * {
   visibility: hidden;
 }
 
-.progress[data-game-started="true"] .login {
+[data-ctrl="record"] .progress[data-game-started="true"] .login {
   visibility: visible;
 }
 
-.progress .controls {
+[data-ctrl="record"] .progress .controls {
   width: 100%;
 }
 
-.progress .controls .undo {
+[data-ctrl="record"] .progress .controls .undo {
   display: block;
 }
 
-.progress .controls .undo,
-.progress .controls .login {
+[data-ctrl="record"] .progress .controls .undo,
+[data-ctrl="record"] .progress .controls .login {
   text-align: center;
 }
 
-.progress .save {
+[data-ctrl="record"] .progress .save {
   line-height: 2em;
 }
 
-.progress .download {
+[data-ctrl="record"] .progress .download {
   margin-right: 1ex;
 }
 
-.progress .data.pgn-dump {
+[data-ctrl="record"] .progress .data.pgn-dump {
   height: 10em;
   width: 100%;
   max-width: 100%;
@@ -131,95 +132,16 @@ form[name="newGameForm"] > * {
   background: transparent;
 }
 
-table.chess-board {
-  width: 100%;
-  height: 100%;
-  margin: 0 auto;
-}
-
-table.chess-board.unfocus {
-  transition-duration: 0.5s;
-  opacity: 0.75;
-}
-
-table.chess-board button {
-  background: transparent;
-  border: 0;
-  width: 100%;
-  height: 100%;
-  font-size: 1.2em;
-  cursor: default;
-}
-
-table.chess-board [data-chess-transitioning="true"] button {
-  background-color: pink;
-}
-
-table.chess-board [data-chess-transition="start"] {
-  cursor: move;
-}
-
-table.chess-board [data-chess-transition="valid"] {
-  cursor: grab;  /* can be dropped (open hand) */ 
-}
-
-table.chess-board [data-chess-transition="invalid"] {
-  cursor: not-allowed;
-}
-
-table.chess-board [data-chess-transition="cancel"] {
-  cursor: none;
-}
-
-table.chess-board button,
-table.chess-board td {
-  margin: 0;
-  padding: 0;
-}
-
-table.chess-board td:active {
-  background-color: pink;
-}
-
-table.chess-board button:focus,
-table.chess-board button:active {
-  outline: none;
-}
-
-.game-play .instructions {
+[data-ctrl="record"] .game-play .instructions {
   margin: 1ex 0;
 }
 
-.game-play .instructions[data-chess-turn="b"],
-table.chess-board [data-chess-occupation="b"] button {
+[data-ctrl="record"] .game-play .instructions[data-chess-turn="b"] {
   -webkit-transform: rotate(180deg);
   -moz-transform: rotate(180deg);
   -o-transform: rotate(180deg);
   -ms-transform: rotate(180deg);
   transform: rotate(180deg);
-}
-
-table.chess-board [data-chess-occupation=""] button {
-  opacity: 0;
-  /* hack to allow for invisible space-occupying symbol
-   * see: https://github.com/jzacsh/chess-logger/issues/7
-   */
-}
-
-table.chess-board td:first-child {
-  border-left: 1px solid #bbb;
-}
-
-table.chess-board td:last-child {
-  border-right: 1px solid #bbb;
-}
-
-table.chess-board tr:first-child {
-  border-top: 1px solid #bbb;
-}
-
-table.chess-board tr:last-child {
-  border-bottom: 1px solid #bbb;
 }
 
 [data-chess-sqr-color="light"] {

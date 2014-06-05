@@ -159,4 +159,37 @@ describe('Controller: RecordCtrl', function() {
       });
     });
   });
+
+  describe('new game', function() {
+    var testWhitePlayer,
+        testBlackPlayer;
+    beforeEach(function() {
+      testWhitePlayer = 'jack';
+      testBlackPlayer = 'jill';
+
+      spyOn(historyService, 'getMostRecentName').
+          andCallFake(function(forWhite) {
+            return forWhite ? testWhitePlayer : testBlackPlayer;
+          });
+      recordCtrl = buildRecordController();
+    });
+
+    it('should allow player swap', function() {
+      expect(recordCtrl.isPlayerSwapPossible()).toBe(true);
+
+      scope.white_name = '';
+      expect(recordCtrl.isPlayerSwapPossible()).toBe(true);
+
+      scope.black_name = '';
+      expect(recordCtrl.isPlayerSwapPossible()).toBe(false);
+    });
+
+    it('should swap player names', function() {
+      recordCtrl.swapPlayers();
+      expect(scope.black_name).toBe(testWhitePlayer);
+      expect(scope.white_name).toBe(testBlackPlayer);
+    });
+
+    // TODO test full "new game" form functionality
+  });
 });

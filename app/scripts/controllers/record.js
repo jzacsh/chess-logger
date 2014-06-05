@@ -499,6 +499,26 @@ RecordCtrl.prototype.getGameResolution = function() {
 
 
 /**
+ * Swaps player-name inputs in the "New Game" form.
+ */
+RecordCtrl.prototype.swapPlayers = function() {
+  if (!this.isPlayerSwapPossible()) {
+    return;
+  }
+
+  var whiteName = this.scope_.black_name;
+  this.scope_.black_name = this.scope_.white_name;
+  this.scope_.white_name = whiteName;
+};
+
+
+/** @return {boolean} */
+RecordCtrl.prototype.isPlayerSwapPossible = function() {
+  return Boolean(this.scope_.black_name || this.scope_.white_name);
+};
+
+
+/**
  * @param {string} file
  * @param {number} rank
  * @return {string}
@@ -511,24 +531,45 @@ RecordCtrl.prototype.squareColor = function(file, rank) {
 
 /**
  * @return {string}
+ * @private
+ */
+RecordCtrl.prototype.getPgn_ = function() {
+  return this.chessjs_.pgn({
+    max_width: 5
+  });
+};
+
+
+/**
+ * @return {string}
  *     Chess.js {@link #pgn}.
  */
 RecordCtrl.prototype.toPgn = function() {
-  var pgnDump = this.chessjs_.pgn({
-    max_width: 5
-  });
-
+  var pgnDump;
   if (this.gameInProgress()) {
     // Start recording dumps, once a game has started.
-    this.historyService_.writePgnDump(this.gameKey_, pgnDump);
-
-    // If this is the first save, head to the permalink of this game.
-    if (!this.getGameKeyFromPath_()) {
-      this.location_.path('/record:' + this.gameKey_);
-    }
+    pgnDump = this.saveGame_();
   }
 
-  return pgnDump;
+  return pgnDump || this.getPgn_();
+};
+
+
+/**
+ * @private
+ * @return {string}
+ */
+RecordCtrl.prototype.saveGame_ = function() {
+  var writtenPgn = this.getPgn_();
+
+  this.historyService_.writePgnDump(this.gameKey_, writtenPgn);
+  // If this is the first save, head to the permalink of this game.
+  if (!this.getGameKeyFromPath_() ||
+      this.gameKey_ != this.getGameKeyFromPath_()) {
+    this.location_.path('/record:' + this.gameKey_);
+  }
+
+  return writtenPgn;
 };
 
 
@@ -545,6 +586,7 @@ RecordCtrl.prototype.getGameKeyFromPath_ = function() {
     // TODO(zacsh): Consider temporary message explaining invlaid gamekey as
     // reason for redirect
     this.location_.path('/record:0');
+    return 0;
   }
 };
 
@@ -554,6 +596,9 @@ RecordCtrl.prototype.getGameKeyFromPath_ = function() {
  */
 RecordCtrl.prototype.startNewGame = function() {
   this.gameKey_ = HistoryService.newGameKey();
+  this.chessjs_ = this.chessjs_.history().length ?
+      new this.chessjsService_.Chessjs() :
+      this.chessjs_;
 
   if (this.scope_.white_name) {
     this.historyService_.setMostRecentName(
@@ -572,6 +617,8 @@ RecordCtrl.prototype.startNewGame = function() {
   this.chessjs_.header('Black', this.scope_.black_name);
 
   this.chessjs_.header('Date', HistoryService.buildDateHeader(this.gameKey_));
+
+  this.saveGame_();
 };
 
 

@@ -14,6 +14,12 @@
            required />
   </label>
 
+  <label ng-if="controller.isPlayerSwapPossible()" ng-title="{{controller.getSwapPlayersTooltip()}}">
+    <button class="btn"
+            ng-disabled="!controller.isPlayerSwapPossible()"
+            ng-click="controller.swapPlayers()">&#8693;</button>
+  </label>
+
   <label>
     <span ng-bind-html="game.ui_board.buildHtmlPiece('k', false)"></span>
     <input type="text"

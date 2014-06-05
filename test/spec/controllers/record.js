@@ -139,8 +139,8 @@ describe('Controller: RecordCtrl', function() {
       });
 
       it('should pre-populate black and white player name', function() {
-        scope.white_name = testPlayerWhite;
-        scope.black_name = testPlayerBlack;
+        expect(scope.white_name).toBe(testPlayerWhite);
+        expect(scope.black_name).toBe(testPlayerBlack);
       });
 
       it('should load chess PGN from history', function() {

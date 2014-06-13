@@ -35,13 +35,60 @@ var GdriveHistoryService = function GdriveHistoryService(
 
 
 /**
- * Drive "API scope" declaring this service's access.
+ * The namespace all Google Drive API scopes share.
  *
  * See https://developers.google.com/drive/web/scopes for more.
  * @type {string}
+ */
+GdriveHistoryService.ApiScopeNamespace =
+    'https://www.googleapis.com/auth/drive.';
+
+
+/**
+ * Drive "API scope" declaring this service's access.
+ *
+ * NOTE: this is the interesting half of the scope, the redundant half is
+ * {@link #ApiScopeNamespace}.
+ *
+ * See https://developers.google.com/drive/web/scopes for more.
+ * @type {!Array.<string>}
+ */
+GdriveHistoryService.ApiScopes = [
+  // Allows access to the Application Data folder:
+  // developers.google.com/drive/web/appdata
+  'appdata',
+
+  // Per-file access to files created or opened by the app
+  'file'
+];
+
+
+/**
+ * Delimeter for API scopes for google drive.
+ *
+ * See https://developers.google.com/accounts/docs/OAuth2UserAgent
+ *
+ * @type {string}
  * @private
  */
-GdriveHistoryService.AppdataScope_ = 'drive.appdata';
+GdriveHistoryService.ApiScopeDelimeter_ = ' ';
+
+
+/**
+ * Per https://developers.google.com/accounts/docs/OAuth2UserAgent
+ *
+ * @return {string}
+ * @private
+ */
+GdriveHistoryService.buildApiScopesParameter_ = function() {
+  return GdriveHistoryService.ApiScopes.reduce(function(scopeList, scope) {
+    var currentScope = GdriveHistoryService.ApiScopeNamespace + scope;
+    var prepend = scopeList ?
+        (scopeList + GdriveHistoryService.ApiScopeDelimeter_) :
+        '';
+    return prepend + currentScope;
+  }, '');
+};
 
 
 /**
@@ -73,26 +120,26 @@ GdriveHistoryService.ApiLibCallback_ = 'gdriveHistoryServiceHandler';
 GdriveHistoryService.prototype.loadGoogleApi = function() {
   if (this.isAvailable_) {
     return this.q_.when();
-  } else {
-    var deferred = this.q_.defer();
-
-    var jsLibUrl = GdriveHistoryService.ApiClientLib_ +
-        '?onload=' + GdriveHistoryService.ApiLibCallback_;
-    /** @type {!Element} */
-    var jsLibScriptEl = angular.element('<script></script>');
-    jsLibScriptEl.attr('type', 'text/javascript');
-    jsLibScriptEl.attr('src', jsLibUrl);
-
-    this.window_[GdriveHistoryService.ApiLibCallback_] = angular.
-        bind(this, function() {
-          this.isAvailable_ = true;
-          deferred.resolve();
-          return;  // Ensure we don't confuse Goog APIs by returning Promise
-        });
-    angular.element('body').append(jsLibScriptEl);
-
-    return deferred.promise;
   }
+
+  var deferred = this.q_.defer();
+
+  var jsLibUrl = GdriveHistoryService.ApiClientLib_ +
+      '?onload=' + GdriveHistoryService.ApiLibCallback_;
+  /** @type {!Element} */
+  var jsLibScriptEl = angular.element('<script></script>');
+  jsLibScriptEl.attr('type', 'text/javascript');
+  jsLibScriptEl.attr('src', jsLibUrl);
+
+  this.window_[GdriveHistoryService.ApiLibCallback_] = angular.
+      bind(this, function() {
+        this.isAvailable_ = true;
+        deferred.resolve();
+        return;  // Ensure we don't confuse Goog APIs by returning Promise
+      });
+  angular.element('body').append(jsLibScriptEl);
+
+  return deferred.promise;
 };
 
 
@@ -111,8 +158,7 @@ GdriveHistoryService.prototype.loadAuthorization = function(promptUser) {
   this.isReady_ = false;
   var authParams = {
     client_id: this.clientId_,
-    scope: 'https://www.googleapis.com/auth/' +
-        GdriveHistoryService.AppdataScope_,
+    scope: GdriveHistoryService.buildApiScopesParameter_(),
     immediate: !promptUser
   };
   var deferred = this.q_.defer();
@@ -151,6 +197,7 @@ GdriveHistoryService.prototype.assertApiAvailable = function() {
 GdriveHistoryService.prototype.isAuthorized = function() {
   var deferred = this.q_.defer();
   if (this.isReady_ === null) {
+    this.isReady_ = false;
     this.loadGoogleApi().then(
         angular.bind(this, function() {
           this.loadAuthorization(false  /* prompt user */).then(

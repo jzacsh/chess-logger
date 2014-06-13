@@ -8,13 +8,22 @@
  * @param {!angular.$q} $q
  * @param {!angular.$routeParams} $routeParams
  * @param {!angular.Scope} $scope
+ * @param {!Window} $window
  * @param {!Object} chessjsService
  *     github.com/jhlywa/chess.js
+ * @param {!Object} gdriveHistoryService
  * @param {!Object} historyService
  * @constructor
  */
 var RecordCtrl = function RecordCtrl(
-    $location, $q, $routeParams, $scope, chessjsService, historyService) {
+    $location,
+    $q,
+    $routeParams,
+    $scope,
+    $window,
+    chessjsService,
+    gdriveHistoryService,
+    historyService) {
   /** @private {!angular.$location} */
   this.location_ = $location;
 
@@ -39,7 +48,31 @@ var RecordCtrl = function RecordCtrl(
   this.chessjs_ = new this.chessjsService_.Chessjs();
 
   /** @private {!Object} */
+  this.gdriveHistoryService_ = gdriveHistoryService;
+
+  /** @private {!Object} */
   this.historyService_ = historyService;
+
+  /**
+   * Whether user is currently logged into this application (ie: authenticated
+   * against their Google Drive account.
+   * @private {boolean}
+   */
+  this.isLoggedIn_ = false;
+
+  /**
+   * Whether the current device is connected to the internet, rather than
+   * offline.
+   *
+   * @private {boolean}
+   */
+  this.isOnline_ = $window.navigator.onLine;
+  $window.addEventListener('offline', angular.bind(this, function() {
+    this.isOnline_ = false;
+  }));
+  $window.addEventListener('online', angular.bind(this, function() {
+    this.isOnline_ = true;
+  }));
 
   /**
    * File and rank of the chess piece currently in transit, if any.
@@ -168,9 +201,33 @@ RecordCtrl.prototype.getGamekey = function() {
 };
 
 
-/** Authenticate against 3rd party API. */
+/**
+ * Authenticate against 3rd party API.
+ *
+ * @return {!angular.$q.Promise}
+ */
 RecordCtrl.prototype.login = function() {
-  throw new Error('`login` not yet implemented');
+  return this.gdriveHistoryService_.loadGoogleApi().
+      then(angular.bind(this.gdriveHistoryService_,
+        this.gdriveHistoryService_.loadAuthorization,
+        true  /* prompt user */)).
+      then(angular.bind(this, function() {
+        this.isLoggedIn_ = true;
+      }), angular.bind(this, function() {
+        this.isLoggedIn_ = false;
+      }));
+};
+
+
+/** @return {boolean} */
+RecordCtrl.prototype.isSavingToDrive = function() {
+  return false;  // TODO(zacsh): implement
+};
+
+
+/** @return {boolean} */
+RecordCtrl.prototype.isConnectedToDrive = function() {
+  return this.isOnline_ && this.isLoggedIn_;
 };
 
 
@@ -655,7 +712,9 @@ angular.
     '$q',
     '$routeParams',
     '$scope',
+    '$window',
     'chessjsService',
+    'gdriveHistoryService',
     'historyService',
     RecordCtrl
   ]);

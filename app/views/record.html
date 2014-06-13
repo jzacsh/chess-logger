@@ -110,9 +110,15 @@
           ng-show="controller.getGamekey()"
           cl-gamekey="controller.getGamekey()">
         Download</cl-download-pgn>
-      <a href="#"
-         class="login save"
+
+      <span ng-show="controller.isConnectedToDrive()">
+        <span ng-show="controller.isSavingToDrive()">Saving...</span>
+        <span ng-hide="controller.isSavingToDrive()">Saved</span>
+        to Drive
+      </span>
+      <a class="login save"
          title="Save, replay, share previous games"
+         ng-hide="controller.isConnectedToDrive()"
          ng-click="controller.login()">
         <span ng-show="controller.gameStarted()">or</span>
         login &amp; sync with cloud

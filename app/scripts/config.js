@@ -1,7 +1,7 @@
 'use strict';
 
 
-var clProviderInjector = function clProviderInjector(
+var chessLoggerProviderInjector = function(
     $locationProvider, $routeProvider, gdriveHistoryServiceProvider) {
   $routeProvider.
       when('/record:gamekey', {
@@ -21,20 +21,15 @@ var clProviderInjector = function clProviderInjector(
       });
   $locationProvider.hashPrefix('!');
 
-  console.log(
-      'DEBUG: gdriveHistoryServiceProvider:\t',
-      gdriveHistoryServiceProvider); //@TODO: remove me!!
   gdriveHistoryServiceProvider.setClientId(
       '1081851510077-b2mpolcoa5r2qjt03rpvn5qcpub528lc' +
       '.apps.googleusercontent.com');
 };
 
 
-angular.
-    module('chessLoggerApp').
-    config([
-      '$locationProvider',
-      '$routeProvider',
-      'gdriveHistoryServiceProvider',
-      clProviderInjector
-    ]);
+angular.module('chessLoggerApp').config([
+  '$locationProvider',
+  '$routeProvider',
+  'gdriveHistoryServiceProvider',
+  chessLoggerProviderInjector
+]);

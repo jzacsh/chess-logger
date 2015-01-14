@@ -202,9 +202,8 @@ RecordCtrl.prototype.getGamekey = function() {
 
 
 /**
- * Authenticate against 3rd party API.
- *
  * @return {!angular.$q.Promise}
+ *     Promise that user is authenticated against 3rd party API.
  */
 RecordCtrl.prototype.login = function() {
   return this.gdriveHistoryService_.loadGoogleApi().

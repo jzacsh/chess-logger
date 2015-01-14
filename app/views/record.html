@@ -105,9 +105,8 @@
 
     <textarea class="data pgn-dump" ng-bind-html="controller.toPgn()"></textarea>
 
-    <div class="login">
+    <div class="login" ng-show="controller.getGamekey()">
       <cl-download-pgn
-          ng-show="controller.getGamekey()"
           cl-gamekey="controller.getGamekey()">
         Download</cl-download-pgn>
 
@@ -116,12 +115,19 @@
         <span ng-hide="controller.isSavingToDrive()">Saved</span>
         to Drive
       </span>
+
+      or
+
+      <a title="Review and analyze previous games"
+         ng-href="/#!/history">
+       review games synced to cloud</a>
+
       <a class="login save"
          title="Save, replay, share previous games"
          ng-hide="controller.isConnectedToDrive()"
          ng-click="controller.login()">
-        <span ng-show="controller.gameStarted()">or</span>
-        login &amp; sync with cloud
+       login &amp; sync with cloud</a>
+
     </div>
   </div>
 </div>

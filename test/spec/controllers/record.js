@@ -6,6 +6,7 @@ describe('Controller: RecordCtrl', function() {
       location,
       routeParams,
       historyService,
+      gdriveHistoryService,
       recordCtrl,
       scope;
 
@@ -21,13 +22,17 @@ describe('Controller: RecordCtrl', function() {
   beforeEach(function() {
     module(
         'chessLoggerApp',
-        function($provide) {
+        function($provide, gdriveHistoryServiceProvider) {
           $provide.value('$location', {
             path: jasmine.createSpy('path')
           });
           $provide.value('$routeParams', {gamekey: '0'});
           $provide.factory('chessjsService', mockChessjsService);
           $provide.factory('storejsService', mockStorejsService);
+
+          expect(gdriveHistoryServiceProvider.setClientId).
+              not.toHaveBeenCalled();
+          gdriveHistoryServiceProvider.setClientId('foo');
         });
     inject(function(
         _$controller_,
@@ -35,11 +40,13 @@ describe('Controller: RecordCtrl', function() {
         _$location_,
         _$routeParams_,
         _chessjsService_,
+        _gdriveHistoryService_,
         _historyService_) {
       controller = _$controller_;
       rootScope = _$rootScope_;
       location = _$location_;
       routeParams = _$routeParams_;
+      gdriveHistoryService = _gdriveHistoryService_;
       historyService = _historyService_;
 
       recordCtrl = buildRecordController();

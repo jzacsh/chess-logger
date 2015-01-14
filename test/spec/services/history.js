@@ -1,6 +1,7 @@
 'use strict';
 
 describe('Service: historyService', function() {
+  // ngInjects
   var historyService,
       storejsService;
 
@@ -11,13 +12,16 @@ describe('Service: historyService', function() {
   var initialWriteCount,
       initialReadCount;
 
+  beforeEach(module(function($provide) {
+    $provide.factory('storejsService', mockStorejsService);
+  }));
+
   beforeEach(function() {
-    module(
-        'chessLoggerApp',
-        function($provide) {
-          $provide.factory('storejsService', mockStorejsService);
-        });
-    inject(function(_historyService_, _storejsService_) {
+    module('chessLoggerApp');
+    inject(function(
+        _historyService_,
+        _gdriveHistoryService_,
+        _storejsService_) {
       historyService = _historyService_;
       storejsService = _storejsService_;
 
@@ -33,6 +37,14 @@ describe('Service: historyService', function() {
     expect(initialWriteCount).toBe(1);
   });
 
+  it('should test `syncAndShiftToCloud`', function() {
+    this.fail('write me!'); //@TODO: remove me!!
+  });
+
+  it('should test `isUsingCloudStorage`', function() {
+    this.fail('write me!'); //@TODO: remove me!!
+  });
+
   it('should init PgnHistory when constructing HistoryService', function() {
     expect(mockStorejs.set).toHaveBeenCalledWith(
         HistoryService.StorageKeyPgnHistory, HistoryService.EmptyPgnHistory);
@@ -46,7 +58,7 @@ describe('Service: historyService', function() {
     });
 
     // Re-construct HistoryService, given new storage
-    new HistoryService(storejsService);
+    new HistoryService(gdriveHistoryService, storejsService);
 
     // Expect no further initialization, given existing data
     expect(mockStorejs.set.callCount).toBe(initialWriteCount);
@@ -93,7 +105,7 @@ describe('Service: historyService', function() {
       expect(Object.keys(existingData).length).toBe(actualHistoryLength);
       return existingData;
     });
-    historyService = new HistoryService(storejsService);
+    historyService = new HistoryService(gdriveHistoryService, storejsService);
 
     // `writePgnDump` should report latest length correctly
     expect(historyService.writePgnDump(testGameKey, testPgnDump)).
@@ -119,7 +131,7 @@ describe('Service: historyService', function() {
     var testGameKeyB = testGameKey + 10,
         testPgnDumpB = testPgnDump + testPgnDump;
 
-    new HistoryService(storejsService);
+    new HistoryService(gdriveHistoryService, storejsService);
     var currentHistoryLength = historyService.
         writePgnDump(testGameKeyB, testPgnDumpB);
 
@@ -144,7 +156,7 @@ describe('Service: historyService', function() {
       return existingData;
     });
 
-    historyService = new HistoryService(storejsService);
+    historyService = new HistoryService(gdriveHistoryService, storejsService);
     var currentHistoryLength = historyService.
         writePgnDump(testGameKey, testPgnDump + 'test update to pgn');
 
@@ -178,7 +190,7 @@ describe('Service: historyService', function() {
       return existingData;
     });
 
-    historyService = new HistoryService(storejsService);
+    historyService = new HistoryService(gdriveHistoryService, storejsService);
 
     // Should allow just one more write
     var currentHistoryLength = historyService.
@@ -239,6 +251,7 @@ describe('Service: historyService', function() {
     existingData[testGameKey + 5] = 'foo bar';
 
     expect(historyService.havePgnDumps()).toBe(true);
+    historyService = new HistoryService(storejsService);
     expect(historyService.readPgnDumps()).toBe(existingData);
   });
 

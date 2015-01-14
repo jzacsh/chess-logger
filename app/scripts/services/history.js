@@ -351,7 +351,6 @@ HistoryService.prototype.haveSettingsSaved = function() {
 };
 
 
-
 angular.
   module('chessLoggerApp').
   service('historyService', [

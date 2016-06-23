@@ -370,12 +370,14 @@ module.exports = function(grunt) {
     shell: {
       deployFiles: {
         command: [
-          'bin/deploy.sh',
-          '<%= yeoman.deployConfig.invalidationCacheFiles %>'
+          'rsync',
+          '--recursive',
+          '<%= yeoman.dist %>/',
+          'keycdn:zones/chess/'
         ].join(' '),
         options: '<%= yeoman.saneShellOptions %>'
       },
-      invalidateStatus: {
+      invalidateStatus: { // NOTE: aws s3 specific
         command: [
           'bin/cachestatus.js',
           '<%= yeoman.deployConfig.awsDistributionId %>',
@@ -383,7 +385,7 @@ module.exports = function(grunt) {
         ].join(' '),
         options: '<%= yeoman.saneShellOptions %>'
       },
-      invalidateCdn: {
+      invalidateCdn: { // NOTE: aws s3 specific
         command: [
           [
             'bin/invalidate.js ',
@@ -405,8 +407,8 @@ module.exports = function(grunt) {
 
     grunt.task.run([
       'build:dist',
-      'shell:deployFiles',
-      'shell:invalidateCdn'
+      'shell:deployFiles'
+      // 'shell:invalidateCdn' // NOTE: aws s3 specific
     ]);
   });
 

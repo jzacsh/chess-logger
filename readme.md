@@ -20,7 +20,7 @@ logged chess games.
 grunt test
 ```
 
-### Deploying
+### Deploying to KeyCDN
 ```bash
-grunt deploy  # requires ~/.aws/config is setup
+grunt deploy  # assumes ssh_conf(5) w/a "keycdn" Host
 ```

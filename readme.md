@@ -24,3 +24,15 @@ grunt test
 ```bash
 grunt deploy  # assumes ssh_conf(5) w/a "keycdn" Host
 ```
+Optionally: [KeyCDN's simple curl command to purge
+cache](https://www.keycdn.com/api#purge-zone-cache)
+
+### One-Time Setup
+
+```bash
+$ npm install
+$ node_modules/bower/bin/bower install
+```
+
+Note: All `grunt` references in this doc can be replaced with
+`./node_modules/grunt-cli/bin/grunt`.

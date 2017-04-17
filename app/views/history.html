@@ -49,7 +49,7 @@
         </td>
 
         <td ng-hide="undo_limbo[key]">
-          <a ng-href="/#!/review:{{key}}">{{chess_util.getDate(game.pgn)}}</a>
+          <a ng-href="#!/review:{{key}}">{{chess_util.getDate(game.pgn)}}</a>
         </td>
 
         <td class="players"
@@ -74,7 +74,7 @@
         <td ng-hide="undo_limbo[key]">
           {{controller.getGameResolution(key)}}
           <a ng-hide="controller.gameOver(key)"
-              ng-href="/#!/record:{{key}}">continue</a>
+              ng-href="#!/record:{{key}}">continue</a>
         </td>
 
         <td ng-hide="undo_limbo[key]">{{controller.getMoveCount(key)}}</td>

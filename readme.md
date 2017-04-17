@@ -21,6 +21,11 @@ grunt test
 ```
 
 ### Deploying to KeyCDN
+To populate `./dist/` with static app contents, run:
+```
+grunt build
+```
+
 ```bash
 grunt deploy  # assumes ssh_conf(5) w/a "keycdn" Host
 ```

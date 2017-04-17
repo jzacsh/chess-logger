@@ -15,16 +15,24 @@ weekend project I whipped up when I got frustrated trying to review previously
 logged chess games.
 
 ## Hacking
+
 ### Testing
 ```bash
 grunt test
 ```
 
-### Deploying to KeyCDN
+### Building
 To populate `./dist/` with static app contents, run:
 ```
 grunt build
 ```
+Be sure to change the `href` value of `./dist/index.html`'s `<base>` element.
+Its value should match the path under which the app will be served. For example:
++ if served from root of a domain on CDN, then just delete `base` element
++ if served under some folder, then should match parent folder path up to root
+  (eg: `/myapps/chess-logger/` for `http://my.cdn/myapps/chess-logger/`)
+
+#### Deploying to KeyCDN
 
 ```bash
 grunt deploy  # assumes ssh_conf(5) w/a "keycdn" Host

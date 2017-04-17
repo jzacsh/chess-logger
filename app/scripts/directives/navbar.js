@@ -67,7 +67,7 @@ var clNavbarFactory = function clNavbarFactory($location, $route) {
         '        ng-repeat="(path, data) in nav_items">' +
 
         '      <a ng-hide="path == cl_nav_current"' +
-        '         ng-href="/#!/{{path}}{{data.append}}">{{data.title}}</a>' +
+        '         ng-href="#!/{{path}}{{data.append}}">{{data.title}}</a>' +
         '      <span ng-show="path == cl_nav_current">{{data.title}}</span>' +
 
         '    </li>' +
